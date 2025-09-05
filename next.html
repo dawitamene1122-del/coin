@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Daxi's Trail</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+    }
+
+    /* Header */
+    .header {
+      background: #00AEEF;
+      color: #fff;
+      padding: 20px;
+      position: relative;
+      text-align: center;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .header p {
+      margin: 5px 0 0;
+      font-size: 14px;
+    }
+
+    .header .icon-left {
+      position: absolute;
+      top: 20px;
+      left: 15px;
+      font-size: 20px;
+    }
+
+    .header .icon-right {
+      position: absolute;
+      top: 20px;
+      right: 15px;
+      font-size: 20px;
+    }
+
+    .header .green-box {
+      position: absolute;
+      top: 20px;
+      right: 60px;
+      background: #39B54A;
+      padding: 10px;
+      border-radius: 6px;
+    }
+
+    .header .green-box i {
+      color: #fff;
+      font-size: 18px;
+    }
+
+    /* Market Section */
+    .market {
+      padding: 20px;
+    }
+
+    .market h2 {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .tab {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: #00AEEF;
+      color: #fff;
+    }
+
+    .tab.inactive {
+      background: #e0e0e0;
+      color: #000;
+    }
+
+    .coin {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .coin .left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .coin .icon {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 18px;
+      color: #fff;
+    }
+
+    .coin .info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .coin .info span {
+      font-size: 14px;
+    }
+
+    .coin .price {
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+
+    .coin .change {
+      font-size: 12px;
+      color: red;
+    }
+
+    /* Footer */
+    .footer {
+      display: flex;
+      justify-content: space-around;
+      padding: 12px;
+      background: #fff;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    }
+
+    .footer i {
+      color: #777;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <i class="fa fa-bell icon-left"></i>
+    <h1>Daxi's Trail</h1>
+    <p>Start making money plan.</p>
+    <div class="green-box">
+      <i class="fa fa-handshake"></i>
+    </div>
+    <i class="fa fa-ellipsis-v icon-right"></i>
+  </div>
+
+  <!-- Market -->
+  <div class="market">
+    <h2>Market</h2>
+    <div class="tabs">
+      <div class="tab active">All markets</div>
+      <div class="tab inactive">Top</div>
+    </div>
+
+    <!-- BTC -->
+    <div class="coin">
+      <div class="left">
+        <div class="icon" style="background: orange;"><i class="fa-brands fa-btc"></i></div>
+        <div class="info">
+          <span>BTC / USDT</span>
+          <div class="price">US$ 109,851.3</div>
+          <div class="change">-2.137% | 24 Hrs</div>
+        </div>
+      </div>
+      <div>📉</div>
+    </div>
+
+    <!-- ETH -->
+    <div class="coin">
+      <div class="left">
+        <div class="icon" style="background: gray;"><i class="fa-brands fa-ethereum"></i></div>
+        <div class="info">
+          <span>ETH / USDT</span>
+          <div class="price">US$ 4,306.5</div>
+          <div class="change">-3.671% | 24 Hrs</div>
+        </div>
+      </div>
+      <div>📉</div>
+    </div>
+
+    <!-- XRP -->
+    <div class="coin">
+      <div class="left">
+        <div class="icon" style="background: black;"><i class="fa-solid fa-x"></i></div>
+        <div class="info">
+          <span>XRP / USDT</span>
+          <div class="price">US$ 2.816</div>
+          <div class="change">-1.569% | 24 Hrs</div>
+        </div>
+      </div>
+      <div>📉</div>
+    </div>
+
+    <!-- DOGE -->
+    <div class="coin">
+      <div class="left">
+        <div class="icon" style="background: yellow; color:black;"><i class="fa-brands fa-docker"></i></div>
+        <div class="info">
+          <span>DOGE / USDT</span>
+          <div class="price">US$ 0. <i class="fa fa-comment-dots" style="color:#00AEEF;"></i></div>
+          <div class="change">-3.262% | 24 Hrs</div>
+        </div>
+      </div>
+      <div>📉</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <i class="fa fa-arrow-left"></i>
+    <i class="fa fa-heart"></i>
+    <i class="fa fa-sync"></i>
+  </div>
+
+</body>
+</html>
