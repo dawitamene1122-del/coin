@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Daxi's Trail</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -10,6 +11,9 @@
       margin: 0;
       padding: 0;
       background: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
 
     /* Header */
@@ -23,7 +27,7 @@
 
     .header h1 {
       margin: 0;
-      font-size: 28px;
+      font-size: 24px;
       font-weight: bold;
     }
 
@@ -36,51 +40,55 @@
       position: absolute;
       top: 20px;
       left: 15px;
-      font-size: 20px;
+      font-size: 18px;
     }
 
     .header .icon-right {
       position: absolute;
       top: 20px;
       right: 15px;
-      font-size: 20px;
+      font-size: 18px;
     }
 
     .header .green-box {
       position: absolute;
       top: 20px;
-      right: 60px;
+      right: 55px;
       background: #39B54A;
-      padding: 10px;
+      padding: 8px;
       border-radius: 6px;
     }
 
     .header .green-box i {
       color: #fff;
-      font-size: 18px;
+      font-size: 16px;
     }
 
     /* Market Section */
     .market {
-      padding: 20px;
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
     }
 
     .market h2 {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: bold;
       margin-bottom: 10px;
     }
 
     .tabs {
       display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
+      gap: 8px;
+      margin-bottom: 15px;
     }
 
     .tab {
-      padding: 8px 16px;
+      flex: 1;
+      text-align: center;
+      padding: 8px 0;
       border-radius: 20px;
-      font-size: 14px;
+      font-size: 13px;
       cursor: pointer;
     }
 
@@ -96,19 +104,19 @@
 
     .coin {
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       background: #fff;
       padding: 12px;
       border-radius: 8px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
     .coin .left {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .coin .icon {
@@ -118,27 +126,24 @@
       align-items: center;
       justify-content: center;
       border-radius: 50%;
-      font-size: 18px;
+      font-size: 16px;
       color: #fff;
+      flex-shrink: 0;
     }
 
     .coin .info {
       display: flex;
       flex-direction: column;
-    }
-
-    .coin .info span {
-      font-size: 14px;
+      font-size: 12px;
     }
 
     .coin .price {
       font-weight: bold;
-      font-size: 14px;
-      margin-bottom: 5px;
+      font-size: 13px;
     }
 
     .coin .change {
-      font-size: 12px;
+      font-size: 11px;
       color: red;
     }
 
@@ -146,12 +151,12 @@
     .footer {
       display: flex;
       justify-content: space-around;
-      padding: 12px;
+      align-items: center;
+      padding: 10px;
       background: #fff;
-      position: fixed;
+      border-top: 1px solid #ddd;
+      position: sticky;
       bottom: 0;
-      width: 100%;
-      box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
     }
 
     .footer i {
@@ -223,7 +228,7 @@
     <!-- DOGE -->
     <div class="coin">
       <div class="left">
-        <div class="icon" style="background: yellow; color:black;"><i class="fa-brands fa-docker"></i></div>
+        <div class="icon" style="background: yellow; color:black;"><i class="fa-solid fa-dog"></i></div>
         <div class="info">
           <span>DOGE / USDT</span>
           <div class="price">US$ 0. <i class="fa fa-comment-dots" style="color:#00AEEF;"></i></div>
