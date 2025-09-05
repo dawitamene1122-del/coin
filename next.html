@@ -6,163 +6,7 @@
   <title>Daxi's Trail</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f9f9f9;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    /* Header */
-    .header {
-      background: #00AEEF;
-      color: #fff;
-      padding: 20px;
-      position: relative;
-      text-align: center;
-    }
-
-    .header h1 {
-      margin: 0;
-      font-size: 24px;
-      font-weight: bold;
-    }
-
-    .header p {
-      margin: 5px 0 0;
-      font-size: 14px;
-    }
-
-    .header .icon-left {
-      position: absolute;
-      top: 20px;
-      left: 15px;
-      font-size: 18px;
-    }
-
-    .header .icon-right {
-      position: absolute;
-      top: 20px;
-      right: 15px;
-      font-size: 18px;
-    }
-
-    .header .green-box {
-      position: absolute;
-      top: 20px;
-      right: 55px;
-      background: #39B54A;
-      padding: 8px;
-      border-radius: 6px;
-    }
-
-    .header .green-box i {
-      color: #fff;
-      font-size: 16px;
-    }
-
-    /* Market Section */
-    .market {
-      flex: 1;
-      padding: 15px;
-      overflow-y: auto;
-    }
-
-    .market h2 {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 15px;
-    }
-
-    .tab {
-      flex: 1;
-      text-align: center;
-      padding: 8px 0;
-      border-radius: 20px;
-      font-size: 13px;
-      cursor: pointer;
-    }
-
-    .tab.active {
-      background: #00AEEF;
-      color: #fff;
-    }
-
-    .tab.inactive {
-      background: #e0e0e0;
-      color: #000;
-    }
-
-    .coin {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #fff;
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    .coin .left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .coin .icon {
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      font-size: 16px;
-      color: #fff;
-      flex-shrink: 0;
-    }
-
-    .coin .info {
-      display: flex;
-      flex-direction: column;
-      font-size: 12px;
-    }
-
-    .coin .price {
-      font-weight: bold;
-      font-size: 13px;
-    }
-
-    .coin .change {
-      font-size: 11px;
-      color: red;
-    }
-
-    /* Footer */
-    .footer {
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      padding: 10px;
-      background: #fff;
-      border-top: 1px solid #ddd;
-      position: sticky;
-      bottom: 0;
-    }
-
-    .footer i {
-      color: #777;
-      font-size: 18px;
-    }
+    /* [Keep all existing CSS from your Dapp code unchanged] */
   </style>
 </head>
 <body>
@@ -241,10 +85,33 @@
 
   <!-- Footer -->
   <div class="footer">
-    <i class="fa fa-arrow-left"></i>
-    <i class="fa fa-heart"></i>
-    <i class="fa fa-sync"></i>
+    <i class="fa fa-arrow-left" onclick="goBack()"></i>
+    <i class="fa fa-heart" onclick="toggleFavorite()"></i>
+    <i class="fa fa-sync" onclick="refreshPage()"></i>
   </div>
 
+  <script>
+    // Function to go back to login page
+    function goBack() {
+      window.location.href = "login.html";
+    }
+
+    // Function to toggle favorite (simple alert for now)
+    function toggleFavorite() {
+      alert("Favorite toggled! (Add your logic here)");
+    }
+
+    // Function to refresh the page
+    function refreshPage() {
+      location.reload();
+    }
+
+    // Optional: Display logged-in username (if passed from login)
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = urlParams.get("username");
+    if (username) {
+      document.querySelector(".header h1").textContent += ` - Welcome, ${username}`;
+    }
+  </script>
 </body>
 </html>
