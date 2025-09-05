@@ -1,18 +1,139 @@
-function login() {
-  let username = document.getElementById("loginUsername").value.trim();
-  let password = document.getElementById("loginPassword").value.trim();
-  let error = document.getElementById("loginError");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daxi's Trail - Login</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #2c3e50, #4ca1af);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container {
+      background: #fff;
+      padding: 40px 30px;
+      border-radius: 15px;
+      box-shadow: 0px 8px 25px rgba(0,0,0,0.2);
+      width: 320px;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 25px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 12px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+      outline: none;
+    }
+    input:focus { border: 1px solid #4ca1af; }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #4ca1af;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover { background: #357f8e; }
+    .links { margin-top: 20px; font-size: 14px; }
+    .links a { cursor: pointer; color: #4ca1af; }
+    .links a:hover { color: #2c3e50; }
+    .error { color: red; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Daxi's Trail</h1>
 
-  if (!username || !password) {
-    error.textContent = "Please fill all fields.";
-    return;
-  }
+    <!-- Login Form -->
+    <div id="loginForm">
+      <input type="text" id="loginUsername" placeholder="Username" required>
+      <input type="password" id="loginPassword" placeholder="Password" required>
+      <button onclick="login()">Login</button>
+      <div class="links">
+        <p><a onclick="showRegister()">Create Account</a></p>
+      </div>
+      <p class="error" id="loginError"></p>
+    </div>
 
-  let storedPassword = localStorage.getItem(username);
-  if (storedPassword === password) {
-    // Redirect with username parameter
-    window.location.href = `next.html?username=${encodeURIComponent(username)}`;
-  } else {
-    error.textContent = "Invalid username or password.";
-  }
-}
+    <!-- Register Form -->
+    <div id="registerForm" style="display:none;">
+      <input type="text" id="registerUsername" placeholder="Choose Username" required>
+      <input type="password" id="registerPassword" placeholder="Choose Password" required>
+      <button onclick="register()">Register</button>
+      <div class="links">
+        <p><a onclick="showLogin()">Back to Login</a></p>
+      </div>
+      <p class="error" id="registerError"></p>
+    </div>
+  </div>
+
+  <script>
+    function showRegister() {
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("registerForm").style.display = "block";
+    }
+
+    function showLogin() {
+      document.getElementById("registerForm").style.display = "none";
+      document.getElementById("loginForm").style.display = "block";
+    }
+
+    function register() {
+      let username = document.getElementById("registerUsername").value.trim();
+      let password = document.getElementById("registerPassword").value.trim();
+      let error = document.getElementById("registerError");
+
+      if (!username || !password) {
+        error.textContent = "Please fill all fields.";
+        return;
+      }
+
+      if (localStorage.getItem(username)) {
+        error.textContent = "Username already exists!";
+        return;
+      }
+
+      localStorage.setItem(username, password);
+      alert("Account created! You can now login.");
+      showLogin();
+    }
+
+    function login() {
+      let username = document.getElementById("loginUsername").value.trim();
+      let password = document.getElementById("loginPassword").value.trim();
+      let error = document.getElementById("loginError");
+
+      if (!username || !password) {
+        error.textContent = "Please fill all fields.";
+        return;
+      }
+
+      let storedPassword = localStorage.getItem(username);
+      if (storedPassword === password) {
+        // success → go to next page
+        window.location.href = "next.html";
+      } else {
+        error.textContent = "Invalid username or password.";
+      }
+    }
+  </script>
+</body>
+</html>
