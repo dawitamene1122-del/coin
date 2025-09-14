@@ -1,250 +1,493 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daxi's Trail</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f9f9f9;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hibt - Start making money plan</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    /* Header */
-    .header {
-      background: #00AEEF;
-      color: #fff;
-      padding: 20px;
-      position: relative;
-      text-align: center;
-    }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            overflow-x: hidden;
+        }
 
-    .header h1 {
-      margin: 0;
-      font-size: 24px;
-      font-weight: bold;
-    }
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #4285f4, #1e88e5);
+            color: white;
+            padding: 20px;
+            border-radius: 0 0 30px 30px;
+            position: relative;
+            overflow: hidden;
+        }
 
-    .header p {
-      margin: 5px 0 0;
-      font-size: 14px;
-    }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
 
-    .header .icon-left {
-      position: absolute;
-      top: 20px;
-      left: 15px;
-      font-size: 18px;
-    }
+        .notification-icon {
+            width: 24px;
+            height: 24px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    .header .icon-right {
-      position: absolute;
-      top: 20px;
-      right: 15px;
-      font-size: 18px;
-    }
+        .menu-icon {
+            width: 24px;
+            height: 24px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 2px;
+        }
 
-    .header .green-box {
-      position: absolute;
-      top: 20px;
-      right: 55px;
-      background: #39B54A;
-      padding: 8px;
-      border-radius: 6px;
-    }
+        .menu-line {
+            width: 12px;
+            height: 2px;
+            background: white;
+            border-radius: 1px;
+        }
 
-    .header .green-box i {
-      color: #fff;
-      font-size: 16px;
-    }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-    /* Market Section */
-    .market {
-      flex: 1;
-      padding: 15px;
-      overflow-y: auto;
-    }
+        .header-text h1 {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
 
-    .market h2 {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
+        .header-text p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
 
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 15px;
-    }
+        .header-logo {
+            width: 80px;
+            height: 80px;
+            background: #8bc34a;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            color: white;
+        }
 
-    .tab {
-      flex: 1;
-      text-align: center;
-      padding: 8px 0;
-      border-radius: 20px;
-      font-size: 13px;
-      cursor: pointer;
-    }
+        /* Market Section */
+        .market-section {
+            padding: 20px;
+        }
 
-    .tab.active {
-      background: #00AEEF;
-      color: #fff;
-    }
+        .market-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
 
-    .tab.inactive {
-      background: #e0e0e0;
-      color: #000;
-    }
+        .market-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+        }
 
-    .coin {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #fff;
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
+        .market-tabs {
+            display: flex;
+            gap: 10px;
+        }
 
-    .coin .left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+        .market-tab {
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            background: white;
+            color: #666;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
 
-    .coin .icon {
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      font-size: 16px;
-      color: #fff;
-      flex-shrink: 0;
-    }
+        .market-tab.active {
+            background: #4285f4;
+            color: white;
+            border-color: #4285f4;
+        }
 
-    .coin .info {
-      display: flex;
-      flex-direction: column;
-      font-size: 12px;
-    }
+        /* Coin List */
+        .coin-list {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
 
-    .coin .price {
-      font-weight: bold;
-      font-size: 13px;
-    }
+        .coin-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
 
-    .coin .change {
-      font-size: 11px;
-      color: red;
-    }
+        .coin-item:hover {
+            background-color: #f8f9fa;
+        }
 
-    /* Footer */
-    .footer {
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      padding: 10px;
-      background: #fff;
-      border-top: 1px solid #ddd;
-      position: sticky;
-      bottom: 0;
-    }
+        .coin-item:last-child {
+            border-bottom: none;
+        }
 
-    .footer i {
-      color: #777;
-      font-size: 18px;
-    }
-  </style>
+        .coin-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 18px;
+        }
+
+        .btc { background: #f7931a; }
+        .eth { background: #627eea; }
+        .xrp { background: #23292f; }
+        .doge { background: #c2a633; }
+
+        .coin-info {
+            flex: 1;
+        }
+
+        .coin-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .coin-symbol {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .coin-chart {
+            margin: 0 12px;
+            width: 80px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chart-line {
+            width: 100%;
+            height: 2px;
+            background: #ff5722;
+            position: relative;
+            border-radius: 1px;
+        }
+
+        .coin-price {
+            text-align: right;
+        }
+
+        .price {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .change {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .change.negative {
+            color: #f44336;
+        }
+
+        .change.positive {
+            color: #4caf50;
+        }
+
+        /* Wallet Connection */
+        .wallet-status {
+            background: white;
+            margin: 20px;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .connect-btn {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .connect-btn:hover {
+            background: #3367d6;
+        }
+
+        .connect-btn.connected {
+            background: #4caf50;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 12px 0;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -2px 12px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            background: #ddd;
+            border-radius: 4px;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .header-text h1 {
+                font-size: 36px;
+            }
+            
+            .header-logo {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+        }
+    </style>
 </head>
 <body>
-
-  <!-- Header -->
-  <div class="header">
-    <i class="fa fa-bell icon-left"></i>
-    <h1>Daxi's Trail</h1>
-    <p>Start making money plan.</p>
-    <div class="green-box">
-      <i class="fa fa-handshake"></i>
-    </div>
-    <i class="fa fa-ellipsis-v icon-right"></i>
-  </div>
-
-  <!-- Market -->
-  <div class="market">
-    <h2>Market</h2>
-    <div class="tabs">
-      <div class="tab active">All markets</div>
-      <div class="tab inactive">Top</div>
-    </div>
-
-    <!-- BTC -->
-    <div class="coin">
-      <div class="left">
-        <div class="icon" style="background: orange;"><i class="fa-brands fa-btc"></i></div>
-        <div class="info">
-          <span>BTC / USDT</span>
-          <div class="price">US$ 109,851.3</div>
-          <div class="change">-2.137% | 24 Hrs</div>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-top">
+            <div class="notification-icon">🔔</div>
+            <div class="menu-icon">
+                <div class="menu-line"></div>
+                <div class="menu-line"></div>
+                <div class="menu-line"></div>
+                <div class="menu-line"></div>
+            </div>
         </div>
-      </div>
-      <div>📉</div>
-    </div>
-
-    <!-- ETH -->
-    <div class="coin">
-      <div class="left">
-        <div class="icon" style="background: gray;"><i class="fa-brands fa-ethereum"></i></div>
-        <div class="info">
-          <span>ETH / USDT</span>
-          <div class="price">US$ 4,306.5</div>
-          <div class="change">-3.671% | 24 Hrs</div>
+        <div class="header-content">
+            <div class="header-text">
+                <h1>Hibt</h1>
+                <p>Start making money plan.</p>
+            </div>
+            <div class="header-logo">N</div>
         </div>
-      </div>
-      <div>📉</div>
     </div>
 
-    <!-- XRP -->
-    <div class="coin">
-      <div class="left">
-        <div class="icon" style="background: black;"><i class="fa-solid fa-x"></i></div>
-        <div class="info">
-          <span>XRP / USDT</span>
-          <div class="price">US$ 2.816</div>
-          <div class="change">-1.569% | 24 Hrs</div>
+    <!-- Wallet Status -->
+    <div class="wallet-status">
+        <p id="walletStatus">Wallet: Not connected</p>
+        <button class="connect-btn" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+    </div>
+
+    <!-- Market Section -->
+    <div class="market-section">
+        <div class="market-header">
+            <h2 class="market-title">Market</h2>
+            <div class="market-tabs">
+                <div class="market-tab active">All markets</div>
+                <div class="market-tab">Top</div>
+            </div>
         </div>
-      </div>
-      <div>📉</div>
-    </div>
 
-    <!-- DOGE -->
-    <div class="coin">
-      <div class="left">
-        <div class="icon" style="background: yellow; color:black;"><i class="fa-solid fa-dog"></i></div>
-        <div class="info">
-          <span>DOGE / USDT</span>
-          <div class="price">US$ 0. <i class="fa fa-comment-dots" style="color:#00AEEF;"></i></div>
-          <div class="change">-3.262% | 24 Hrs</div>
+        <!-- Coin List -->
+        <div class="coin-list">
+            <div class="coin-item" onclick="selectCoin('BTC')">
+                <div class="coin-icon btc">₿</div>
+                <div class="coin-info">
+                    <div class="coin-name">BTC Coin</div>
+                    <div class="coin-symbol">USDT</div>
+                </div>
+                <div class="coin-chart">
+                    <div class="chart-line"></div>
+                </div>
+                <div class="coin-price">
+                    <div class="price" id="btcPrice">US$ 109,851.3</div>
+                    <div class="change negative">-2.137% 24 Hrs</div>
+                </div>
+            </div>
+
+            <div class="coin-item" onclick="selectCoin('ETH')">
+                <div class="coin-icon eth">Ξ</div>
+                <div class="coin-info">
+                    <div class="coin-name">ETH Coin</div>
+                    <div class="coin-symbol">USDT</div>
+                </div>
+                <div class="coin-chart">
+                    <div class="chart-line"></div>
+                </div>
+                <div class="coin-price">
+                    <div class="price" id="ethPrice">US$ 4,306.5</div>
+                    <div class="change negative">-3.671% 24 Hrs</div>
+                </div>
+            </div>
+
+            <div class="coin-item" onclick="selectCoin('XRP')">
+                <div class="coin-icon xrp">✕</div>
+                <div class="coin-info">
+                    <div class="coin-name">XRP Coin</div>
+                    <div class="coin-symbol">USDT</div>
+                </div>
+                <div class="coin-chart">
+                    <div class="chart-line"></div>
+                </div>
+                <div class="coin-price">
+                    <div class="price" id="xrpPrice">US$ 2.816</div>
+                    <div class="change negative">-1.569% 24 Hrs</div>
+                </div>
+            </div>
+
+            <div class="coin-item" onclick="selectCoin('DOGE')">
+                <div class="coin-icon doge">Ð</div>
+                <div class="coin-info">
+                    <div class="coin-name">DOGE Coin</div>
+                    <div class="coin-symbol">USDT</div>
+                </div>
+                <div class="coin-chart">
+                    <div class="chart-line"></div>
+                </div>
+                <div class="coin-price">
+                    <div class="price" id="dogePrice">US$ 0.456</div>
+                    <div class="change negative">-3.262% 24 Hrs</div>
+                </div>
+            </div>
         </div>
-      </div>
-      <div>📉</div>
     </div>
-  </div>
 
-  <!-- Footer -->
-  <div class="footer">
-    <i class="fa fa-arrow-left"></i>
-    <i class="fa fa-heart"></i>
-    <i class="fa fa-sync"></i>
-  </div>
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="nav-item">
+            <div class="nav-icon"></div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"></div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"></div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"></div>
+        </div>
+    </div>
 
+    <script>
+        let walletConnected = false;
+        let selectedCoin = null;
+
+        // Wallet connection simulation
+        function connectWallet() {
+            const btn = document.getElementById('connectBtn');
+            const status = document.getElementById('walletStatus');
+            
+            if (!walletConnected) {
+                walletConnected = true;
+                status.textContent = 'Wallet: Connected ✅';
+                btn.textContent = 'Disconnect';
+                btn.classList.add('connected');
+                alert('Wallet connected successfully! (Simulated)');
+            } else {
+                walletConnected = false;
+                status.textContent = 'Wallet: Not connected';
+                btn.textContent = 'Connect Wallet';
+                btn.classList.remove('connected');
+                alert('Wallet disconnected');
+            }
+        }
+
+        // Coin selection - now with real wallet check
+        function selectCoin(coin) {
+            if (!walletConnected) {
+                alert('Please connect your wallet first!');
+                return;
+            }
+            
+            selectedCoin = coin;
+            alert(`Selected ${coin} - Wallet: ${userWallet.slice(0,6)}...${userWallet.slice(-4)}`);
+        }
+
+        // Tab switching
+        document.querySelectorAll('.market-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.market-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Simulate price updates (optional)
+        function updatePrices() {
+            const prices = {
+                btc: 109851.3,
+                eth: 4306.5,
+                xrp: 2.816,
+                doge: 0.456
+            };
+
+            Object.keys(prices).forEach(coin => {
+                const element = document.getElementById(coin + 'Price');
+                if (element) {
+                    // Add small random variation
+                    const variation = (Math.random() - 0.5) * 0.02;
+                    const newPrice = prices[coin] * (1 + variation);
+                    element.textContent = `US$ ${newPrice.toFixed(coin === 'doge' ? 3 : 1)}`;
+                }
+            });
+        }
+
+        // Update prices every 5 seconds (simulated)
+        setInterval(updatePrices, 5000);
+    </script>
 </body>
 </html>
