@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hibt - Start making money plan</title>
+    <title>Nexus - Web3 Trading Platform</title>
+    <!-- Web3 Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -17,7 +19,102 @@
             overflow-x: hidden;
         }
 
-        /* Header */
+        /* LOGIN SCREEN STYLES */
+        .login-screen {
+            background: linear-gradient(135deg, #2c3e50, #4ca1af);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-container {
+            background: #fff;
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0px 8px 25px rgba(0,0,0,0.2);
+            width: 320px;
+            text-align: center;
+        }
+
+        .login-container h1 {
+            margin-bottom: 25px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .login-container input {
+            width: 100%;
+            padding: 12px;
+            margin: 12px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .login-container input:focus { 
+            border: 1px solid #4ca1af; 
+        }
+
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            background: #4ca1af;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .login-container button:hover { 
+            background: #357f8e; 
+        }
+
+        .login-links { 
+            margin-top: 20px; 
+            font-size: 14px; 
+        }
+
+        .login-links a { 
+            cursor: pointer; 
+            color: #4ca1af; 
+        }
+
+        .login-links a:hover { 
+            color: #2c3e50; 
+        }
+
+        .error { 
+            color: red; 
+            margin-top: 10px; 
+            font-size: 14px;
+        }
+
+        .success {
+            color: green;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .user-info {
+            background: #e8f4f8;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+
+        /* MAIN APP STYLES */
+        .main-app {
+            display: none;
+        }
+
         .header {
             background: linear-gradient(135deg, #4285f4, #1e88e5);
             color: white;
@@ -32,6 +129,30 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+        }
+
+        .user-profile {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
         }
 
         .notification-icon {
@@ -93,7 +214,35 @@
             color: white;
         }
 
-        /* Market Section */
+        .wallet-status {
+            background: white;
+            margin: 20px;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .connect-btn {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .connect-btn:hover {
+            background: #3367d6;
+        }
+
+        .connect-btn.connected {
+            background: #4caf50;
+        }
+
         .market-section {
             padding: 20px;
         }
@@ -133,7 +282,6 @@
             border-color: #4285f4;
         }
 
-        /* Coin List */
         .coin-list {
             background: white;
             border-radius: 16px;
@@ -233,63 +381,9 @@
             color: #4caf50;
         }
 
-        /* Wallet Connection */
-        .wallet-status {
-            background: white;
-            margin: 20px;
-            padding: 16px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        .connect-btn {
-            background: #4285f4;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-
-        .connect-btn:hover {
-            background: #3367d6;
-        }
-
-        .connect-btn.connected {
-            background: #4caf50;
-        }
-
-        /* Bottom Navigation */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            padding: 12px 0;
-            display: flex;
-            justify-content: space-around;
-            box-shadow: 0 -2px 12px rgba(0,0,0,0.1);
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-            color: #666;
-        }
-
-        .nav-icon {
-            width: 24px;
-            height: 24px;
-            background: #ddd;
-            border-radius: 4px;
+        /* Hidden class */
+        .hidden {
+            display: none !important;
         }
 
         /* Responsive */
@@ -307,147 +401,344 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <div class="header">
-        <div class="header-top">
-            <div class="notification-icon">🔔</div>
-            <div class="menu-icon">
-                <div class="menu-line"></div>
-                <div class="menu-line"></div>
-                <div class="menu-line"></div>
-                <div class="menu-line"></div>
-            </div>
-        </div>
-        <div class="header-content">
-            <div class="header-text">
-                <h1>Hibt</h1>
-                <p>Start making money plan.</p>
-            </div>
-            <div class="header-logo">N</div>
-        </div>
-    </div>
+    <!-- LOGIN SCREEN -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-container">
+            <h1>Nexus</h1>
 
-    <!-- Wallet Status -->
-    <div class="wallet-status">
-        <p id="walletStatus">Wallet: Not connected</p>
-        <button class="connect-btn" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
-    </div>
-
-    <!-- Market Section -->
-    <div class="market-section">
-        <div class="market-header">
-            <h2 class="market-title">Market</h2>
-            <div class="market-tabs">
-                <div class="market-tab active">All markets</div>
-                <div class="market-tab">Top</div>
-            </div>
-        </div>
-
-        <!-- Coin List -->
-        <div class="coin-list">
-            <div class="coin-item" onclick="selectCoin('BTC')">
-                <div class="coin-icon btc">₿</div>
-                <div class="coin-info">
-                    <div class="coin-name">BTC Coin</div>
-                    <div class="coin-symbol">USDT</div>
+            <!-- First Time Registration -->
+            <div id="registerForm">
+                <div class="user-info">
+                    Welcome! Create your account to get started.
                 </div>
-                <div class="coin-chart">
-                    <div class="chart-line"></div>
-                </div>
-                <div class="coin-price">
-                    <div class="price" id="btcPrice">US$ 109,851.3</div>
-                    <div class="change negative">-2.137% 24 Hrs</div>
-                </div>
+                <input type="text" id="registerUsername" placeholder="Choose Username" required>
+                <input type="password" id="registerPassword" placeholder="Choose Password" required>
+                <button onclick="register()">Create Account</button>
+                <p class="error" id="registerError"></p>
+                <p class="success" id="registerSuccess"></p>
             </div>
 
-            <div class="coin-item" onclick="selectCoin('ETH')">
-                <div class="coin-icon eth">Ξ</div>
-                <div class="coin-info">
-                    <div class="coin-name">ETH Coin</div>
-                    <div class="coin-symbol">USDT</div>
+            <!-- Returning User Login -->
+            <div id="loginForm" class="hidden">
+                <div class="user-info">
+                    Welcome back, <strong id="savedUsername"></strong>!<br>
+                    Enter your password to continue.
                 </div>
-                <div class="coin-chart">
-                    <div class="chart-line"></div>
+                <input type="password" id="loginPassword" placeholder="Enter Password" required>
+                <button onclick="login()">Login</button>
+                <div class="login-links">
+                    <p><a onclick="switchToRegister()">Switch User</a></p>
                 </div>
-                <div class="coin-price">
-                    <div class="price" id="ethPrice">US$ 4,306.5</div>
-                    <div class="change negative">-3.671% 24 Hrs</div>
-                </div>
-            </div>
-
-            <div class="coin-item" onclick="selectCoin('XRP')">
-                <div class="coin-icon xrp">✕</div>
-                <div class="coin-info">
-                    <div class="coin-name">XRP Coin</div>
-                    <div class="coin-symbol">USDT</div>
-                </div>
-                <div class="coin-chart">
-                    <div class="chart-line"></div>
-                </div>
-                <div class="coin-price">
-                    <div class="price" id="xrpPrice">US$ 2.816</div>
-                    <div class="change negative">-1.569% 24 Hrs</div>
-                </div>
-            </div>
-
-            <div class="coin-item" onclick="selectCoin('DOGE')">
-                <div class="coin-icon doge">Ð</div>
-                <div class="coin-info">
-                    <div class="coin-name">DOGE Coin</div>
-                    <div class="coin-symbol">USDT</div>
-                </div>
-                <div class="coin-chart">
-                    <div class="chart-line"></div>
-                </div>
-                <div class="coin-price">
-                    <div class="price" id="dogePrice">US$ 0.456</div>
-                    <div class="change negative">-3.262% 24 Hrs</div>
-                </div>
+                <p class="error" id="loginError"></p>
             </div>
         </div>
     </div>
 
-    <!-- Bottom Navigation -->
-    <div class="bottom-nav">
-        <div class="nav-item">
-            <div class="nav-icon"></div>
+    <!-- MAIN APP -->
+    <div class="main-app" id="mainApp">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-top">
+                <div class="notification-icon">🔔</div>
+                <div class="user-profile">
+                    <span id="currentUser">User</span>
+                    <button class="logout-btn" onclick="logout()">Logout</button>
+                </div>
+                <div class="menu-icon">
+                    <div class="menu-line"></div>
+                    <div class="menu-line"></div>
+                    <div class="menu-line"></div>
+                    <div class="menu-line"></div>
+                </div>
+            </div>
+            <div class="header-content">
+                <div class="header-text">
+                    <h1>Nexus</h1>
+                    <p>Start making money plan.</p>
+                </div>
+                <div class="header-logo">N</div>
+            </div>
         </div>
-        <div class="nav-item">
-            <div class="nav-icon"></div>
+
+        <!-- Wallet Status -->
+        <div class="wallet-status">
+            <p id="walletStatus">Wallet: Not connected</p>
+            <button class="connect-btn" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
         </div>
-        <div class="nav-item">
-            <div class="nav-icon"></div>
-        </div>
-        <div class="nav-item">
-            <div class="nav-icon"></div>
+
+        <!-- Market Section -->
+        <div class="market-section">
+            <div class="market-header">
+                <h2 class="market-title">Market</h2>
+                <div class="market-tabs">
+                    <div class="market-tab active">All markets</div>
+                    <div class="market-tab">Top</div>
+                </div>
+            </div>
+
+            <!-- Coin List -->
+            <div class="coin-list">
+                <div class="coin-item" onclick="selectCoin('BTC')">
+                    <div class="coin-icon btc">₿</div>
+                    <div class="coin-info">
+                        <div class="coin-name">BTC Coin</div>
+                        <div class="coin-symbol">USDT</div>
+                    </div>
+                    <div class="coin-chart">
+                        <div class="chart-line"></div>
+                    </div>
+                    <div class="coin-price">
+                        <div class="price" id="btcPrice">US$ 109,851.3</div>
+                        <div class="change negative">-2.137% 24 Hrs</div>
+                    </div>
+                </div>
+
+                <div class="coin-item" onclick="selectCoin('ETH')">
+                    <div class="coin-icon eth">Ξ</div>
+                    <div class="coin-info">
+                        <div class="coin-name">ETH Coin</div>
+                        <div class="coin-symbol">USDT</div>
+                    </div>
+                    <div class="coin-chart">
+                        <div class="chart-line"></div>
+                    </div>
+                    <div class="coin-price">
+                        <div class="price" id="ethPrice">US$ 4,306.5</div>
+                        <div class="change negative">-3.671% 24 Hrs</div>
+                    </div>
+                </div>
+
+                <div class="coin-item" onclick="selectCoin('XRP')">
+                    <div class="coin-icon xrp">✕</div>
+                    <div class="coin-info">
+                        <div class="coin-name">XRP Coin</div>
+                        <div class="coin-symbol">USDT</div>
+                    </div>
+                    <div class="coin-chart">
+                        <div class="chart-line"></div>
+                    </div>
+                    <div class="coin-price">
+                        <div class="price" id="xrpPrice">US$ 2.816</div>
+                        <div class="change negative">-1.569% 24 Hrs</div>
+                    </div>
+                </div>
+
+                <div class="coin-item" onclick="selectCoin('DOGE')">
+                    <div class="coin-icon doge">Ð</div>
+                    <div class="coin-info">
+                        <div class="coin-name">DOGE Coin</div>
+                        <div class="coin-symbol">USDT</div>
+                    </div>
+                    <div class="coin-chart">
+                        <div class="chart-line"></div>
+                    </div>
+                    <div class="coin-price">
+                        <div class="price" id="dogePrice">US$ 0.456</div>
+                        <div class="change negative">-3.262% 24 Hrs</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
+        // In-memory storage (replaces localStorage for Claude.ai compatibility)
+        let userDatabase = {};
+        let currentSession = null;
+
+        // Web3 variables
         let walletConnected = false;
         let selectedCoin = null;
+        let userWallet = null;
+        let provider = null;
 
-        // Wallet connection simulation
-        function connectWallet() {
+        // Initialize app
+        function initApp() {
+            checkExistingUser();
+        }
+
+        // Check if user exists from previous session
+        function checkExistingUser() {
+            // In a real app, you'd check localStorage or server
+            // For demo, we'll show register form first
+            if (Object.keys(userDatabase).length > 0) {
+                // User exists, show login
+                const username = Object.keys(userDatabase)[0];
+                showLoginForm(username);
+            } else {
+                // New user, show registration
+                showRegisterForm();
+            }
+        }
+
+        function showRegisterForm() {
+            document.getElementById('registerForm').classList.remove('hidden');
+            document.getElementById('loginForm').classList.add('hidden');
+        }
+
+        function showLoginForm(username) {
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('savedUsername').textContent = username;
+        }
+
+        function switchToRegister() {
+            showRegisterForm();
+        }
+
+        // Registration function
+        function register() {
+            const username = document.getElementById('registerUsername').value.trim();
+            const password = document.getElementById('registerPassword').value.trim();
+            const errorEl = document.getElementById('registerError');
+            const successEl = document.getElementById('registerSuccess');
+
+            // Clear previous messages
+            errorEl.textContent = '';
+            successEl.textContent = '';
+
+            // Validation
+            if (!username || !password) {
+                errorEl.textContent = 'Please fill all fields.';
+                return;
+            }
+
+            if (username.length < 3) {
+                errorEl.textContent = 'Username must be at least 3 characters.';
+                return;
+            }
+
+            if (password.length < 4) {
+                errorEl.textContent = 'Password must be at least 4 characters.';
+                return;
+            }
+
+            if (userDatabase[username]) {
+                errorEl.textContent = 'Username already exists!';
+                return;
+            }
+
+            // Save user (in real app, hash the password)
+            userDatabase[username] = {
+                password: password,
+                createdAt: new Date().toISOString()
+            };
+
+            successEl.textContent = 'Account created successfully!';
+            
+            // Auto-login after registration
+            setTimeout(() => {
+                currentSession = username;
+                enterMainApp();
+            }, 1500);
+        }
+
+        // Login function
+        function login() {
+            const password = document.getElementById('loginPassword').value.trim();
+            const username = document.getElementById('savedUsername').textContent;
+            const errorEl = document.getElementById('loginError');
+
+            errorEl.textContent = '';
+
+            if (!password) {
+                errorEl.textContent = 'Please enter your password.';
+                return;
+            }
+
+            if (userDatabase[username] && userDatabase[username].password === password) {
+                currentSession = username;
+                enterMainApp();
+            } else {
+                errorEl.textContent = 'Incorrect password.';
+            }
+        }
+
+        // Enter main application
+        function enterMainApp() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('currentUser').textContent = currentSession;
+        }
+
+        // Logout function
+        function logout() {
+            currentSession = null;
+            walletConnected = false;
+            userWallet = null;
+            provider = null;
+            
+            // Reset wallet UI
+            document.getElementById('walletStatus').textContent = 'Wallet: Not connected';
+            document.getElementById('connectBtn').textContent = 'Connect Wallet';
+            document.getElementById('connectBtn').classList.remove('connected');
+            
+            // Return to login
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+            
+            // Show login form for existing user
+            if (Object.keys(userDatabase).length > 0) {
+                const username = Object.keys(userDatabase)[0];
+                showLoginForm(username);
+            }
+        }
+
+        // Web3 Wallet Functions
+        function checkWallet() {
+            if (typeof window.ethereum !== 'undefined') {
+                console.log('MetaMask/Trust Wallet detected!');
+                return true;
+            } else {
+                alert('Please install MetaMask or use Trust Wallet browser!');
+                return false;
+            }
+        }
+
+        async function connectWallet() {
             const btn = document.getElementById('connectBtn');
             const status = document.getElementById('walletStatus');
             
             if (!walletConnected) {
-                walletConnected = true;
-                status.textContent = 'Wallet: Connected ✅';
-                btn.textContent = 'Disconnect';
-                btn.classList.add('connected');
-                alert('Wallet connected successfully! (Simulated)');
+                if (!checkWallet()) return;
+                
+                try {
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    provider = new ethers.providers.Web3Provider(window.ethereum);
+                    const signer = provider.getSigner();
+                    userWallet = await signer.getAddress();
+                    const balance = await provider.getBalance(userWallet);
+                    const balanceInEth = ethers.utils.formatEther(balance);
+                    const network = await provider.getNetwork();
+                    
+                    walletConnected = true;
+                    status.innerHTML = `
+                        <div style="text-align: left;">
+                            <div><strong>User:</strong> ${currentSession}</div>
+                            <div><strong>Wallet:</strong> Connected ✅</div>
+                            <div><strong>Address:</strong> ${userWallet.slice(0,6)}...${userWallet.slice(-4)}</div>
+                            <div><strong>Balance:</strong> ${parseFloat(balanceInEth).toFixed(4)} ETH</div>
+                            <div><strong>Network:</strong> ${network.name}</div>
+                        </div>
+                    `;
+                    btn.textContent = 'Disconnect';
+                    btn.classList.add('connected');
+                    
+                } catch (error) {
+                    console.error('Connection failed:', error);
+                    alert('Failed to connect wallet: ' + error.message);
+                }
+                
             } else {
                 walletConnected = false;
-                status.textContent = 'Wallet: Not connected';
+                userWallet = null;
+                provider = null;
+                status.innerHTML = `<p>Wallet: Not connected</p><p>User: ${currentSession}</p>`;
                 btn.textContent = 'Connect Wallet';
                 btn.classList.remove('connected');
-                alert('Wallet disconnected');
             }
         }
 
-        // Coin selection - now with real wallet check
         function selectCoin(coin) {
             if (!walletConnected) {
                 alert('Please connect your wallet first!');
@@ -455,30 +746,47 @@
             }
             
             selectedCoin = coin;
-            alert(`Selected ${coin} - Wallet: ${userWallet.slice(0,6)}...${userWallet.slice(-4)}`);
+            alert(`${currentSession} selected ${coin}\nWallet: ${userWallet.slice(0,6)}...${userWallet.slice(-4)}`);
         }
 
         // Tab switching
-        document.querySelectorAll('.market-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.market-tab').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.market-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                });
             });
         });
 
-        // Simulate price updates (optional)
-        function updatePrices() {
-            const prices = {
-                btc: 109851.3,
-                eth: 4306.5,
-                xrp: 2.816,
-                doge: 0.456
-            };
+        // Wallet events
+        if (typeof window.ethereum !== 'undefined') {
+            window.ethereum.on('accountsChanged', function (accounts) {
+                if (accounts.length === 0) {
+                    walletConnected = false;
+                    userWallet = null;
+                    document.getElementById('walletStatus').innerHTML = `<p>Wallet: Not connected</p><p>User: ${currentSession}</p>`;
+                    document.getElementById('connectBtn').textContent = 'Connect Wallet';
+                    document.getElementById('connectBtn').classList.remove('connected');
+                } else if (walletConnected) {
+                    connectWallet();
+                }
+            });
 
+            window.ethereum.on('chainChanged', function (chainId) {
+                if (walletConnected) {
+                    setTimeout(() => connectWallet(), 1000);
+                }
+            });
+        }
+
+        // Price updates simulation
+        function updatePrices() {
+            const prices = { btc: 109851.3, eth: 4306.5, xrp: 2.816, doge: 0.456 };
             Object.keys(prices).forEach(coin => {
                 const element = document.getElementById(coin + 'Price');
                 if (element) {
-                    // Add small random variation
                     const variation = (Math.random() - 0.5) * 0.02;
                     const newPrice = prices[coin] * (1 + variation);
                     element.textContent = `US$ ${newPrice.toFixed(coin === 'doge' ? 3 : 1)}`;
@@ -486,8 +794,10 @@
             });
         }
 
-        // Update prices every 5 seconds (simulated)
         setInterval(updatePrices, 5000);
+
+        // Initialize app when page loads
+        window.addEventListener('load', initApp);
     </script>
 </body>
 </html>
