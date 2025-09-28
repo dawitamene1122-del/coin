@@ -429,7 +429,188 @@
             background: rgba(255,255,255,0.3);
         }
 
-        /* TRADING PAGE STYLES */
+        /* CHART OVERVIEW PAGE STYLES */
+        .chart-overview {
+            display: none;
+            min-height: 100vh;
+            background: #f8f9fa;
+        }
+
+        .chart-overview.active {
+            display: block;
+        }
+
+        .chart-header {
+            background: white;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chart-back-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            padding: 5px;
+        }
+
+        .chart-menu-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .chart-menu-icon {
+            width: 24px;
+            height: 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3px;
+        }
+
+        .chart-menu-icon div {
+            width: 8px;
+            height: 8px;
+            background: #4285f4;
+            border-radius: 2px;
+        }
+
+        .chart-content {
+            background: white;
+            padding: 20px;
+        }
+
+        .coin-overview-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .overview-coin-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            margin-right: 20px;
+        }
+
+        .coin-overview-info h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .coin-overview-info .coin-pair {
+            color: #666;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .dropdown-arrow {
+            margin-left: 8px;
+            font-size: 12px;
+        }
+
+        .price-display {
+            margin: 30px 0;
+        }
+
+        .current-price {
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .price-change-display {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .price-change-display.positive {
+            color: #4caf50;
+        }
+
+        .price-change-display.negative {
+            color: #f44336;
+        }
+
+        .chart-container {
+            height: 300px;
+            background: linear-gradient(45deg, #ff9a56, #ffad56);
+            border-radius: 10px;
+            margin: 30px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .chart-timeframes {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            padding: 0 10px;
+        }
+
+        .timeframe-btn {
+            background: none;
+            border: none;
+            color: #666;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .timeframe-btn.active {
+            color: #4285f4;
+            background: rgba(66, 133, 244, 0.1);
+        }
+
+        .functions-section {
+            margin-top: 40px;
+        }
+
+        .functions-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .entrust-btn {
+            width: 100%;
+            padding: 18px;
+            background: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .entrust-btn:hover {
+            background: #3367d6;
+        }
         .trading-page {
             display: none;
             min-height: 100vh;
@@ -943,11 +1124,9 @@
                     <span id="selectedPriceRange">(*15%)</span>
                     <span>▼</span>
                     <div class="time-options" id="priceOptions">
-                        <div class="time-option" onclick="selectPriceRange('5')">(*5%)</div>
-                        <div class="time-option" onclick="selectPriceRange('10')">(*10%)</div>
                         <div class="time-option" onclick="selectPriceRange('15')">(*15%)</div>
-                        <div class="time-option" onclick="selectPriceRange('20')">(*20%)</div>
                         <div class="time-option" onclick="selectPriceRange('25')">(*25%)</div>
+                        <div class="time-option" onclick="selectPriceRange('35')">(*35%)</div>
                     </div>
                 </div>
             </div>
@@ -1336,10 +1515,37 @@
             priceUpdateInterval = setInterval(updatePrices, 5000);
         }
 
-        // TRADING PAGE FUNCTIONS
-        function openTradingPage(coinIndex) {
+        // CHART OVERVIEW FUNCTIONS
+        function openChartOverview(coinIndex) {
             selectedCoin = cryptocurrencies[coinIndex];
             
+            // Update chart overview with coin info
+            document.getElementById('overviewCoinIcon').textContent = selectedCoin.name.substring(0, 3).toUpperCase();
+            document.getElementById('overviewCoinIcon').className = `overview-coin-icon ${selectedCoin.class}`;
+            document.getElementById('overviewCoinName').textContent = selectedCoin.name;
+            document.getElementById('overviewPrice').textContent = formatPrice(selectedCoin.price);
+            
+            // Update price change display
+            const priceChangeElement = document.getElementById('overviewPriceChange');
+            const isPositive = selectedCoin.change >= 0;
+            const changeSign = isPositive ? '+' : '';
+            priceChangeElement.textContent = `${changeSign}${selectedCoin.change.toFixed(2)} (${changeSign}${(selectedCoin.change / selectedCoin.price * 100).toFixed(3)}%)`;
+            priceChangeElement.className = `price-change-display ${isPositive ? 'positive' : 'negative'}`;
+            
+            // Generate chart
+            generateOverviewChart();
+            
+            // Hide dashboard and show chart overview
+            document.getElementById('dashboard').classList.remove('active');
+            document.getElementById('chartOverview').classList.add('active');
+        }
+
+        function goBackFromChart() {
+            document.getElementById('chartOverview').classList.remove('active');
+            document.getElementById('dashboard').classList.add('active');
+        }
+
+        function goToTradingForm() {
             // Update trading page with coin info
             document.getElementById('tradingPageTitle').textContent = `${selectedCoin.name} Delivery`;
             document.getElementById('tradingCoinIcon').textContent = selectedCoin.name.substring(0, 3).toUpperCase();
@@ -1349,15 +1555,69 @@
             // Update balance display
             document.getElementById('availableBalance').textContent = userBalance;
             
-            // Hide dashboard and show trading page
-            document.getElementById('dashboard').classList.remove('active');
+            // Hide chart overview and show trading page
+            document.getElementById('chartOverview').classList.remove('active');
             document.getElementById('tradingPage').classList.add('active');
+        }
+
+        function generateOverviewChart() {
+            const svg = document.getElementById('overviewChart');
+            const width = 340;
+            const height = 300;
+            
+            // Generate sample chart data
+            const points = [];
+            const numPoints = 50;
+            let currentValue = 0.3;
+            
+            for (let i = 0; i < numPoints; i++) {
+                const randomChange = (Math.random() - 0.4) * 0.1;
+                const trendChange = selectedCoin.trend === 'up' ? 0.015 : -0.015;
+                currentValue += randomChange + trendChange;
+                currentValue = Math.max(0.1, Math.min(0.9, currentValue));
+                points.push(currentValue);
+            }
+            
+            // Create path for area chart
+            let pathData = `M 0 ${height}`;
+            points.forEach((point, index) => {
+                const x = (index / (numPoints - 1)) * width;
+                const y = (1 - point) * height;
+                if (index === 0) {
+                    pathData += ` L 0 ${y}`;
+                }
+                pathData += ` L ${x} ${y}`;
+            });
+            pathData += ` L ${width} ${height} Z`;
+            
+            svg.innerHTML = `
+                <defs>
+                    <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.8" />
+                        <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.2" />
+                    </linearGradient>
+                </defs>
+                <path d="${pathData}" fill="url(#chartGradient)" stroke="#ffffff" stroke-width="2" stroke-opacity="0.9"/>
+            `;
+        }
+
+        function selectChartTimeframe(element, timeframe) {
+            document.querySelectorAll('.timeframe-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            
+            // Regenerate chart for new timeframe (simulation)
+            generateOverviewChart();
+        }
+
+        // TRADING PAGE FUNCTIONS
+        function openTradingPage(coinIndex) {
+            // Now opens chart overview instead of directly going to trading
+            openChartOverview(coinIndex);
         }
 
         function goBackToDashboard() {
             document.getElementById('tradingPage').classList.remove('active');
-            document.getElementById('dashboard').classList.add('active');
-            selectedCoin = null;
+            document.getElementById('chartOverview').classList.add('active');
             
             // Close any open dropdowns
             document.getElementById('timeOptions').classList.remove('active');
@@ -1377,7 +1637,7 @@
 
         function selectTime(time) {
             document.getElementById('selectedTime').textContent = time;
-            document.getElementById('timeOptions').classList.remove('active');
+            document.getElementById('timeOptions').classList.remove('active'); // Auto-close dropdown
             
             // Update the timer display in header
             const timerDisplay = document.querySelector('.coin-timer span');
@@ -1400,7 +1660,7 @@
         function selectPriceRange(percentage) {
             currentPriceRange = parseFloat(percentage);
             document.getElementById('selectedPriceRange').textContent = `(*${percentage}%)`;
-            document.getElementById('priceOptions').classList.remove('active');
+            document.getElementById('priceOptions').classList.remove('active'); // Auto-close dropdown
             
             // Recalculate expected amount
             updateExpectedAmount();
@@ -1467,7 +1727,9 @@
             // Update balance display
             document.getElementById('availableBalance').textContent = userBalance;
             
-            goBackToDashboard();
+            // Return to chart overview instead of dashboard
+            document.getElementById('tradingPage').classList.remove('active');
+            document.getElementById('chartOverview').classList.add('active');
         }
 
         // Close dropdowns when clicking outside
