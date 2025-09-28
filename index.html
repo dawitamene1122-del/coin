@@ -551,6 +551,39 @@
             padding: 12px 15px;
             cursor: pointer;
             min-width: 100px;
+            position: relative;
+        }
+
+        .time-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: none;
+        }
+
+        .time-options.active {
+            display: block;
+        }
+
+        .time-option {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f3f4;
+            transition: background 0.3s;
+        }
+
+        .time-option:hover {
+            background: #f8f9fa;
+        }
+
+        .time-option:last-child {
+            border-bottom: none;
         }
 
         .direction-buttons {
@@ -882,11 +915,19 @@
             <div class="section">
                 <div class="section-label">Delivery time</div>
                 <div class="time-selector">
-                    <div class="time-dropdown">
+                    <div class="time-dropdown" onclick="toggleTimeOptions()">
                         <svg class="timer-icon" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/>
                         </svg>
-                        <span>60S ▼</span>
+                        <span id="selectedTime">60S</span>
+                        <span style="margin-left: auto;">▼</span>
+                        <div class="time-options" id="timeOptions">
+                            <div class="time-option" onclick="selectTime('60S')">60S</div>
+                            <div class="time-option" onclick="selectTime('90S')">90S</div>
+                            <div class="time-option" onclick="selectTime('120S')">120S</div>
+                            <div class="time-option" onclick="selectTime('12H')">12H</div>
+                            <div class="time-option" onclick="selectTime('7D')">7D</div>
+                        </div>
                     </div>
                     <div class="direction-buttons">
                         <button class="direction-btn up" onclick="selectDirection('up', this)">Up</button>
@@ -897,9 +938,16 @@
 
             <div class="section">
                 <div class="section-label">Price range</div>
-                <div class="price-range-dropdown">
-                    <span>(*15%)</span>
+                <div class="price-range-dropdown" onclick="togglePriceOptions()">
+                    <span id="selectedPriceRange">(*15%)</span>
                     <span>▼</span>
+                    <div class="time-options" id="priceOptions">
+                        <div class="time-option" onclick="selectPriceRange('5')">(*5%)</div>
+                        <div class="time-option" onclick="selectPriceRange('10')">(*10%)</div>
+                        <div class="time-option" onclick="selectPriceRange('15')">(*15%)</div>
+                        <div class="time-option" onclick="selectPriceRange('20')">(*20%)</div>
+                        <div class="time-option" onclick="selectPriceRange('25')">(*25%)</div>
+                    </div>
                 </div>
             </div>
 
@@ -918,7 +966,7 @@
                     <button class="max-btn" onclick="setMaxAmount()">Max</button>
                 </div>
 
-                <div class="balance-text">Available Balance: 500,000</div>
+                <div class="balance-text">Available Balance: <span id="availableBalance">10</span></div>
                 
                 <div class="amount-info">
                     <div class="min-amount">At least: 100</div>
