@@ -3,968 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hibt - Crypto Trading Platform</title>
+    <title>Hibt - Trading Platform</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f8f9fa;
-            color: #333;
-        }
-
-        /* AUTH STYLES */
-        .auth-container {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .auth-box {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        .login-form, .register-form, .quick-login {
-            display: none;
-        }
-
-        .login-form.active, .register-form.active, .quick-login.active {
-            display: block;
-        }
-
-        .auth-title {
-            color: #333;
-            margin-bottom: 30px;
-            font-weight: 600;
-            font-size: 24px;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 500;
-        }
-
-        input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .pin-container {
-            margin: 30px 0;
-        }
-
-        .pin-display {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .pin-dot {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #ddd;
-            border-radius: 50%;
-            transition: all 0.3s;
-        }
-
-        .pin-dot.filled {
-            background: #667eea;
-            border-color: #667eea;
-        }
-
-        .pin-keypad {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            max-width: 250px;
-            margin: 0 auto;
-        }
-
-        .pin-key {
-            width: 70px;
-            height: 70px;
-            border: none;
-            border-radius: 50%;
-            background: #f8f9fa;
-            font-size: 24px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .pin-key:hover {
-            background: #e9ecef;
-            transform: scale(1.05);
-        }
-
-        .pin-key:active {
-            transform: scale(0.95);
-        }
-
-        .pin-key.backspace {
-            background: #ff6b6b;
-            color: white;
-            font-size: 18px;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 20px;
-        }
-
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #5a67d8;
-        }
-
-        .switch-text {
-            margin-top: 20px;
-            color: #6c757d;
-        }
-
-        .switch-link {
-            color: #667eea;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        .user-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
-
-        .user-avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: #667eea;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 10px;
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .message {
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-weight: 500;
-        }
-
-        .error {
-            background: #fee;
-            color: #c33;
-            border: 1px solid #fcc;
-        }
-
-        .success {
-            background: #efe;
-            color: #363;
-            border: 1px solid #cfc;
-        }
-
-        /* DASHBOARD STYLES */
-        .dashboard {
-            display: none;
-            min-height: 100vh;
-            background: #f8f9fa;
-        }
-
-        .dashboard.active {
-            display: block;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #4285f4 0%, #3367d6 100%);
-            color: white;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -10%;
-            width: 200px;
-            height: 200px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            transform: rotate(45deg);
-        }
-
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .notification-icon {
-            width: 24px;
-            height: 24px;
-            fill: white;
-            cursor: pointer;
-        }
-
-        .brand-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .brand {
-            font-size: 48px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .tagline {
-            font-size: 18px;
-            opacity: 0.9;
-        }
-
-        .brand-logo {
-            width: 80px;
-            height: 80px;
-            background: #7CB342;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            font-weight: bold;
-            color: white;
-        }
-
-        .market-section {
-            padding: 20px;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .section-title {
-            font-size: 28px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .filter-tabs {
-            display: flex;
-            gap: 15px;
-        }
-
-        .tab {
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 2px solid transparent;
-        }
-
-        .tab.active {
-            background: #4285f4;
-            color: white;
-        }
-
-        .tab:not(.active) {
-            background: white;
-            color: #666;
-            border: 2px solid #e9ecef;
-        }
-
-        .coin-list {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .coin-item {
-            display: flex;
-            align-items: center;
-            padding: 16px 20px;
-            border-bottom: 1px solid #f1f3f4;
-            transition: background 0.3s;
-            cursor: pointer;
-        }
-
-        .coin-item:hover {
-            background: #f8f9fb;
-        }
-
-        .coin-item:last-child {
-            border-bottom: none;
-        }
-
-        .coin-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 16px;
-            margin-right: 15px;
-        }
-
-        .coin-info {
-            flex: 1;
-        }
-
-        .coin-name {
-            font-weight: 600;
-            font-size: 16px;
-            margin-bottom: 2px;
-        }
-
-        .coin-symbol {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .coin-chart {
-            width: 80px;
-            height: 40px;
-            margin: 0 15px;
-        }
-
-        .coin-price {
-            text-align: right;
-        }
-
-        .price-value {
-            font-weight: 600;
-            font-size: 16px;
-            margin-bottom: 2px;
-        }
-
-        .price-change {
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .price-change.positive {
-            color: #00c851;
-        }
-
-        .price-change.negative {
-            color: #ff3547;
-        }
-
-        .price-time {
-            color: #666;
-            font-size: 12px;
-        }
-
-        .logout-btn {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        .logout-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        /* CHART OVERVIEW PAGE */
-        .chart-overview {
-            display: none;
-            min-height: 100vh;
-            background: white;
-        }
-
-        .chart-overview.active {
-            display: block;
-        }
-
-        .chart-header {
-            background: white;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .back-btn {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #666;
-            padding: 8px;
-        }
-
-        .menu-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px;
-        }
-
-        .menu-icon {
-            width: 24px;
-            height: 24px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3px;
-        }
-
-        .menu-icon div {
-            width: 8px;
-            height: 8px;
-            background: #4285f4;
-            border-radius: 2px;
-        }
-
-        .chart-content {
-            padding: 20px;
-        }
-
-        .coin-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .chart-coin-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 24px;
-            margin-right: 20px;
-        }
-
-        .coin-details h1 {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .coin-pair {
-            color: #666;
-            display: flex;
-            align-items: center;
-        }
-
-        .dropdown-arrow {
-            margin-left: 5px;
-            font-size: 12px;
-        }
-
-        .price-section {
-            margin: 30px 0;
-        }
-
-        .large-price {
-            font-size: 36px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .price-change-info {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .price-change-info.positive {
-            color: #4caf50;
-        }
-
-        .price-change-info.negative {
-            color: #f44336;
-        }
-
-        .chart-container {
-            height: 300px;
-            background: linear-gradient(45deg, #ff9a56, #ffad56);
-            border-radius: 12px;
-            margin: 30px 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .chart-svg {
-            width: 100%;
-            height: 100%;
-        }
-
-        .timeframe-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin: 20px 0;
-            padding: 0 10px;
-        }
-
-        .timeframe-btn {
-            background: none;
-            border: none;
-            color: #666;
-            font-weight: 600;
-            cursor: pointer;
-            padding: 8px 12px;
-            border-radius: 6px;
-            transition: all 0.3s;
-        }
-
-        .timeframe-btn.active {
-            color: #4285f4;
-            background: rgba(66, 133, 244, 0.1);
-        }
-
-        .functions-section {
-            margin-top: 40px;
-        }
-
-        .functions-title {
-            font-size: 22px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        .entrust-btn {
-            width: 100%;
-            padding: 18px;
-            background: #4285f4;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .entrust-btn:hover {
-            background: #3367d6;
-        }
-
-        /* TRADING PAGE STYLES */
-        .trading-page {
-            display: none;
-            min-height: 100vh;
-            background: #f8f9fa;
-        }
-
-        .trading-page.active {
-            display: block;
-        }
-
-        .trading-header {
-            background: white;
-            padding: 20px;
-            border-bottom: 1px solid #e9ecef;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .trading-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #666;
-            padding: 5px;
-        }
-
-        .trading-content {
-            background: white;
-            padding: 30px 20px;
-        }
-
-        .trading-coin-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 30px;
-        }
-
-        .trading-coin-left {
-            display: flex;
-            align-items: center;
-        }
-
-        .trading-coin-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 18px;
-            margin-right: 15px;
-        }
-
-        .trading-coin-info h2 {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .coin-type {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .trading-coin-right {
-            text-align: right;
-        }
-
-        .coin-timer {
-            display: flex;
-            align-items: center;
-            color: #4285f4;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .timer-icon {
-            width: 20px;
-            height: 20px;
-            margin-right: 8px;
-        }
-
-        .balance-amount {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .section {
-            margin-bottom: 25px;
-        }
-
-        .section-label {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        .time-selector {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .time-dropdown {
-            display: flex;
-            align-items: center;
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 12px 15px;
-            cursor: pointer;
-            min-width: 100px;
-            position: relative;
-        }
-
-        .time-options {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            z-index: 1000;
-            display: none;
-        }
-
-        .time-options.active {
-            display: block;
-        }
-
-        .time-option {
-            padding: 12px 15px;
-            cursor: pointer;
-            border-bottom: 1px solid #f1f3f4;
-            transition: background 0.3s;
-        }
-
-        .time-option:hover {
-            background: #f8f9fa;
-        }
-
-        .time-option:last-child {
-            border-bottom: none;
-        }
-
-        .direction-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .direction-btn {
-            flex: 1;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .direction-btn.up {
-            background: #4caf50;
-            color: white;
-        }
-
-        .direction-btn.down {
-            background: #e9ecef;
-            color: #666;
-        }
-
-        .direction-btn.down.active {
-            background: #f44336;
-            color: white;
-        }
-
-        .price-range-dropdown {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            background: #f8f9fa;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            position: relative;
-        }
-
-        .purchase-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-
-        .fee-info {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .purchase-inputs {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-            position: relative;
-        }
-
-        .currency-input {
-            display: flex;
-            align-items: center;
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 12px 15px;
-            min-width: 120px;
-        }
-
-        .currency-icon {
-            width: 24px;
-            height: 24px;
-            background: #4caf50;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 12px;
-            font-weight: bold;
-            margin-right: 10px;
-        }
-
-        .amount-input {
-            flex: 1;
-            padding: 12px 15px;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            background: #f8f9fa;
-        }
-
-        .max-btn {
-            position: absolute;
-            right: 25px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #4285f4;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .balance-text {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-
-        .amount-info {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .min-amount {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .expected-amount {
-            color: #4285f4;
-            font-size: 14px;
-        }
-
-        .trade-btn {
-            width: 100%;
-            padding: 16px;
-            background: #4caf50;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .trade-btn:hover {
-            background: #45a049;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fa; }
+        
+        /* Auth Container */
+        .auth-container { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .auth-box { background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); width: 90%; max-width: 400px; }
+        .auth-title { font-size: 24px; font-weight: 600; margin-bottom: 30px; text-align: center; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #555; font-weight: 500; }
+        input { width: 100%; padding: 15px; border: 2px solid #e1e5e9; border-radius: 12px; font-size: 16px; }
+        input:focus { outline: none; border-color: #667eea; }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 20px; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a67d8; }
+        .switch-text { margin-top: 20px; color: #6c757d; text-align: center; }
+        .switch-link { color: #667eea; cursor: pointer; text-decoration: underline; }
+        .message { padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: 500; }
+        .error { background: #fee; color: #c33; border: 1px solid #fcc; }
+        .success { background: #efe; color: #363; border: 1px solid #cfc; }
+        .hidden { display: none; }
+        
+        /* Dashboard */
+        .dashboard { display: none; min-height: 100vh; }
+        .dashboard.active { display: block; }
+        .header { background: linear-gradient(135deg, #4285f4 0%, #3367d6 100%); color: white; padding: 20px; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .brand { font-size: 48px; font-weight: bold; }
+        .balance-display { background: rgba(255,255,255,0.2); padding: 15px; border-radius: 12px; margin-top: 20px; }
+        .balance-label { font-size: 14px; opacity: 0.9; }
+        .balance-value { font-size: 32px; font-weight: bold; margin-top: 5px; }
+        .logout-btn { background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; }
+        
+        .market-section { padding: 20px; }
+        .section-title { font-size: 28px; font-weight: bold; margin-bottom: 20px; }
+        .coin-list { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .coin-item { display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid #f1f3f4; cursor: pointer; }
+        .coin-item:hover { background: #f8f9fb; }
+        .coin-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 15px; }
+        .coin-info { flex: 1; }
+        .coin-name { font-weight: 600; font-size: 16px; }
+        .coin-price { text-align: right; }
+        .price-value { font-weight: 600; font-size: 16px; }
+        
+        /* Trading Modal */
+        .trading-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; }
+        .trading-modal.active { display: flex; justify-content: center; align-items: center; }
+        .modal-content { background: white; border-radius: 20px; padding: 30px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-title { font-size: 24px; font-weight: 600; }
+        .close-btn { background: none; border: none; font-size: 32px; cursor: pointer; color: #666; }
+        .trade-section { margin-bottom: 20px; }
+        .trade-label { font-weight: 600; margin-bottom: 10px; }
+        .direction-btns { display: flex; gap: 10px; }
+        .direction-btn { flex: 1; padding: 15px; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; }
+        .direction-btn.up { background: #4caf50; color: white; }
+        .direction-btn.down { background: #f44336; color: white; }
+        .direction-btn.inactive { background: #e9ecef; color: #666; }
+        .trade-input { width: 100%; padding: 15px; border: 2px solid #e9ecef; border-radius: 12px; font-size: 16px; margin-top: 10px; }
+        .trade-btn { width: 100%; padding: 18px; background: #4285f4; color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: 600; cursor: pointer; margin-top: 20px; }
+        .trade-btn:hover { background: #3367d6; }
+        
         /* Coin colors */
         .btc { background: #f7931a; }
         .eth { background: #627eea; }
         .xrp { background: #23292f; }
         .doge { background: #c2a633; }
         .ada { background: #0033ad; }
-        .dot { background: #e6007a; }
         .bnb { background: #f3ba2f; }
-        .ltc { background: #bfbbbb; }
-        .link { background: #375bd2; }
-        .xlm { background: #000000; }
-        .vet { background: #15bdff; }
-        .theta { background: #2ab8e6; }
-        .trx { background: #ff060a; }
-        .etc { background: #328332; }
-        .neo { background: #58bf00; }
-        .dash { background: #008de4; }
-        .zec { background: #ecb244; }
-        .qtum { background: #2e9ad0; }
-        .omg { background: #1a53f0; }
-        .waves { background: #0155ff; }
-        .icx { background: #1fc5c9; }
-        .lsk { background: #0d7ec6; }
-
-        @media (max-width: 768px) {
-            .header { padding: 15px; }
-            .brand { font-size: 36px; }
-            .tagline { font-size: 16px; }
-            .brand-logo { width: 60px; height: 60px; font-size: 24px; }
-            .market-section { padding: 15px; }
-            .coin-chart { width: 60px; height: 30px; }
-            .purchase-inputs { flex-direction: column; }
-            .direction-buttons { flex-direction: column; }
-            .time-selector { flex-direction: column; align-items: flex-start; }
-        }
     </style>
 </head>
 <body>
+    <!-- Auth Container -->
     <div class="auth-container" id="authContainer">
         <div class="auth-box">
-            <div class="register-form active" id="registerForm">
+            <!-- Register Form -->
+            <div id="registerForm">
                 <h2 class="auth-title">Create Account</h2>
+                <div id="authMessage"></div>
                 <div class="input-group">
-                    <label>Username</label>
-                    <input type="text" id="regUsername" placeholder="Enter username" required>
+                    <label>Email</label>
+                    <input type="email" id="regEmail" placeholder="Enter email">
                 </div>
                 <div class="input-group">
                     <label>Password</label>
-                    <input type="password" id="regPassword" placeholder="Enter password" required>
-                </div>
-                <div class="input-group">
-                    <label>Platform PIN (6 digits)</label>
-                    <input type="password" id="regPin" placeholder="Create 6-digit PIN" maxlength="6" required>
+                    <input type="password" id="regPassword" placeholder="Enter password">
                 </div>
                 <button class="btn btn-primary" onclick="register()">Register</button>
                 <div class="switch-text">
@@ -972,803 +97,301 @@
                 </div>
             </div>
 
-            <div class="login-form" id="loginForm">
+            <!-- Login Form -->
+            <div id="loginForm" class="hidden">
                 <h2 class="auth-title">Sign In</h2>
+                <div id="loginMessage"></div>
                 <div class="input-group">
-                    <label>Username</label>
-                    <input type="text" id="loginUsername" placeholder="Enter username" required>
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="Enter email">
                 </div>
                 <div class="input-group">
                     <label>Password</label>
-                    <input type="password" id="loginPassword" placeholder="Enter password" required>
+                    <input type="password" id="loginPassword" placeholder="Enter password">
                 </div>
                 <button class="btn btn-primary" onclick="login()">Sign In</button>
                 <div class="switch-text">
                     Don't have an account? <span class="switch-link" onclick="showRegister()">Register</span>
                 </div>
             </div>
-
-            <div class="quick-login" id="quickLogin">
-                <div class="user-info">
-                    <div class="user-avatar" id="userAvatar">U</div>
-                    <div>Welcome back, <strong id="welcomeUsername">Username</strong></div>
-                </div>
-                <h2 class="auth-title">Enter Platform Password</h2>
-                
-                <div class="pin-container">
-                    <div class="pin-display">
-                        <div class="pin-dot" id="dot1"></div>
-                        <div class="pin-dot" id="dot2"></div>
-                        <div class="pin-dot" id="dot3"></div>
-                        <div class="pin-dot" id="dot4"></div>
-                        <div class="pin-dot" id="dot5"></div>
-                        <div class="pin-dot" id="dot6"></div>
-                    </div>
-                    
-                    <div class="pin-keypad">
-                        <button class="pin-key" onclick="addPinDigit('1')">1</button>
-                        <button class="pin-key" onclick="addPinDigit('2')">2</button>
-                        <button class="pin-key" onclick="addPinDigit('3')">3</button>
-                        <button class="pin-key" onclick="addPinDigit('4')">4</button>
-                        <button class="pin-key" onclick="addPinDigit('5')">5</button>
-                        <button class="pin-key" onclick="addPinDigit('6')">6</button>
-                        <button class="pin-key" onclick="addPinDigit('7')">7</button>
-                        <button class="pin-key" onclick="addPinDigit('8')">8</button>
-                        <button class="pin-key" onclick="addPinDigit('9')">9</button>
-                        <button class="pin-key" onclick="clearPin()">✕</button>
-                        <button class="pin-key" onclick="addPinDigit('0')">0</button>
-                        <button class="pin-key backspace" onclick="backspacePin()">⌫</button>
-                    </div>
-                </div>
-
-                <div class="switch-text">
-                    <span class="switch-link" onclick="switchAccount()">Switch Account</span> |
-                    <span class="switch-link" onclick="forgotPin()">Forgot PIN?</span>
-                </div>
-            </div>
-
-            <div id="message"></div>
         </div>
     </div>
 
+    <!-- Dashboard -->
     <div class="dashboard" id="dashboard">
         <div class="header">
             <div class="header-top">
-                <svg class="notification-icon" viewBox="0 0 24 24">
-                    <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 6V8H3V6H21ZM20 10V19C20 20.1 19.1 21 18 21H6C4.9 21 4 20.1 4 19V10H20Z"/>
-                </svg>
+                <div class="brand">Hibt</div>
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
-            
-            <div class="brand-container">
-                <div>
-                    <div class="brand">Hibt</div>
-                    <div class="tagline">Start making money plan.</div>
-                </div>
-                <div class="brand-logo">H</div>
+            <div class="balance-display">
+                <div class="balance-label">Your Balance</div>
+                <div class="balance-value" id="userBalance">0.00 USDT</div>
             </div>
         </div>
 
         <div class="market-section">
-            <div class="section-header">
-                <h2 class="section-title">Market</h2>
-                <div class="filter-tabs">
-                    <div class="tab active" onclick="switchTab(this, 'all')">All markets</div>
-                    <div class="tab" onclick="switchTab(this, 'top')">Top</div>
-                </div>
-            </div>
-
-            <div class="coin-list" id="coinList">
-                <!-- Coins populated by JavaScript -->
-            </div>
+            <h2 class="section-title">Markets</h2>
+            <div class="coin-list" id="coinList"></div>
         </div>
     </div>
 
-    <!-- CHART OVERVIEW PAGE -->
-    <div class="chart-overview" id="chartOverview">
-        <div class="chart-header">
-            <button class="back-btn" onclick="goBackFromChart()">←</button>
-            <button class="menu-btn" onclick="goToTradingForm()">
-                <div class="menu-icon">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                </div>
-            </button></div>
-
-        <div class="chart-content">
-            <div class="coin-header">
-                <div class="chart-coin-icon" id="chartCoinIcon">BTC</div>
-                <div class="coin-details">
-                    <h1 id="chartCoinName">BTC Coin</h1>
-                    <div class="coin-pair">
-                        <span>USDT</span>
-                        <span class="dropdown-arrow">▼</span>
-                    </div>
+    <!-- Trading Modal -->
+    <div class="trading-modal" id="tradingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Trade</h2>
+                <button class="close-btn" onclick="closeTradeModal()">&times;</button>
+            </div>
+            
+            <div id="tradeMessage"></div>
+            
+            <div class="trade-section">
+                <div class="trade-label">Direction</div>
+                <div class="direction-btns">
+                    <button class="direction-btn up" id="upBtn" onclick="selectDirection('up')">Buy Up</button>
+                    <button class="direction-btn down inactive" id="downBtn" onclick="selectDirection('down')">Buy Down</button>
                 </div>
             </div>
 
-            <div class="price-section">
-                <div class="large-price" id="chartPrice">US$ 109,613.34</div>
-                <div class="price-change-info positive" id="chartPriceChange">122.31 (0.112%)</div>
+            <div class="trade-section">
+                <div class="trade-label">Amount (USDT)</div>
+                <input type="number" class="trade-input" id="tradeAmount" placeholder="Enter amount" min="1">
+                <div style="margin-top: 10px; color: #666; font-size: 14px;">
+                    Available: <span id="availableBalance">0.00</span> USDT
+                </div>
             </div>
 
-            <div class="chart-container">
-                <svg class="chart-svg" id="chartSvg" viewBox="0 0 350 300">
-                    <!-- Chart generated by JavaScript -->
-                </svg>
+            <div class="trade-section">
+                <div class="trade-label">Time Frame</div>
+                <select class="trade-input" id="timeFrame">
+                    <option value="60">60 Seconds</option>
+                    <option value="120">2 Minutes</option>
+                    <option value="300">5 Minutes</option>
+                </select>
             </div>
 
-            <div class="timeframe-buttons">
-                <button class="timeframe-btn" onclick="selectTimeframe(this, '5M')">5M</button>
-                <button class="timeframe-btn" onclick="selectTimeframe(this, '15M')">15M</button>
-                <button class="timeframe-btn" onclick="selectTimeframe(this, '1H')">1H</button>
-                <button class="timeframe-btn active" onclick="selectTimeframe(this, '6H')">6H</button>
-                <button class="timeframe-btn" onclick="selectTimeframe(this, '1D')">1D</button>
-                <button class="timeframe-btn" onclick="selectTimeframe(this, '1W')">1W</button>
-            </div>
-
-            <div class="functions-section">
-                <h2 class="functions-title">Functions</h2>
-                <button class="entrust-btn" onclick="goToTradingForm()">Entrust Now</button>
-            </div>
+            <button class="trade-btn" onclick="executeTrade()">Execute Trade</button>
         </div>
     </div>
 
-    <!-- TRADING PAGE -->
-    <div class="trading-page" id="tradingPage">
-        <div class="trading-header">
-            <button class="back-btn" onclick="goBackToChart()">←</button>
-            <div class="trading-title" id="tradingPageTitle">Coin Delivery</div>
-            <button class="close-btn" onclick="goBackToChart()">×</button>
-        </div>
-
-        <div class="trading-content">
-            <div class="trading-coin-header">
-                <div class="trading-coin-left">
-                    <div class="trading-coin-icon" id="tradingCoinIcon">BTC</div>
-                    <div class="trading-coin-info">
-                        <h2 id="tradingCoinName">BTC Coin</h2>
-                        <div class="coin-type">Buy Up</div>
-                    </div>
-                </div>
-                <div class="trading-coin-right">
-                    <div class="coin-timer">
-                        <svg class="timer-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/>
-                        </svg>
-                        <span id="timerDisplay">60S</span>
-                    </div>
-                    <div class="balance-amount">0.00 USDT</div>
-                </div>
-            </div>
-
-            <div class="section">
-                <div class="section-label">Delivery time</div>
-                <div class="time-selector">
-                    <div class="time-dropdown" onclick="toggleTimeOptions()">
-                        <svg class="timer-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/>
-                        </svg>
-                        <span id="selectedTime">60S</span>
-                        <span style="margin-left: auto;">▼</span>
-                        <div class="time-options" id="timeOptions">
-                            <div class="time-option" onclick="selectTime('60S')">60S</div>
-                            <div class="time-option" onclick="selectTime('90S')">90S</div>
-                            <div class="time-option" onclick="selectTime('120S')">120S</div>
-                            <div class="time-option" onclick="selectTime('12H')">12H</div>
-                            <div class="time-option" onclick="selectTime('7D')">7D</div>
-                        </div>
-                    </div>
-                    <div class="direction-buttons">
-                        <button class="direction-btn up" onclick="selectDirection('up', this)">Up</button>
-                        <button class="direction-btn down" onclick="selectDirection('down', this)">Down</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <div class="section-label">Price range</div>
-                <div class="price-range-dropdown" onclick="togglePriceOptions()">
-                    <span id="selectedPriceRange">(*15%)</span>
-                    <span>▼</span>
-                    <div class="time-options" id="priceOptions">
-                        <div class="time-option" onclick="selectPriceRange('15')">(*15%)</div>
-                        <div class="time-option" onclick="selectPriceRange('25')">(*25%)</div>
-                        <div class="time-option" onclick="selectPriceRange('35')">(*35%)</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <div class="purchase-header">
-                    <div class="section-label">Purchase price</div>
-                    <div class="fee-info">Fee: 0%</div>
-                </div>
-                
-                <div class="purchase-inputs">
-                    <div class="currency-input">
-                        <div class="currency-icon">T</div>
-                        <span>USDT</span>
-                    </div>
-                    <input type="number" class="amount-input" placeholder="Amount" value="">
-                    <button class="max-btn" onclick="setMaxAmount()">Max</button>
-                </div>
-
-                <div class="balance-text">Available Balance: <span id="availableBalance">10</span></div>
-                
-                <div class="amount-info">
-                    <div class="min-amount">At least: 1</div>
-                    <div class="expected-amount">Expected: 0.00</div>
-                </div>
-            </div>
-
-            <button class="trade-btn" onclick="executeTrade()">Entrust Now</button>
-        </div>
-    </div>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <script>
-        let currentPin = '';
-        let userData = null;
-        let priceUpdateInterval = null;
-        let selectedCoin = null;
-        let currentPriceRange = 15;
-        let userBalance = 10;
-
-        const cryptocurrencies = [
-            { name: 'BTC Coin', symbol: 'USDT', class: 'btc', price: 109770.33, change: 0.16, trend: 'up' },
-            { name: 'ETH Coin', symbol: 'USDT', class: 'eth', price: 4030.81, change: 0.07, trend: 'down' },
-            { name: 'XRP Coin', symbol: 'USDT', class: 'xrp', price: 2.8131, change: 1.132, trend: 'up' },
-            { name: 'DOGE Coin', symbol: 'USDT', class: 'doge', price: 0.2309, change: -0.628, trend: 'down' },
-            { name: 'ADA Coin', symbol: 'USDT', class: 'ada', price: 1.2456, change: 2.34, trend: 'up' },
-            { name: 'DOT Coin', symbol: 'USDT', class: 'dot', price: 8.9234, change: -1.23, trend: 'down' },
-            { name: 'BNB Coin', symbol: 'USDT', class: 'bnb', price: 692.45, change: 0.89, trend: 'up' },
-            { name: 'LTC Coin', symbol: 'USDT', class: 'ltc', price: 156.78, change: -0.45, trend: 'down' },
-            { name: 'LINK Coin', symbol: 'USDT', class: 'link', price: 28.91, change: 3.21, trend: 'up' },
-            { name: 'XLM Coin', symbol: 'USDT', class: 'xlm', price: 0.4567, change: 1.78, trend: 'up' }
-        ];
-
-        window.onload = function() {
-            checkExistingUser();
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDWQBTrvvxCL5Qd23iSMTQlWkaPKZgjhqw",
+            authDomain: "trading-dapp-d5aa4.firebaseapp.com",
+            projectId: "trading-dapp-d5aa4",
+            storageBucket: "trading-dapp-d5aa4.firebasestorage.app",
+            messagingSenderId: "690266747119",
+            appId: "1:690266747119:web:0f22d45fbee53ee3c3eb1a"
         };
 
-        function checkExistingUser() {
-            const savedUser = JSON.parse(localStorage.getItem('registeredUser') || 'null');
-            
-            if (savedUser) {
-                userData = savedUser;
-                userBalance = savedUser.balance || 10;
-                const isAuthenticated = localStorage.getItem('isAuthenticated');
-                
-                if (isAuthenticated === 'true') {
-                    showDashboard();
-                } else {
-                    showQuickLogin();
-                }
-            } else {
-                showRegister();
-            }
-        }
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-        function register() {
-            const username = document.getElementById('regUsername').value;
-            const password = document.getElementById('regPassword').value;
-            const pin = document.getElementById('regPin').value;
+        let currentUser = null;
+        let userBalance = 0;
+        let selectedCoin = null;
+        let tradeDirection = 'up';
 
-            if (!username || !password || !pin) {
-                showMessage('Please fill all fields', 'error');
-                return;
-            }
+        const coins = [
+            { name: 'BTC', fullName: 'Bitcoin', class: 'btc', price: 109770.33 },
+            { name: 'ETH', fullName: 'Ethereum', class: 'eth', price: 4030.81 },
+            { name: 'XRP', fullName: 'Ripple', class: 'xrp', price: 2.8131 },
+            { name: 'DOGE', fullName: 'Dogecoin', class: 'doge', price: 0.2309 },
+            { name: 'ADA', fullName: 'Cardano', class: 'ada', price: 1.2456 },
+            { name: 'BNB', fullName: 'Binance Coin', class: 'bnb', price: 692.45 }
+        ];
 
-            if (pin.length !== 6 || !/^\d{6}$/.test(pin)) {
-                showMessage('PIN must be exactly 6 digits', 'error');
-                return;
-            }
-
-            const user = {
-                username: username,
-                password: password,
-                pin: pin,
-                registeredAt: Date.now(),
-                balance: 10
-            };
-
-            localStorage.setItem('registeredUser', JSON.stringify(user));
-            localStorage.setItem('isAuthenticated', 'true');
-            userData = user;
-            userBalance = user.balance;
-
-            showMessage('Registration successful!', 'success');
-            setTimeout(() => {
+        // Auth State Listener
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadUserData();
                 showDashboard();
-            }, 1500);
+            } else {
+                showAuth();
+            }
+        });
+
+        // Register
+        async function register() {
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+
+            if (!email || !password) {
+                showMessage('authMessage', 'Please fill all fields', 'error');
+                return;
+            }
+
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // Create user document in Firestore
+                await db.collection('users').doc(user.uid).set({
+                    email: email,
+                    balance: 1000, // Starting balance
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                showMessage('authMessage', 'Account created successfully!', 'success');
+            } catch (error) {
+                showMessage('authMessage', error.message, 'error');
+            }
         }
 
-        function login() {
-            const username = document.getElementById('loginUsername').value;
+        // Login
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
 
-            const savedUser = JSON.parse(localStorage.getItem('registeredUser') || 'null');
-            if (!savedUser) {
-                showMessage('No account found. Please register first.', 'error');
+            if (!email || !password) {
+                showMessage('loginMessage', 'Please fill all fields', 'error');
                 return;
             }
 
-            if (username === savedUser.username && password === savedUser.password) {
-                localStorage.setItem('isAuthenticated', 'true');
-                userData = savedUser;
-                userBalance = savedUser.balance || 10;
-                showMessage('Login successful!', 'success');
-                setTimeout(() => {
-                    showDashboard();
-                }, 1000);
-            } else {
-                showMessage('Invalid username or password', 'error');
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                showMessage('loginMessage', 'Login successful!', 'success');
+            } catch (error) {
+                showMessage('loginMessage', error.message, 'error');
             }
         }
 
-        function showQuickLogin() {
-            document.querySelectorAll('.register-form, .login-form').forEach(el => {
-                el.classList.remove('active');
-            });
-            
-            document.getElementById('quickLogin').classList.add('active');
-            document.getElementById('welcomeUsername').textContent = userData.username;
-            document.getElementById('userAvatar').textContent = userData.username.charAt(0).toUpperCase();
-            
-            currentPin = '';
-            updatePinDisplay();
+        // Logout
+        function logout() {
+            auth.signOut();
         }
 
-        function showRegister() {
-            document.querySelectorAll('.login-form, .quick-login').forEach(el => {
-                el.classList.remove('active');
-            });
-            document.getElementById('registerForm').classList.add('active');
-            clearMessage();
+        // Load User Data
+        async function loadUserData() {
+            const userDoc = await db.collection('users').doc(currentUser.uid).get();
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                userBalance = userData.balance || 0;
+                document.getElementById('userBalance').textContent = userBalance.toFixed(2) + ' USDT';
+            }
         }
 
-        function showLogin() {
-            document.querySelectorAll('.register-form, .quick-login').forEach(el => {
-                el.classList.remove('active');
-            });
-            document.getElementById('loginForm').classList.add('active');
-            clearMessage();
+        // Show/Hide Functions
+        function showAuth() {
+            document.getElementById('authContainer').style.display = 'flex';
+            document.getElementById('dashboard').classList.remove('active');
         }
 
         function showDashboard() {
             document.getElementById('authContainer').style.display = 'none';
             document.getElementById('dashboard').classList.add('active');
-            document.getElementById('chartOverview').classList.remove('active');
-            document.getElementById('tradingPage').classList.remove('active');
-            renderCoinList();
-            startPriceUpdates();
-            clearMessage();
+            renderCoins();
         }
 
-        function logout() {
-            localStorage.removeItem('isAuthenticated');
-            if (priceUpdateInterval) {
-                clearInterval(priceUpdateInterval);
-            }
-            document.getElementById('authContainer').style.display = 'flex';
-            document.getElementById('dashboard').classList.remove('active');
-            document.getElementById('chartOverview').classList.remove('active');
-            document.getElementById('tradingPage').classList.remove('active');
-            showQuickLogin();
+        function showRegister() {
+            document.getElementById('registerForm').classList.remove('hidden');
+            document.getElementById('loginForm').classList.add('hidden');
         }
 
-        function switchAccount() {
-            localStorage.removeItem('registeredUser');
-            localStorage.removeItem('isAuthenticated');
-            userData = null;
-            showLogin();
+        function showLogin() {
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
         }
 
-        function forgotPin() {
-            showMessage('Please login with username and password to reset PIN', 'error');
-            switchAccount();
+        function showMessage(elementId, message, type) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = `<div class="message ${type}">${message}</div>`;
+            setTimeout(() => { el.innerHTML = ''; }, 3000);
         }
 
-        function addPinDigit(digit) {
-            if (currentPin.length < 6) {
-                currentPin += digit;
-                updatePinDisplay();
-                
-                if (currentPin.length === 6) {
-                    setTimeout(verifyPin, 300);
-                }
-            }
-        }
-
-        function backspacePin() {
-            if (currentPin.length > 0) {
-                currentPin = currentPin.slice(0, -1);
-                updatePinDisplay();
-            }
-        }
-
-        function clearPin() {
-            currentPin = '';
-            updatePinDisplay();
-        }
-
-        function updatePinDisplay() {
-            for (let i = 1; i <= 6; i++) {
-                const dot = document.getElementById('dot' + i);
-                if (i <= currentPin.length) {
-                    dot.classList.add('filled');
-                } else {
-                    dot.classList.remove('filled');
-                }
-            }
-        }
-
-        function verifyPin() {
-            if (currentPin === userData.pin) {
-                localStorage.setItem('isAuthenticated', 'true');
-                showMessage('Access granted!', 'success');
-                setTimeout(() => {
-                    showDashboard();
-                }, 1000);
-            } else {
-                showMessage('Incorrect PIN', 'error');
-                currentPin = '';
-                updatePinDisplay();
-                
-                const container = document.querySelector('.auth-box');
-                container.style.animation = 'shake 0.5s';
-                setTimeout(() => {
-                    container.style.animation = '';
-                }, 500);
-            }
-        }
-
-        function formatPrice(price) {
-            if (price >= 1000) {
-                return `US$ ${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            } else if (price >= 1) {
-                return `US$ ${price.toFixed(4)}`;
-            } else {
-                return `US$ ${price.toFixed(6)}`;
-            }
-        }
-
-        function generateMiniChart(trend, width = 80, height = 40) {
-            const points = [];
-            const numPoints = 20;
-            
-            let currentValue = 0.5;
-            for (let i = 0; i < numPoints; i++) {
-                const randomChange = (Math.random() - 0.5) * 0.2;
-                const trendChange = trend === 'up' ? 0.02 : -0.02;
-                currentValue += randomChange + trendChange;
-                currentValue = Math.max(0.1, Math.min(0.9, currentValue));
-                points.push(currentValue);
-            }
-            
-            const pathData = points.map((point, index) => {
-                const x = (index / (numPoints - 1)) * width;
-                const y = (1 - point) * height;
-                return `${index === 0 ? 'M' : 'L'} ${x} ${y}`;
-            }).join(' ');
-            
-            const color = trend === 'up' ? '#00c851' : '#ff3547';
-            
-            return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
-                <path d="${pathData}" fill="none" stroke="${color}" stroke-width="2" opacity="0.8"/>
-            </svg>`;
-        }
-
-        function renderCoinList() {
+        // Render Coins
+        function renderCoins() {
             const coinList = document.getElementById('coinList');
-            
-            coinList.innerHTML = cryptocurrencies.map((coin, index) => {
-                const isPositive = coin.change >= 0;
-                const changeClass = isPositive ? 'positive' : 'negative';
-                const changeSign = isPositive ? '+' : '';
-                
-                return `
-                    <div class="coin-item" onclick="openChartView(${index})">
-                        <div class="coin-icon ${coin.class}">${coin.name.substring(0, 3).toUpperCase()}</div>
-                        <div class="coin-info">
-                            <div class="coin-name">${coin.name}</div>
-                            <div class="coin-symbol">${coin.symbol}</div>
-                        </div>
-                        <div class="coin-chart">
-                            ${generateMiniChart(coin.trend)}
-                        </div>
-                        <div class="coin-price">
-                            <div class="price-value">${formatPrice(coin.price)}</div>
-                            <div class="price-change ${changeClass}">${changeSign}${coin.change}%</div>
-                            <div class="price-time">24 Hrs</div>
-                        </div>
+            coinList.innerHTML = coins.map((coin, index) => `
+                <div class="coin-item" onclick="openTrade(${index})">
+                    <div class="coin-icon ${coin.class}">${coin.name}</div>
+                    <div class="coin-info">
+                        <div class="coin-name">${coin.fullName}</div>
                     </div>
-                `;
-            }).join('');
-        }
-
-        function switchTab(element, tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            element.classList.add('active');
-            
-            if (tab === 'top') {
-                const topCoins = cryptocurrencies.slice(0, 5);
-                renderFilteredCoins(topCoins);
-            } else {
-                renderCoinList();
-            }
-        }
-
-        function renderFilteredCoins(coins) {
-            const coinList = document.getElementById('coinList');
-            
-            coinList.innerHTML = coins.map((coin, index) => {
-                const isPositive = coin.change >= 0;
-                const changeClass = isPositive ? 'positive' : 'negative';
-                const changeSign = isPositive ? '+' : '';
-                
-                return `
-                    <div class="coin-item" onclick="openChartView(${index})">
-                        <div class="coin-icon ${coin.class}">${coin.name.substring(0, 3).toUpperCase()}</div>
-                        <div class="coin-info">
-                            <div class="coin-name">${coin.name}</div>
-                            <div class="coin-symbol">${coin.symbol}</div>
-                        </div>
-                        <div class="coin-chart">
-                            ${generateMiniChart(coin.trend)}
-                        </div>
-                        <div class="coin-price">
-                            <div class="price-value">${formatPrice(coin.price)}</div>
-                            <div class="price-change ${changeClass}">${changeSign}${coin.change}%</div>
-                            <div class="price-time">24 Hrs</div>
-                        </div>
+                    <div class="coin-price">
+                        <div class="price-value">$${coin.price.toLocaleString()}</div>
                     </div>
-                `;
-            }).join('');
+                </div>
+            `).join('');
         }
 
-        function updatePrices() {
-            cryptocurrencies.forEach(coin => {
-                const fluctuation = (Math.random() - 0.5) * 0.04;
-                coin.price = coin.price * (1 + fluctuation);
-                coin.change = coin.change + (Math.random() - 0.5) * 0.5;
-                coin.trend = coin.change >= 0 ? 'up' : 'down';
-            });
-            
-            const activeTab = document.querySelector('.tab.active');
-            if (activeTab && activeTab.textContent.includes('Top')) {
-                switchTab(activeTab, 'top');
-            } else {
-                renderCoinList();
-            }
+        // Trading Functions
+        function openTrade(index) {
+            selectedCoin = coins[index];
+            document.getElementById('modalTitle').textContent = `Trade ${selectedCoin.fullName}`;
+            document.getElementById('availableBalance').textContent = userBalance.toFixed(2);
+            document.getElementById('tradingModal').classList.add('active');
         }
 
-        function startPriceUpdates() {
-            if (priceUpdateInterval) {
-                clearInterval(priceUpdateInterval);
-            }
-            priceUpdateInterval = setInterval(updatePrices, 5000);
+        function closeTradeModal() {
+            document.getElementById('tradingModal').classList.remove('active');
+            document.getElementById('tradeAmount').value = '';
         }
 
-        function openChartView(coinIndex) {
-            selectedCoin = cryptocurrencies[coinIndex];
-            
-            document.getElementById('chartCoinIcon').textContent = selectedCoin.name.substring(0, 3).toUpperCase();
-            document.getElementById('chartCoinIcon').className = `chart-coin-icon ${selectedCoin.class}`;
-            document.getElementById('chartCoinName').textContent = selectedCoin.name;
-            document.getElementById('chartPrice').textContent = formatPrice(selectedCoin.price);
-            
-            const isPositive = selectedCoin.change >= 0;
-            const changeSign = isPositive ? '+' : '';
-            const priceChangeEl = document.getElementById('chartPriceChange');
-            priceChangeEl.textContent = `${changeSign}${selectedCoin.change.toFixed(2)} (${changeSign}${Math.abs(selectedCoin.change / selectedCoin.price * 100).toFixed(3)}%)`;
-            priceChangeEl.className = `price-change-info ${isPositive ? 'positive' : 'negative'}`;
-            
-            generateChart();
-            
-            document.getElementById('dashboard').classList.remove('active');
-            document.getElementById('chartOverview').classList.add('active');
+        function selectDirection(direction) {
+            tradeDirection = direction;
+            document.getElementById('upBtn').className = direction === 'up' ? 'direction-btn up' : 'direction-btn up inactive';
+            document.getElementById('downBtn').className = direction === 'down' ? 'direction-btn down' : 'direction-btn down inactive';
         }
 
-        function goBackFromChart() {
-            document.getElementById('chartOverview').classList.remove('active');
-            document.getElementById('dashboard').classList.add('active');
-            selectedCoin = null;
-        }
+        // Execute Trade
+        async function executeTrade() {
+            const amount = parseFloat(document.getElementById('tradeAmount').value);
+            const timeFrame = document.getElementById('timeFrame').value;
 
-        function generateChart() {
-            const svg = document.getElementById('chartSvg');
-            const width = 350;
-            const height = 300;
-            
-            const points = [];
-            const numPoints = 50;
-            let currentValue = 0.3;
-            
-            for (let i = 0; i < numPoints; i++) {
-                const randomChange = (Math.random() - 0.4) * 0.1;
-                const trendChange = selectedCoin.trend === 'up' ? 0.015 : -0.015;
-                currentValue += randomChange + trendChange;
-                currentValue = Math.max(0.1, Math.min(0.9, currentValue));
-                points.push(currentValue);
-            }
-            
-            let pathData = `M 0 ${height}`;
-            points.forEach((point, index) => {
-                const x = (index / (numPoints - 1)) * width;
-                const y = (1 - point) * height;
-                if (index === 0) {
-                    pathData += ` L 0 ${y}`;
-                }
-                pathData += ` L ${x} ${y}`;
-            });
-            pathData += ` L ${width} ${height} Z`;
-            
-            svg.innerHTML = `
-                <defs>
-                    <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.8" />
-                        <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.2" />
-                    </linearGradient>
-                </defs>
-                <path d="${pathData}" fill="url(#chartGradient)" stroke="#ffffff" stroke-width="2" stroke-opacity="0.9"/>
-            `;
-        }
-
-        function selectTimeframe(element, timeframe) {
-            document.querySelectorAll('.timeframe-btn').forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
-            generateChart();
-        }
-
-        function goToTradingForm() {
-            if (!selectedCoin) return;
-            
-            document.getElementById('tradingPageTitle').textContent = `${selectedCoin.name} Delivery`;
-            document.getElementById('tradingCoinIcon').textContent = selectedCoin.name.substring(0, 3).toUpperCase();
-            document.getElementById('tradingCoinIcon').className = `trading-coin-icon ${selectedCoin.class}`;
-            document.getElementById('tradingCoinName').textContent = selectedCoin.name;
-            document.getElementById('availableBalance').textContent = userBalance;
-            
-            document.getElementById('chartOverview').classList.remove('active');
-            document.getElementById('tradingPage').classList.add('active');
-        }
-
-        function goBackToChart() {
-            document.getElementById('tradingPage').classList.remove('active');
-            document.getElementById('chartOverview').classList.add('active');
-            
-            document.getElementById('timeOptions').classList.remove('active');
-            document.getElementById('priceOptions').classList.remove('active');
-        }
-
-        function toggleTimeOptions() {
-            const timeOptions = document.getElementById('timeOptions');
-            const priceOptions = document.getElementById('priceOptions');
-            priceOptions.classList.remove('active');
-            timeOptions.classList.toggle('active');
-        }
-
-        function selectTime(time) {
-            document.getElementById('selectedTime').textContent = time;
-            document.getElementById('timeOptions').classList.remove('active');
-            document.getElementById('timerDisplay').textContent = time;
-        }
-
-        function togglePriceOptions() {
-            const priceOptions = document.getElementById('priceOptions');
-            const timeOptions = document.getElementById('timeOptions');
-            timeOptions.classList.remove('active');
-            priceOptions.classList.toggle('active');
-        }
-
-        function selectPriceRange(percentage) {
-            currentPriceRange = parseFloat(percentage);
-            document.getElementById('selectedPriceRange').textContent = `(*${percentage}%)`;
-            document.getElementById('priceOptions').classList.remove('active');
-            updateExpectedAmount();
-        }
-
-        function selectDirection(direction, element) {
-            document.querySelectorAll('.direction-btn').forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
-            
-            const coinType = document.querySelector('.coin-type');
-            coinType.textContent = direction === 'up' ? 'Buy Up' : 'Buy Down';
-        }
-
-        function setMaxAmount() {
-            const amountInput = document.querySelector('.amount-input');
-            amountInput.value = userBalance.toString();
-            updateExpectedAmount();
-        }
-
-        function updateExpectedAmount() {
-            const amount = parseFloat(document.querySelector('.amount-input').value) || 0;
-            const expectedElement = document.querySelector('.expected-amount');
-            
-            if (amount > 0) {
-                const expectedAmount = amount + (amount * currentPriceRange / 100);
-                expectedElement.textContent = `Expected: ${expectedAmount.toFixed(2)}`;
-            } else {
-                expectedElement.textContent = 'Expected: 0.00';
-            }
-        }
-
-        function executeTrade() {
-            const amount = parseFloat(document.querySelector('.amount-input').value) || 0;
-            
-            if (amount < 1) {
-                alert('Minimum amount is 1 USDT');
+            if (!amount || amount < 1) {
+                showMessage('tradeMessage', 'Minimum amount is 1 USDT', 'error');
                 return;
             }
-            
+
             if (amount > userBalance) {
-                alert('Insufficient balance');
+                showMessage('tradeMessage', 'Insufficient balance', 'error');
                 return;
             }
-            
-            const direction = document.querySelector('.direction-btn.active');
-            const directionText = direction ? direction.textContent : 'Up';
-            const timeFrame = document.getElementById('selectedTime').textContent;
-            
-            alert(`Trade executed successfully!\nCoin: ${selectedCoin.name}\nAmount: ${amount} USDT\nDirection: ${directionText}\nTime: ${timeFrame}`);
-            
-            userBalance -= amount;
-            userData.balance = userBalance;
-            localStorage.setItem('registeredUser', JSON.stringify(userData));
-            document.getElementById('availableBalance').textContent = userBalance;
-            
-            goBackToChart();
-        }
 
-        function showMessage(text, type) {
-            const messageDiv = document.getElementById('message');
-            messageDiv.innerHTML = `<div class="message ${type}">${text}</div>`;
-        }
+            try {
+                // Deduct balance
+                const newBalance = userBalance - amount;
+                await db.collection('users').doc(currentUser.uid).update({
+                    balance: newBalance
+                });
 
-        function clearMessage() {
-            document.getElementById('message').innerHTML = '';
-        }
+                // Create trade record
+                await db.collection('trades').add({
+                    userId: currentUser.uid,
+                    userEmail: currentUser.email,
+                    coin: selectedCoin.name,
+                    amount: amount,
+                    direction: tradeDirection,
+                    timeFrame: parseInt(timeFrame),
+                    status: 'pending',
+                    result: null,
+                    profit: 0,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
 
-        document.addEventListener('click', function(event) {
-            if (!event.target.closest('.time-dropdown')) {
-                document.getElementById('timeOptions').classList.remove('active');
+                userBalance = newBalance;
+                document.getElementById('userBalance').textContent = userBalance.toFixed(2) + ' USDT';
+                
+                showMessage('tradeMessage', 'Trade executed! Result will be determined shortly.', 'success');
+                
+                setTimeout(() => {
+                    closeTradeModal();
+                }, 2000);
+
+            } catch (error) {
+                showMessage('tradeMessage', 'Trade failed: ' + error.message, 'error');
             }
-            if (!event.target.closest('.price-range-dropdown')) {
-                document.getElementById('priceOptions').classList.remove('active');
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const amountInput = document.querySelector('.amount-input');
-            if (amountInput) {
-                amountInput.addEventListener('input', updateExpectedAmount);
-            }
-        });
+        }
     </script>
 </body>
 </html>
-<!-- Firebase CDN (works on GitHub Pages) -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-
-<script>
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDWQBTrvvxCL5Qd23iSMTQlWkaPKZgjhqw",
-  authDomain: "trading-dapp-d5aa4.firebaseapp.com",
-  projectId: "trading-dapp-d5aa4",
-  storageBucket: "trading-dapp-d5aa4.firebasestorage.app",
-  messagingSenderId: "690266747119",
-  appId: "1:690266747119:web:0f22d45fbee53ee3c3eb1a"
-};
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-console.log("Firebase connected successfully!");
-</script>
