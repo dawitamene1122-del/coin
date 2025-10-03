@@ -132,7 +132,7 @@
                     <label>Password</label>
                     <input type="password" id="regPassword" placeholder="Enter password">
                 </div>
-                <button class="btn btn-primary" onclick="register(); return false;">Register</button>
+                <button class="btn btn-primary" onclick="register()">Register</button>
                 <div class="switch-text">
                     Already have an account? <span class="switch-link" onclick="showLogin()">Sign In</span>
                 </div>
@@ -149,7 +149,7 @@
                     <label>Password</label>
                     <input type="password" id="loginPassword" placeholder="Enter password">
                 </div>
-                <button class="btn btn-primary" onclick="login(); return false;">Sign In</button>
+                <button class="btn btn-primary" onclick="login()">Sign In</button>
                 <div class="switch-text">
                     Don't have an account? <span class="switch-link" onclick="showRegister()">Register</span>
                 </div>
@@ -358,8 +358,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <script>
-        console.log('Script started');
-        
         // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyDWQBTrvvxCL5Qd23iSMTQlWkaPKZgjhqw",
@@ -370,11 +368,9 @@
             appId: "1:690266747119:web:0f22d45fbee53ee3c3eb1a"
         };
 
-        console.log('Initializing Firebase...');
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        console.log('Firebase initialized');
 
         // Global variables
         let currentUser = null;
@@ -410,49 +406,39 @@
             return Math.floor(10000 + Math.random() * 90000).toString();
         }
 
-        // Make functions global
-        window.register = register;
-        window.login = login;
-        window.logout = logout;
-        window.showRegister = showRegister;
-        window.showLogin = showLogin;
-        window.openTrade = openTrade;
-        window.closeTradeModal = closeTradeModal;
-        window.selectDirection = selectDirection;
-        window.selectPercentage = selectPercentage;
-        window.executeTrade = executeTrade;
-        window.openHistory = openHistory;
-        window.closeHistory = closeHistory;
-        window.switchHistoryTab = switchHistoryTab;
-        window.openTradeDetail = openTradeDetail;
-        window.closeTradeDetail = closeTradeDetail;
-        window.openProfile = openProfile;
-        window.closeProfile = closeProfile;
-        window.openDeposit = openDeposit;
-        window.closeDeposit = closeDeposit;
-        window.updateDepositAddress = updateDepositAddress;
-        window.copyAddress = copyAddress;
-        window.openAnalytics = openAnalytics;
-        window.closeAnalytics = closeAnalytics;
-        window.contactSupport = contactSupport;
-
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                currentUser = user;
-                await loadUserData();
-                showDashboard();
-            } else {
-                showAuth();
+        function showMessage(elementId, message, type) {
+            const el = document.getElementById(elementId);
+            if (el) {
+                el.innerHTML = `<div class="message ${type}">${message}</div>`;
+                setTimeout(() => { el.innerHTML = ''; }, 4000);
             }
-        });
+        }
+
+        function showRegister() {
+            document.getElementById('registerForm').classList.remove('hidden');
+            document.getElementById('loginForm').classList.add('hidden');
+        }
+
+        function showLogin() {
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        }
+
+        function showAuth() {
+            document.getElementById('authContainer').style.display = 'flex';
+            document.getElementById('dashboard').classList.remove('active');
+        }
+
+        function showDashboard() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('dashboard').classList.add('active');
+            renderCoins();
+        }
 
         async function register() {
-            console.log('Register button clicked');
             const name = document.getElementById('regName').value.trim();
             const email = document.getElementById('regEmail').value.trim();
             const password = document.getElementById('regPassword').value;
-
-            console.log('Name:', name, 'Email:', email);
 
             if (!name || !email || !password) {
                 showMessage('authMessage', 'Please fill all fields', 'error');
@@ -481,13 +467,11 @@
 
                 showMessage('authMessage', 'Account created! Demo balance: 10,000 USDT', 'success');
             } catch (error) {
-                console.error('Registration error:', error);
                 showMessage('authMessage', error.message, 'error');
             }
         }
 
         async function login() {
-            console.log('Login button clicked');
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
 
@@ -502,7 +486,6 @@
                 await auth.signInWithEmailAndPassword(email, password);
                 showMessage('loginMessage', 'Login successful!', 'success');
             } catch (error) {
-                console.error('Login error:', error);
                 showMessage('loginMessage', error.message, 'error');
             }
         }
@@ -525,40 +508,13 @@
             }
         }
 
-        function showAuth() {
-            document.getElementById('authContainer').style.display = 'flex';
-            document.getElementById('dashboard').classList.remove('active');
-        }
-
-        function showDashboard() {
-            document.getElementById('authContainer').style.display = 'none';
-            document.getElementById('dashboard').classList.add('active');
-            renderCoins();
-        }
-
-        function showRegister() {
-            document.getElementById('registerForm').classList.remove('hidden');
-            document.getElementById('loginForm').classList.add('hidden');
-        }
-
-        function showLogin() {
-            document.getElementById('registerForm').classList.add('hidden');
-            document.getElementById('loginForm').classList.remove('hidden');
-        }
-
-        function showMessage(elementId, message, type) {
-            const el = document.getElementById(elementId);
-            el.innerHTML = `<div class="message ${type}">${message}</div>`;
-            setTimeout(() => { el.innerHTML = ''; }, 4000);
-        }
-
         function renderCoins() {
             const coinList = document.getElementById('coinList');
             coinList.innerHTML = coins.map((coin, index) => `
                 <div class="coin-item" onclick="openTrade(${index})">
                     <div class="coin-icon ${coin.class}">${coin.name}</div>
                     <div class="coin-info">
-                        <div class="coin-name">${coin.fullName}</div>
+                        <div class="coinname}">${coin.fullName}</div>
                     </div>
                     <div class="coin-price">${coin.price.toLocaleString()}</div>
                 </div>
@@ -596,13 +552,6 @@
             const profit = amount * (selectedPercentage / 100);
             document.getElementById('expectedProfit').textContent = profit.toFixed(2);
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const amountInput = document.getElementById('tradeAmount');
-            if (amountInput) {
-                amountInput.addEventListener('input', updateExpectedProfit);
-            }
-        });
 
         async function executeTrade() {
             const amount = parseFloat(document.getElementById('tradeAmount').value);
@@ -653,7 +602,7 @@
             }
         }
 
-        async function openHistory() {
+        function openHistory() {
             document.getElementById('historyModal').classList.add('active');
             historyFilter = 'wait';
             switchHistoryTab('wait');
@@ -858,9 +807,9 @@
             });
         }
 
-        async function openAnalytics() {
+        function openAnalytics() {
             document.getElementById('analyticsModal').classList.add('active');
-            await loadAnalytics();
+            loadAnalytics();
         }
 
         function closeAnalytics() {
@@ -893,8 +842,8 @@
 
                 document.getElementById('totalTrades').textContent = totalTrades;
                 document.getElementById('winRate').textContent = winRate + '%';
-                document.getElementById('totalProfit').textContent = ' + totalProfit.toFixed(2);
-                document.getElementById('totalLoss').textContent = ' + totalLoss.toFixed(2);
+                document.getElementById('totalProfit').textContent = '$' + totalProfit.toFixed(2);
+                document.getElementById('totalLoss').textContent = '$' + totalLoss.toFixed(2);
 
             } catch (error) {
                 console.error('Error loading analytics:', error);
@@ -905,28 +854,24 @@
             alert('Customer Support\n\nYour ID: ' + userId + '\nName: ' + userName + '\n\nThis is a demo platform for educational purposes.');
         }
 
-        db.collection('trades').where('userId', '==', currentUser?.uid || 'none')
-            .onSnapshot(snapshot => {
-                snapshot.docChanges().forEach(async change => {
-                    if (change.type === 'modified') {
-                        const trade = change.doc.data();
-                        if (trade.status !== 'pending') {
-                            const userDoc = await db.collection('users').doc(currentUser.uid).get();
-                            const currentBalance = userDoc.data().balance;
-                            
-                            if (trade.status === 'win') {
-                                const newBalance = currentBalance + trade.profit;
-                                await db.collection('users').doc(currentUser.uid).update({ balance: newBalance });
-                                userBalance = newBalance;
-                            } else {
-                                userBalance = currentBalance;
-                            }
-                            
-                            document.getElementById('userBalance').textContent = userBalance.toFixed(2);
-                        }
-                    }
-                });
-            });
+        // Auth state listener
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadUserData();
+                showDashboard();
+            } else {
+                showAuth();
+            }
+        });
+
+        // Add event listener after DOM loads
+        window.addEventListener('DOMContentLoaded', () => {
+            const amountInput = document.getElementById('tradeAmount');
+            if (amountInput) {
+                amountInput.addEventListener('input', updateExpectedProfit);
+            }
+        });
     </script>
 </body>
 </html>
