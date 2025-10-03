@@ -132,7 +132,7 @@
                     <label>Password</label>
                     <input type="password" id="regPassword" placeholder="Enter password">
                 </div>
-                <button class="btn btn-primary" onclick="register()">Register</button>
+                <button class="btn btn-primary" onclick="register(); return false;">Register</button>
                 <div class="switch-text">
                     Already have an account? <span class="switch-link" onclick="showLogin()">Sign In</span>
                 </div>
@@ -149,7 +149,7 @@
                     <label>Password</label>
                     <input type="password" id="loginPassword" placeholder="Enter password">
                 </div>
-                <button class="btn btn-primary" onclick="login()">Sign In</button>
+                <button class="btn btn-primary" onclick="login(); return false;">Sign In</button>
                 <div class="switch-text">
                     Don't have an account? <span class="switch-link" onclick="showRegister()">Register</span>
                 </div>
@@ -415,14 +415,24 @@
         });
 
         async function register() {
+            console.log('Register button clicked');
             const name = document.getElementById('regName').value.trim();
-            const email = document.getElementById('regEmail').value;
+            const email = document.getElementById('regEmail').value.trim();
             const password = document.getElementById('regPassword').value;
+
+            console.log('Name:', name, 'Email:', email);
 
             if (!name || !email || !password) {
                 showMessage('authMessage', 'Please fill all fields', 'error');
                 return;
             }
+
+            if (password.length < 6) {
+                showMessage('authMessage', 'Password must be at least 6 characters', 'error');
+                return;
+            }
+
+            showMessage('authMessage', 'Creating account...', 'success');
 
             try {
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
@@ -439,12 +449,14 @@
 
                 showMessage('authMessage', 'Account created! Demo balance: 10,000 USDT', 'success');
             } catch (error) {
+                console.error('Registration error:', error);
                 showMessage('authMessage', error.message, 'error');
             }
         }
 
         async function login() {
-            const email = document.getElementById('loginEmail').value;
+            console.log('Login button clicked');
+            const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
 
             if (!email || !password) {
@@ -452,9 +464,13 @@
                 return;
             }
 
+            showMessage('loginMessage', 'Logging in...', 'success');
+
             try {
                 await auth.signInWithEmailAndPassword(email, password);
+                showMessage('loginMessage', 'Login successful!', 'success');
             } catch (error) {
+                console.error('Login error:', error);
                 showMessage('loginMessage', error.message, 'error');
             }
         }
