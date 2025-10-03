@@ -358,6 +358,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <script>
+        console.log('Script started');
+        
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyDWQBTrvvxCL5Qd23iSMTQlWkaPKZgjhqw",
             authDomain: "trading-dapp-d5aa4.firebaseapp.com",
@@ -367,10 +370,13 @@
             appId: "1:690266747119:web:0f22d45fbee53ee3c3eb1a"
         };
 
+        console.log('Initializing Firebase...');
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        console.log('Firebase initialized');
 
+        // Global variables
         let currentUser = null;
         let userBalance = 0;
         let userName = '';
@@ -403,6 +409,32 @@
         function generateUserId() {
             return Math.floor(10000 + Math.random() * 90000).toString();
         }
+
+        // Make functions global
+        window.register = register;
+        window.login = login;
+        window.logout = logout;
+        window.showRegister = showRegister;
+        window.showLogin = showLogin;
+        window.openTrade = openTrade;
+        window.closeTradeModal = closeTradeModal;
+        window.selectDirection = selectDirection;
+        window.selectPercentage = selectPercentage;
+        window.executeTrade = executeTrade;
+        window.openHistory = openHistory;
+        window.closeHistory = closeHistory;
+        window.switchHistoryTab = switchHistoryTab;
+        window.openTradeDetail = openTradeDetail;
+        window.closeTradeDetail = closeTradeDetail;
+        window.openProfile = openProfile;
+        window.closeProfile = closeProfile;
+        window.openDeposit = openDeposit;
+        window.closeDeposit = closeDeposit;
+        window.updateDepositAddress = updateDepositAddress;
+        window.copyAddress = copyAddress;
+        window.openAnalytics = openAnalytics;
+        window.closeAnalytics = closeAnalytics;
+        window.contactSupport = contactSupport;
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
