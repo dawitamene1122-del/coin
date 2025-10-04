@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hibt - Trading Platform (DEMO)</title>
+<title>Hibt - Trading Platform</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fa; }
@@ -168,7 +168,7 @@
                 <div class="user-name" id="userName"></div>
                 <div class="balance-display">
                     <span id="userBalance">0.00</span> USDT
-                    <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">Demo Balance</div>
+                    <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">Available Balance</div>
                 </div>
                 <div class="btn-group">
                     <button class="btn-small" onclick="openProfile()">Profile</button>
@@ -217,7 +217,7 @@
             <div class="trade-section">
                 <div class="trade-label">Amount (USDT)</div>
                 <input type="number" class="trade-input" id="tradeAmount" placeholder="Enter amount" min="1">
-                <div class="info-text">Available: <span id="availableBalance">0.00</span> USDT (Demo)</div>
+                <div class="info-text">Available: <span id="availableBalance">0.00</span> USDT</div>
                 <div class="info-text">Expected Profit: <span id="expectedProfit">0.00</span> USDT</div>
             </div>
 
@@ -231,7 +231,7 @@
                 </select>
             </div>
 
-            <button class="trade-btn" onclick="executeTrade()">Execute Trade (Demo)</button>
+            <button class="trade-btn" onclick="executeTrade()">Execute Trade</button>
         </div>
     </div>
 
@@ -288,14 +288,10 @@
     <div class="modal" id="depositModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Deposit (Educational Demo)</h2>
+                <h2 class="modal-title">Deposit Funds</h2>
                 <button class="close-btn" onclick="closeDeposit()">&times;</button>
             </div>
             <div style="padding: 20px 0;">
-                <div class="warning-box">
-                    <strong>EDUCATIONAL DEMO ONLY</strong>
-                    <p style="margin-top: 10px; font-size: 14px; color: #666;">These are placeholder addresses. Do NOT send real funds. This is for learning purposes only.</p>
-                </div>
                 
                 <div class="trade-section">
                     <div class="trade-label">Select Cryptocurrency</div>
@@ -307,16 +303,11 @@
                 </div>
 
                 <div class="trade-section">
-                    <div class="trade-label">Deposit Address (DEMO)</div>
+                    <div class="trade-label">Deposit Address</div>
                     <div class="deposit-address" id="depositAddress">Select a cryptocurrency</div>
                     <button class="copy-btn" onclick="copyAddress()">Copy Address</button>
                 </div>
-
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 12px; margin-top: 20px;">
-                    <p style="font-size: 13px; color: #666; line-height: 1.6;">
-                        <strong>Note:</strong> Replace these placeholder addresses with real licensed payment processor addresses when deploying to production with proper regulatory compliance.
-                    </p>
-                </div>
+      
             </div>
         </div>
     </div>
@@ -383,9 +374,9 @@
         let historyFilter = 'wait';
         let countdownIntervals = {};
 
-        const DEMO_ADDRESSES = {
-            btc: "55555555555555555555555555555555",
-            eth: "66666666666666666666666666666666",
+        const WALLET_ADDRESSES = {
+            btc: "bc1q09du83k4trpn4d89h5ew73udgtdswhg4l5c23e",
+            eth: "0x1367AD3f53BDeF3192072c21dB4E72C934561d75",
             other: "00000000000000000000000000000000"
         };
 
@@ -803,7 +794,7 @@
         function copyAddress() {
             const address = document.getElementById('depositAddress').textContent;
             navigator.clipboard.writeText(address).then(() => {
-                alert('Demo address copied (not functional)');
+                alert('Address copied to clipboard');
             });
         }
 
@@ -851,7 +842,7 @@
         }
 
         function contactSupport() {
-            alert('Customer Support\n\nYour ID: ' + userId + '\nName: ' + userName + '\n\nThis is a demo platform for educational purposes.');
+            alert('Customer Support\n\nYour ID: ' + userId + '\nName: ' + userName + '\n\nPlease contact support for assistance.');
         }
 
         // Auth state listener
@@ -875,3 +866,4 @@
     </script>
 </body>
 </html>
+
