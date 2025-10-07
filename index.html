@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hibt - Trading Platform</title>
+    <title>Hibt - Trading Platform</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fa; }
@@ -83,12 +83,14 @@
         .history-time { font-size: 12px; color: #666; }
         .countdown { font-size: 16px; font-weight: 600; color: #ff9800; }
         .history-profit { font-size: 14px; color: #4caf50; font-weight: 600; margin-top: 8px; }
+        .history-loss { font-size: 14px; color: #f44336; font-weight: 600; margin-top: 8px; }
         .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
         .detail-label { color: #666; }
         .detail-value { font-weight: 600; }
         .detail-value.up { color: #4caf50; }
         .detail-value.down { color: #f44336; }
         .detail-value.profit { color: #4caf50; font-size: 18px; }
+        .detail-value.red { color: #f44336; font-size: 18px; }
         
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
         .stat-card { background: #f8f9fa; padding: 15px; border-radius: 12px; text-align: center; }
@@ -100,7 +102,6 @@
         .deposit-address { background: #f8f9fa; padding: 15px; border-radius: 12px; margin: 15px 0; word-break: break-all; font-family: monospace; font-size: 13px; border: 2px dashed #ddd; }
         .copy-btn { padding: 10px 20px; background: #4285f4; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
         .copy-btn:hover { background: #3367d6; }
-        .warning-box { background: #fff3cd; padding: 15px; border-radius: 12px; margin: 15px 0; border-left: 4px solid #ffc107; }
         
         .btc { background: #f7931a; }
         .eth { background: #627eea; }
@@ -276,7 +277,7 @@
                     <div style="text-align: left;">
                         <div style="padding: 15px; margin-bottom: 10px; background: #f8f9fa; border-radius: 8px; cursor: pointer;" onclick="openAnalytics()">Analytics</div>
                         <div style="padding: 15px; margin-bottom: 10px; background: #f8f9fa; border-radius: 8px; cursor: pointer;" onclick="contactSupport()">Chat Support</div>
-                        <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; cursor: pointer;" onclick="alert('Demo Mode - Settings disabled')">Settings</div>
+                        <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; cursor: pointer;" onclick="alert('Settings - Coming Soon')">Settings</div>
                     </div>
                 </div>
             </div>
@@ -291,7 +292,6 @@
                 <button class="close-btn" onclick="closeDeposit()">&times;</button>
             </div>
             <div style="padding: 20px 0;">
-                
                 <div class="trade-section">
                     <div class="trade-label">Select Cryptocurrency</div>
                     <select class="trade-input" id="depositCrypto" onchange="updateDepositAddress()">
@@ -306,7 +306,6 @@
                     <div class="deposit-address" id="depositAddress">Select a cryptocurrency</div>
                     <button class="copy-btn" onclick="copyAddress()">Copy Address</button>
                 </div>
-      
             </div>
         </div>
     </div>
@@ -372,11 +371,12 @@
         let selectedPercentage = 15;
         let historyFilter = 'wait';
         let countdownIntervals = {};
+        let balanceUpdateListener = null;
 
         const WALLET_ADDRESSES = {
-            btc: "zzzzzzzz",
-            eth: "xxxxx",
-            other: "00000"
+            btc: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+            eth: "0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
+            other: "Contact support for other coins"
         };
 
         const coins = [
@@ -451,11 +451,11 @@
                     userId: newUserId,
                     name: name,
                     email: email,
-                    balance: 10000,
+                    balance: 0,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                showMessage('authMessage', 'Account created! Demo balance: 10,000 USDT', 'success');
+                showMessage('authMessage', 'Account created successfully! Please deposit to start trading.', 'success');
             } catch (error) {
                 showMessage('authMessage', error.message, 'error');
             }
@@ -481,6 +481,9 @@
         }
 
         function logout() {
+            if (balanceUpdateListener) {
+                balanceUpdateListener();
+            }
             auth.signOut();
         }
 
@@ -492,10 +495,25 @@
                 userName = userData.name || 'User';
                 userId = userData.userId || '00000';
                 
-                document.getElementById('userBalance').textContent = userBalance.toFixed(2);
-                document.getElementById('userName').textContent = userName;
-                document.getElementById('userId').textContent = userId;
+                updateBalanceDisplay();
+                
+                // Real-time balance updates
+                if (balanceUpdateListener) {
+                    balanceUpdateListener();
+                }
+                balanceUpdateListener = db.collection('users').doc(currentUser.uid).onSnapshot(doc => {
+                    if (doc.exists) {
+                        userBalance = doc.data().balance || 0;
+                        updateBalanceDisplay();
+                    }
+                });
             }
+        }
+
+        function updateBalanceDisplay() {
+            document.getElementById('userBalance').textContent = userBalance.toFixed(2);
+            document.getElementById('userName').textContent = userName;
+            document.getElementById('userId').textContent = userId;
         }
 
         function renderCoins() {
@@ -504,7 +522,7 @@
                 <div class="coin-item" onclick="openTrade(${index})">
                     <div class="coin-icon ${coin.class}">${coin.name}</div>
                     <div class="coin-info">
-                        <div class="coinname}">${coin.fullName}</div>
+                        <div class="coin-name">${coin.fullName}</div>
                     </div>
                     <div class="coin-price">${coin.price.toLocaleString()}</div>
                 </div>
@@ -518,6 +536,11 @@
             document.getElementById('tradeAmount').value = '';
             document.getElementById('expectedProfit').textContent = '0.00';
             document.getElementById('tradingModal').classList.add('active');
+            
+            // Reset direction
+            tradeDirection = 'up';
+            document.getElementById('upBtn').className = 'direction-btn up';
+            document.getElementById('downBtn').className = 'direction-btn down inactive';
         }
 
         function closeTradeModal() {
@@ -545,7 +568,7 @@
 
         async function executeTrade() {
             const amount = parseFloat(document.getElementById('tradeAmount').value);
-            const timeFrame = document.getElementById('timeFrame').value;
+            const timeFrame = parseInt(document.getElementById('timeFrame').value);
 
             if (!amount || amount < 1) {
                 showMessage('tradeMessage', 'Minimum amount is 1 USDT', 'error');
@@ -558,9 +581,11 @@
             }
 
             try {
+                // Deduct balance immediately
                 const newBalance = userBalance - amount;
                 await db.collection('users').doc(currentUser.uid).update({ balance: newBalance });
 
+                // Create trade with all required information
                 await db.collection('trades').add({
                     userId: currentUser.uid,
                     userIdNumber: userId,
@@ -568,10 +593,11 @@
                     userEmail: currentUser.email,
                     coin: selectedCoin.name,
                     coinFull: selectedCoin.fullName,
+                    purchasePrice: selectedCoin.price,
                     amount: amount,
                     direction: tradeDirection,
                     percentage: selectedPercentage,
-                    timeFrame: parseInt(timeFrame),
+                    timeFrame: timeFrame,
                     status: 'pending',
                     result: null,
                     profit: 0,
@@ -579,9 +605,9 @@
                 });
 
                 userBalance = newBalance;
-                document.getElementById('userBalance').textContent = userBalance.toFixed(2);
+                updateBalanceDisplay();
                 
-                showMessage('tradeMessage', 'Trade executed! Check "My Contract" for results.', 'success');
+                showMessage('tradeMessage', 'Trade executed successfully! Check "My Contract" to track it.', 'success');
                 
                 setTimeout(() => {
                     closeTradeModal();
@@ -636,15 +662,37 @@
                     const trade = { id: doc.id, ...doc.data() };
                     const tradeTime = trade.createdAt?.toMillis() || 0;
                     const endTime = tradeTime + (trade.timeFrame * 1000);
-                    const isFinished = now >= endTime || trade.status !== 'pending';
+                    const isFinished = now >= endTime || (trade.status === 'win' || trade.status === 'loss');
+                    
+                    // Auto-process expired pending trades
+                    if (now >= endTime && trade.status === 'pending') {
+                        const winResult = trade.result === 'win';
+                        const profit = winResult ? trade.amount * (trade.percentage / 100) : 0;
+                        const finalStatus = winResult ? 'win' : 'loss';
+                        
+                        await db.collection('trades').doc(doc.id).update({ 
+                            status: finalStatus,
+                            profit: profit
+                        });
+                        
+                        // Add back balance + profit if win
+                        if (winResult) {
+                            const userDoc = await db.collection('users').doc(trade.userId).get();
+                            if (userDoc.exists) {
+                                const currentBalance = userDoc.data().balance || 0;
+                                await db.collection('users').doc(trade.userId).update({
+                                    balance: currentBalance + trade.amount + profit
+                                });
+                            }
+                        }
+                        
+                        trade.status = finalStatus;
+                        trade.profit = profit;
+                    }
                     
                     if (historyFilter === 'wait' && !isFinished) {
                         trades.push({ ...trade, endTime, tradeTime });
                     } else if (historyFilter === 'finished' && isFinished) {
-                        if (trade.status === 'pending') {
-                            await db.collection('trades').doc(doc.id).update({ status: 'finished' });
-                            trade.status = 'finished';
-                        }
                         trades.push({ ...trade, endTime, tradeTime });
                     }
                 }
@@ -667,19 +715,23 @@
                                     <div class="history-coin">${trade.coinFull}/USDT</div>
                                     <div class="history-time">${dateStr}</div>
                                 </div>
-                                <div class="countdown" id="countdown-${trade.id}">${remainingSec}S remaining</div>
+                                <div>Amount: ${trade.amount.toFixed(2)} USDT | Direction: <span style="color: ${trade.direction === 'up' ? '#4caf50' : '#f44336'}; font-weight: 600;">${trade.direction.toUpperCase()}</span></div>
+                                <div class="countdown" id="countdown-${trade.id}">${remainingSec}s remaining</div>
                             </div>
                         `;
                     } else {
                         const profitClass = trade.status === 'win' ? 'win' : 'loss';
-                        const profitText = trade.status === 'win' ? `+${trade.profit.toFixed(2)}` : '';
                         return `
                             <div class="history-item finished ${profitClass}" onclick="openTradeDetail('${trade.id}')">
                                 <div class="history-header">
                                     <div class="history-coin">${trade.coinFull}/USDT</div>
                                     <div class="history-time">${dateStr}</div>
                                 </div>
-                                ${trade.status === 'win' ? `<div class="history-profit">Profit: ${profitText} USDT</div>` : ''}
+                                <div>Amount: ${trade.amount.toFixed(2)} USDT | Direction: <span style="color: ${trade.direction === 'up' ? '#4caf50' : '#f44336'}; font-weight: 600;">${trade.direction.toUpperCase()}</span></div>
+                                ${trade.status === 'win' ? 
+                                    `<div class="history-profit">Profit: +${trade.profit.toFixed(2)} USDT</div>` : 
+                                    `<div class="history-loss">Loss: -${trade.amount.toFixed(2)} USDT</div>`
+                                }
                             </div>
                         `;
                     }
@@ -692,6 +744,7 @@
                 }
 
             } catch (error) {
+                console.error('Error loading history:', error);
                 historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#f44;">Error loading contracts</div>';
             }
         }
@@ -708,9 +761,10 @@
                 if (remainingSec <= 0) {
                     clearInterval(countdownIntervals[tradeId]);
                     delete countdownIntervals[tradeId];
-                    loadTradeHistory();
+                    // Reload to show updated status
+                    setTimeout(() => loadTradeHistory(), 1000);
                 } else {
-                    countdownEl.textContent = `${remainingSec}S remaining`;
+                    countdownEl.textContent = `${remainingSec}s remaining`;
                 }
             }, 1000);
         }
@@ -733,30 +787,44 @@
                 </div>
                 <div class="detail-row">
                     <div class="detail-label">Direction</div>
-                    <div class="detail-value ${trade.direction}">${trade.direction === 'up' ? 'Up' : 'Down'}</div>
+                    <div class="detail-value ${trade.direction}">${trade.direction === 'up' ? 'Buy Up' : 'Buy Down'}</div>
                 </div>
                 <div class="detail-row">
                     <div class="detail-label">Purchase Price</div>
-                    <div class="detail-value">${(Math.random() * 100000 + 10000).toFixed(2)}</div>
+                    <div class="detail-value">${trade.purchasePrice ? trade.purchasePrice.toFixed(2) : 'N/A'} USDT</div>
                 </div>
                 <div class="detail-row">
-                    <div class="detail-label">Contract</div>
-                    <div class="detail-value">${trade.timeFrame}S</div>
+                    <div class="detail-label">Contract Time</div>
+                    <div class="detail-value">${trade.timeFrame} Seconds</div>
                 </div>
-                ${trade.status === 'win' ? `
                 <div class="detail-row">
-                    <div class="detail-label">Profit</div>
-                    <div class="detail-value profit">+${trade.profit.toFixed(2)} USDT</div>
+                    <div class="detail-label">Profit Percentage</div>
+                    <div class="detail-value">${trade.percentage}%</div>
                 </div>
-                ` : ''}
                 <div class="detail-row">
-                    <div class="detail-label">Delivery Price</div>
-                    <div class="detail-value">${(Math.random() * 100000 + 10000).toFixed(2)}</div>
+                    <div class="detail-label">Purchase Time</div>
+                    <div class="detail-value">${dateStr}</div>
                 </div>
                 <div class="detail-row">
                     <div class="detail-label">Delivery Time</div>
                     <div class="detail-value">${deliveryStr}</div>
                 </div>
+                ${trade.status === 'win' ? `
+                <div class="detail-row">
+                    <div class="detail-label">Result</div>
+                    <div class="detail-value profit">WIN +${trade.profit.toFixed(2)} USDT</div>
+                </div>
+                ` : trade.status === 'loss' ? `
+                <div class="detail-row">
+                    <div class="detail-label">Result</div>
+                    <div class="detail-value red">LOSS -${trade.amount.toFixed(2)} USDT</div>
+                </div>
+                ` : `
+                <div class="detail-row">
+                    <div class="detail-label">Status</div>
+                    <div class="detail-value" style="color: #ff9800;">PENDING</div>
+                </div>
+                `}
             `;
 
             document.getElementById('tradeDetailModal').classList.add('active');
@@ -793,7 +861,7 @@
         function copyAddress() {
             const address = document.getElementById('depositAddress').textContent;
             navigator.clipboard.writeText(address).then(() => {
-                alert('Address copied to clipboard');
+                alert('Address copied to clipboard!');
             });
         }
 
@@ -819,7 +887,9 @@
 
                 tradesSnapshot.forEach(doc => {
                     const trade = doc.data();
-                    totalTrades++;
+                    if (trade.status === 'win' || trade.status === 'loss') {
+                        totalTrades++;
+                    }
                     if (trade.status === 'win') {
                         wins++;
                         totalProfit += trade.profit;
@@ -832,8 +902,8 @@
 
                 document.getElementById('totalTrades').textContent = totalTrades;
                 document.getElementById('winRate').textContent = winRate + '%';
-                document.getElementById('totalProfit').textContent = '$' + totalProfit.toFixed(2);
-                document.getElementById('totalLoss').textContent = '$' + totalLoss.toFixed(2);
+                document.getElementById('totalProfit').textContent = ' + totalProfit.toFixed(2);
+                document.getElementById('totalLoss').textContent = ' + totalLoss.toFixed(2);
 
             } catch (error) {
                 console.error('Error loading analytics:', error);
@@ -841,7 +911,7 @@
         }
 
         function contactSupport() {
-            alert('Customer Support\n\nYour ID: ' + userId + '\nName: ' + userName + '\n\nPlease contact support for assistance.');
+            alert('Customer Support\n\nYour ID: ' + userId + '\nName: ' + userName + '\n\nPlease contact support at support@hibt.com for assistance.');
         }
 
         // Auth state listener
@@ -851,11 +921,12 @@
                 await loadUserData();
                 showDashboard();
             } else {
+                currentUser = null;
                 showAuth();
             }
         });
 
-        // Add event listener after DOM loads
+        // Add event listener for trade amount input
         window.addEventListener('DOMContentLoaded', () => {
             const amountInput = document.getElementById('tradeAmount');
             if (amountInput) {
@@ -865,6 +936,3 @@
     </script>
 </body>
 </html>
-
-
-
