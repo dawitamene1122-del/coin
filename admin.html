@@ -71,6 +71,9 @@
     <div class="login-container" id="loginContainer">
         <div class="login-box">
             <h1 class="login-title">🔐 Admin Panel</h1>
+            <div style="background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ffc107; font-size: 13px;">
+                ⚠️ <strong>Restricted Access:</strong> Admin accounts only. Unauthorized access is prohibited.
+            </div>
             <div id="loginMessage"></div>
             <div class="input-group">
                 <label>Admin Email</label>
@@ -184,8 +187,24 @@
                 return;
             }
 
+            // SECURE: Only allow specific admin email
+            const ADMIN_EMAIL = 'admin@hibt.com'; // Change this to YOUR admin email
+            
+            if (email !== ADMIN_EMAIL) {
+                showMessage('loginMessage', 'Access denied. Not an admin account.', 'error');
+                return;
+            }
+
             try {
                 await auth.signInWithEmailAndPassword(email, password);
+                
+                // Double check after login
+                if (auth.currentUser.email !== ADMIN_EMAIL) {
+                    await auth.signOut();
+                    showMessage('loginMessage', 'Access denied. Admin privileges required.', 'error');
+                    return;
+                }
+                
                 showMessage('loginMessage', 'Login successful!', 'success');
             } catch (error) {
                 showMessage('loginMessage', 'Invalid credentials: ' + error.message, 'error');
