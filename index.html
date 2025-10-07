@@ -392,6 +392,7 @@
             { name: 'LTC', fullName: 'Litecoin', class: 'ltc', price: 156.78 }
         ];
 
+        // Helper Functions
         function generateUserId() {
             return Math.floor(10000 + Math.random() * 90000).toString();
         }
@@ -425,6 +426,7 @@
             renderCoins();
         }
 
+        // Authentication Functions
         async function register() {
             const name = document.getElementById('regName').value.trim();
             const email = document.getElementById('regEmail').value.trim();
@@ -487,6 +489,7 @@
             auth.signOut();
         }
 
+        // User Data Functions
         async function loadUserData() {
             const userDoc = await db.collection('users').doc(currentUser.uid).get();
             if (userDoc.exists) {
@@ -516,6 +519,7 @@
             document.getElementById('userId').textContent = userId;
         }
 
+        // Market Functions
         function renderCoins() {
             const coinList = document.getElementById('coinList');
             coinList.innerHTML = coins.map((coin, index) => `
@@ -529,6 +533,7 @@
             `).join('');
         }
 
+        // Trading Functions
         function openTrade(index) {
             selectedCoin = coins[index];
             document.getElementById('modalTitle').textContent = `Trade ${selectedCoin.fullName}`;
@@ -537,7 +542,6 @@
             document.getElementById('expectedProfit').textContent = '0.00';
             document.getElementById('tradingModal').classList.add('active');
             
-            // Reset direction
             tradeDirection = 'up';
             document.getElementById('upBtn').className = 'direction-btn up';
             document.getElementById('downBtn').className = 'direction-btn down inactive';
@@ -581,11 +585,9 @@
             }
 
             try {
-                // Deduct balance immediately
                 const newBalance = userBalance - amount;
                 await db.collection('users').doc(currentUser.uid).update({ balance: newBalance });
 
-                // Create trade with all required information
                 await db.collection('trades').add({
                     userId: currentUser.uid,
                     userIdNumber: userId,
@@ -618,6 +620,7 @@
             }
         }
 
+        // History Functions
         function openHistory() {
             document.getElementById('historyModal').classList.add('active');
             historyFilter = 'wait';
@@ -664,7 +667,6 @@
                     const endTime = tradeTime + (trade.timeFrame * 1000);
                     const isFinished = now >= endTime || (trade.status === 'win' || trade.status === 'loss');
                     
-                    // Auto-process expired pending trades
                     if (now >= endTime && trade.status === 'pending') {
                         const winResult = trade.result === 'win';
                         const profit = winResult ? trade.amount * (trade.percentage / 100) : 0;
@@ -675,7 +677,6 @@
                             profit: profit
                         });
                         
-                        // Add back balance + profit if win
                         if (winResult) {
                             const userDoc = await db.collection('users').doc(trade.userId).get();
                             if (userDoc.exists) {
@@ -761,7 +762,6 @@
                 if (remainingSec <= 0) {
                     clearInterval(countdownIntervals[tradeId]);
                     delete countdownIntervals[tradeId];
-                    // Reload to show updated status
                     setTimeout(() => loadTradeHistory(), 1000);
                 } else {
                     countdownEl.textContent = `${remainingSec}s remaining`;
@@ -834,6 +834,7 @@
             document.getElementById('tradeDetailModal').classList.remove('active');
         }
 
+        // Profile Functions
         function openProfile() {
             document.getElementById('profileUserId').textContent = userId;
             document.getElementById('profileUserName').textContent = userName;
@@ -844,6 +845,7 @@
             document.getElementById('profileModal').classList.remove('active');
         }
 
+        // Deposit Functions
         function openDeposit() {
             document.getElementById('depositModal').classList.add('active');
             updateDepositAddress();
@@ -865,6 +867,7 @@
             });
         }
 
+        // Analytics Functions
         function openAnalytics() {
             document.getElementById('analyticsModal').classList.add('active');
             loadAnalytics();
@@ -926,7 +929,7 @@
             }
         });
 
-        // Add event listener for trade amount input
+        // Event Listeners
         window.addEventListener('DOMContentLoaded', () => {
             const amountInput = document.getElementById('tradeAmount');
             if (amountInput) {
