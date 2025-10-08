@@ -64,6 +64,19 @@
         .no-data { text-align: center; padding: 40px; color: #666; }
         
         .countdown { color: #ff9800; font-weight: 600; }
+        
+        .user-row { padding: 15px; background: #2a2a2a; border-radius: 8px; margin-bottom: 10px; }
+        .user-row:hover { background: #333; }
+        
+        .toggle-switch { position: relative; display: inline-block; width: 60px; height: 30px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #f44336; transition: .4s; border-radius: 30px; }
+        .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #4caf50; }
+        input:checked + .slider:before { transform: translateX(30px); }
+        .mode-label { font-size: 12px; font-weight: 600; margin-left: 8px; }
+        .mode-label.win { color: #4caf50; }
+        .mode-label.loss { color: #f44336; }
     </style>
 </head>
 <body>
@@ -121,6 +134,7 @@
                 <button class="filter-btn" onclick="filterTrades('pending')">Pending</button>
                 <button class="filter-btn" onclick="filterTrades('win')">Winners</button>
                 <button class="filter-btn" onclick="filterTrades('loss')">Losers</button>
+                <button class="filter-btn" onclick="showUserManagement()" style="background: #4285f4; color: white;">Manage Users</button>
             </div>
 
             <!-- Search -->
@@ -129,6 +143,30 @@
             </div>
 
             <div id="adminMessage"></div>
+
+            <!-- User Management Section -->
+            <div id="userManagementSection" style="display: none;">
+                <h2 style="margin-bottom: 20px; color: #fff;">User Management</h2>
+                <div class="search-box">
+                    <input type="text" class="search-input" id="userSearchInput" placeholder="Search by User ID or Email..." oninput="searchUsers()">
+                </div>
+                <div class="trades-table">
+                    <div class="table-header" style="grid-template-columns: 100px 150px 200px 120px 120px 180px;">
+                        <div>User ID</div>
+                        <div>Name</div>
+                        <div>Email</div>
+                        <div>Balance</div>
+                        <div>Win/Loss Mode</div>
+                        <div>Actions</div>
+                    </div>
+                    <div id="usersContainer"></div>
+                </div>
+                <button class="btn btn-small btn-warning" onclick="showTradesSection()" style="margin-top: 20px;">Back to Trades</button>
+            </div>
+
+            <!-- Trades Section -->
+            <div id="tradesSection">
+                <h2 style="margin-bottom: 20px; color: #fff;">Trade Management</h2>
 
             <!-- Trades Table -->
             <div class="trades-table">
@@ -143,6 +181,7 @@
                     <div>Actions</div>
                 </div>
                 <div id="tradesContainer"></div>
+            </div>
             </div>
         </div>
     </div>
@@ -168,6 +207,7 @@
 
         let currentFilter = 'all';
         let allTrades = [];
+        let allUsers = [];
         let countdownIntervals = {};
 
         function showMessage(elementId, message, type) {
@@ -188,7 +228,7 @@
             }
 
             // SECURE: Only allow specific admin email
-            const ADMIN_EMAIL = 'dawitamene1122@gmail.com'; // Change this to YOUR admin email
+            const ADMIN_EMAIL = 'admin@hibt.com'; // Change this to YOUR admin email
             
             if (email !== ADMIN_EMAIL) {
                 showMessage('loginMessage', 'Access denied. Not an admin account.', 'error');
@@ -324,22 +364,14 @@
                 let actions = '';
                 if (trade.status === 'pending' && remainingSec > 0) {
                     actions = `
-                        <div class="action-btns">
-                            <button class="btn btn-small btn-success" onclick="setTradeResult('${trade.id}', 'win')">WIN</button>
-                            <button class="btn btn-small btn-danger" onclick="setTradeResult('${trade.id}', 'loss')">LOSS</button>
-                        </div>
                         <div class="countdown" id="countdown-${trade.id}">${remainingSec}s</div>
+                        <div style="font-size: 11px; color: #888; margin-top: 5px;">Auto-processing based on user mode</div>
                     `;
                     
                     // Start countdown
                     startCountdown(trade.id, endTime);
                 } else if (trade.status === 'pending') {
-                    actions = `
-                        <div class="action-btns">
-                            <button class="btn btn-small btn-success" onclick="setTradeResult('${trade.id}', 'win')">WIN</button>
-                            <button class="btn btn-small btn-danger" onclick="setTradeResult('${trade.id}', 'loss')">LOSS</button>
-                        </div>
-                    `;
+                    actions = `<span style="color: #ff9800;">Processing...</span>`;
                 } else {
                     actions = `<span style="color: #666;">Finished</span>`;
                 }
@@ -380,33 +412,6 @@
             }, 1000);
         }
 
-        async function setTradeResult(tradeId, result) {
-            if (!confirm(`Set this trade as ${result.toUpperCase()}?`)) return;
-
-            try {
-                const tradeDoc = await db.collection('trades').doc(tradeId).get();
-                if (!tradeDoc.exists) {
-                    showMessage('adminMessage', 'Trade not found', 'error');
-                    return;
-                }
-
-                const trade = tradeDoc.data();
-                
-                // Update trade with result
-                await db.collection('trades').doc(tradeId).update({
-                    result: result,
-                    status: 'pending' // Keep as pending until time expires, then auto-process
-                });
-
-                showMessage('adminMessage', `Trade marked as ${result.toUpperCase()}. It will be processed when timer ends.`, 'success');
-                await loadTrades();
-                await loadStats();
-
-            } catch (error) {
-                showMessage('adminMessage', 'Error: ' + error.message, 'error');
-            }
-        }
-
         function filterTrades(filter) {
             currentFilter = filter;
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
@@ -416,6 +421,129 @@
 
         function searchTrades() {
             renderTrades();
+        }
+
+        // User Management Functions
+        function showUserManagement() {
+            document.getElementById('tradesSection').style.display = 'none';
+            document.getElementById('userManagementSection').style.display = 'block';
+            loadUsers();
+        }
+
+        function showTradesSection() {
+            document.getElementById('tradesSection').style.display = 'block';
+            document.getElementById('userManagementSection').style.display = 'none';
+        }
+
+        async function loadUsers() {
+            try {
+                const usersSnapshot = await db.collection('users').get();
+                allUsers = [];
+                usersSnapshot.forEach(doc => {
+                    allUsers.push({ uid: doc.id, ...doc.data() });
+                });
+                renderUsers();
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        function renderUsers() {
+            let filteredUsers = allUsers;
+
+            const searchTerm = document.getElementById('userSearchInput').value.toLowerCase();
+            if (searchTerm) {
+                filteredUsers = allUsers.filter(user => 
+                    user.userId?.toString().includes(searchTerm) ||
+                    user.email?.toLowerCase().includes(searchTerm) ||
+                    user.name?.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            const html = filteredUsers.map(user => `
+                <div class="table-row" style="grid-template-columns: 100px 150px 200px 150px 200px;">
+                    <div>${user.userId || 'N/A'}</div>
+                    <div>${user.name || 'N/A'}</div>
+                    <div style="font-size: 12px;">${user.email || 'N/A'}</div>
+                    <div style="font-weight: 600;">${(user.balance || 0).toFixed(2)}</div>
+                    <div>
+                        <button class="btn btn-small btn-success" onclick="adjustBalance('${user.uid}', 'add')">Add $</button>
+                        <button class="btn btn-small btn-danger" onclick="adjustBalance('${user.uid}', 'remove')">Remove $</button>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('usersContainer').innerHTML = html || '<div class="no-data">No users found</div>';
+        }
+
+        function searchUsers() {
+            renderUsers();
+        }
+
+        async function adjustBalance(userId, action) {
+            const amount = prompt(`Enter amount to ${action}:`);
+            if (!amount || isNaN(amount)) {
+                alert('Invalid amount');
+                return;
+            }
+
+            const amountNum = parseFloat(amount);
+            if (amountNum <= 0) {
+                alert('Amount must be positive');
+                return;
+            }
+
+            try {
+                const userDoc = await db.collection('users').doc(userId).get();
+                if (!userDoc.exists) {
+                    alert('User not found');
+                    return;
+                }
+
+                const currentBalance = userDoc.data().balance || 0;
+                let newBalance;
+
+                if (action === 'add') {
+                    newBalance = currentBalance + amountNum;
+                } else {
+                    newBalance = Math.max(0, currentBalance - amountNum);
+                }
+
+                await db.collection('users').doc(userId).update({ balance: newBalance });
+                
+                showMessage('adminMessage', `Balance ${action === 'add' ? 'added' : 'removed'} successfully!`, 'success');
+                await loadUsers();
+                await loadStats();
+            } catch (error) {
+                showMessage('adminMessage', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function toggleTradingMode(userId, isWinMode) {
+            const mode = isWinMode ? 'win' : 'loss';
+            
+            try {
+                await db.collection('users').doc(userId).update({ 
+                    tradingMode: mode 
+                });
+                
+                // Update the label
+                const label = document.getElementById(`mode-${userId}`);
+                if (label) {
+                    label.textContent = mode.toUpperCase();
+                    label.className = `mode-label ${mode}`;
+                }
+                
+                showMessage('adminMessage', `User trading mode set to ${mode.toUpperCase()}`, 'success');
+                
+                // Update local data
+                const userIndex = allUsers.findIndex(u => u.uid === userId);
+                if (userIndex !== -1) {
+                    allUsers[userIndex].tradingMode = mode;
+                }
+            } catch (error) {
+                showMessage('adminMessage', 'Error: ' + error.message, 'error');
+            }
         }
 
         // Auth state listener
