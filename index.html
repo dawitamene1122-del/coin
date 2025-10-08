@@ -668,23 +668,25 @@
                     const isFinished = now >= endTime || (trade.status === 'win' || trade.status === 'loss');
                     
                     if (now >= endTime && trade.status === 'pending') {
-                        const winResult = trade.result === 'win';
+                        // Get user's trading mode
+                        const userDoc = await db.collection('users').doc(trade.userId).get();
+                        const userMode = userDoc.exists ? (userDoc.data().tradingMode || 'loss') : 'loss';
+                        
+                        const winResult = userMode === 'win';
                         const profit = winResult ? trade.amount * (trade.percentage / 100) : 0;
                         const finalStatus = winResult ? 'win' : 'loss';
                         
                         await db.collection('trades').doc(doc.id).update({ 
                             status: finalStatus,
-                            profit: profit
+                            profit: profit,
+                            result: userMode
                         });
                         
-                        if (winResult) {
-                            const userDoc = await db.collection('users').doc(trade.userId).get();
-                            if (userDoc.exists) {
-                                const currentBalance = userDoc.data().balance || 0;
-                                await db.collection('users').doc(trade.userId).update({
-                                    balance: currentBalance + trade.amount + profit
-                                });
-                            }
+                        if (winResult && userDoc.exists) {
+                            const currentBalance = userDoc.data().balance || 0;
+                            await db.collection('users').doc(trade.userId).update({
+                                balance: currentBalance + trade.amount + profit
+                            });
                         }
                         
                         trade.status = finalStatus;
@@ -905,8 +907,8 @@
 
                 document.getElementById('totalTrades').textContent = totalTrades;
                 document.getElementById('winRate').textContent = winRate + '%';
-                document.getElementById('totalProfit').textContent = '$' + totalProfit.toFixed(2);
-                document.getElementById('totalLoss').textContent = '$' + totalLoss.toFixed(2);
+                document.getElementById('totalProfit').textContent = ' + totalProfit.toFixed(2);
+                document.getElementById('totalLoss').textContent = ' + totalLoss.toFixed(2);
 
             } catch (error) {
                 console.error('Error loading analytics:', error);
@@ -917,12 +919,68 @@
             alert('Customer Support\n\nYour ID: ' + userId + '\nName: ' + userName + '\n\nPlease contact support at support@hibt.com for assistance.');
         }
 
+        // Background checker for completed trades
+        async function checkCompletedTrades() {
+            if (!currentUser) return;
+
+            try {
+                const now = Date.now();
+                const tradesSnapshot = await db.collection('trades')
+                    .where('userId', '==', currentUser.uid)
+                    .where('status', '==', 'pending')
+                    .get();
+
+                for (const doc of tradesSnapshot.docs) {
+                    const trade = doc.data();
+                    const tradeTime = trade.createdAt?.toMillis() || 0;
+                    const endTime = tradeTime + (trade.timeFrame * 1000);
+
+                    // If trade has expired
+                    if (now >= endTime) {
+                        // Get user's trading mode (default is 'loss')
+                        const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                        const userMode = userDoc.exists ? (userDoc.data().tradingMode || 'loss') : 'loss';
+                        
+                        const winResult = userMode === 'win';
+                        const profit = winResult ? trade.amount * (trade.percentage / 100) : 0;
+                        const finalStatus = winResult ? 'win' : 'loss';
+
+                        // Update trade status
+                        await db.collection('trades').doc(doc.id).update({
+                            status: finalStatus,
+                            profit: profit,
+                            result: userMode // Store the mode that was used
+                        });
+
+                        // If win, add balance back with profit
+                        if (winResult) {
+                            if (userDoc.exists) {
+                                const currentBalance = userDoc.data().balance || 0;
+                                const newBalance = currentBalance + trade.amount + profit;
+                                await db.collection('users').doc(currentUser.uid).update({
+                                    balance: newBalance
+                                });
+                                console.log(`✅ Trade WON! Profit: ${profit.toFixed(2)} USDT. New balance: ${newBalance.toFixed(2)} USDT`);
+                            }
+                        } else {
+                            console.log(`❌ Trade LOST! Amount: ${trade.amount.toFixed(2)} USDT`);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking completed trades:', error);
+            }
+        }
+
         // Auth state listener
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
                 await loadUserData();
                 showDashboard();
+                
+                // Check for completed trades every 5 seconds
+                setInterval(checkCompletedTrades, 5000);
             } else {
                 currentUser = null;
                 showAuth();
