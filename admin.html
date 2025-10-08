@@ -1,201 +1,4 @@
-function searchTrades() {
-            renderTrades();
-        }
-
-        // Chat Support Functions
-        let selectedChatUserId = null;
-        let chatUsersListener = null;
-        let chatMessagesListener = null;
-
-        function showChatSupport() {
-            document.getElementById('tradesSection').style.display = 'none';
-            document.getElementById('userManagementSection').style.display = 'none';
-            document.getElementById('chatSupportSection').style.display = 'block';
-            loadChatUsers();
-        }
-
-        function loadChatUsers() {
-            if (chatUsersListener) chatUsersListener();
-            
-            chatUsersListener = db.collection('chats')
-                .orderBy('timestamp', 'desc')
-                .onSnapshot(snapshot => {
-                    const userChats = {};
-                    
-                    snapshot.forEach(doc => {
-                        const chat = doc.data();
-                        if (!userChats[chat.userId]) {
-                            userChats[chat.userId] = {
-                                userId: chat.userId,
-                                userIdNumber: chat.userIdNumber,
-                                userName: chat.userName,
-                                userEmail: chat.userEmail,
-                                lastMessage: chat.message,
-                                timestamp: chat.timestamp,
-                                unread: !chat.read && chat.senderType === 'user'
-                            };
-                        }
-                    });
-
-                    const chatUsersList = document.getElementById('chatUsersList');
-                    const users = Object.values(userChats);
-                    
-                    if (users.length === 0) {
-                        chatUsersList.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">No chats yet</div>';
-                        return;
-                    }
-
-                    chatUsersList.innerHTML = users.map(user => `
-                        <div onclick="selectChatUser('${user.userId}')" style="padding: 12px; margin-bottom: 8px; background: ${selectedChatUserId === user.userId ? '#4285f4' : '#333'}; border-radius: 8px; cursor: pointer; ${user.unread ? 'border-left: 3px solid #4caf50;' : ''}">
-                            <div style="font-weight: 600; margin-bottom: 5px;">${user.userName}</div>
-                            <div style="font-size: 11px; color: #aaa;">ID: ${user.userIdNumber}</div>
-                            ${user.unread ? '<div style="font-size: 10px; color: #4caf50; margin-top: 5px;">● New message</div>' : ''}
-                        </div>
-                    `).join('');
-                });
-        }
-
-        function selectChatUser(userId) {
-            selectedChatUserId = userId;
-            loadChatMessages(userId);
-            loadChatUsers(); // Refresh to update selection
-        }
-
-        function loadChatMessages(userId) {
-            if (chatMessagesListener) chatMessagesListener();
-
-            db.collection('chats')
-                .where('userId', '==', userId)
-                .limit(1)
-                .get()
-                .then(snapshot => {
-                    if (!snapshot.empty) {
-                        const userData = snapshot.docs[0].data();
-                        document.getElementById('selectedUserInfo').innerHTML = `
-                            <div style="font-weight: 600; font-size: 16px;">${userData.userName}</div>
-                            <div style="font-size: 12px; color: #aaa;">ID: ${userData.userIdNumber} | ${userData.userEmail}</div>
-                        `;
-                    }
-                });
-            
-            chatMessagesListener = db.collection('chats')
-                .where('userId', '==', userId)
-                .orderBy('timestamp', 'asc')
-                .onSnapshot(snapshot => {
-                    const adminChatMessages = document.getElementById('adminChatMessages');
-                    
-                    if (snapshot.empty) {
-                        adminChatMessages.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No messages yet</div>';
-                        return;
-                    }
-
-                    let html = '';
-                    snapshot.forEach(doc => {
-                        const msg = doc.data();
-                        const isUser = msg.senderType === 'user';
-                        const time = msg.timestamp ? new Date(msg.timestamp.toMillis()).toLocaleTimeString() : '';
-                        
-                        html += `
-                            <div style="margin-bottom: 15px; text-align: ${isUser ? 'left' : 'right'};">
-                                <div style="display: inline-block; max-width: 70%; padding: 10px 15px; border-radius: 12px; background: ${isUser ? '#333' : '#4285f4'}; color: #fff; text-align: left;">
-                                    <div style="font-weight: 600; font-size: 12px; margin-bottom: 5px; opacity: 0.8;">${isUser ? msg.userName : 'Admin'}</div>
-                                    <div>${msg.message}</div>
-                                    <div style="font-size: 10px; margin-top: 5px; opacity: 0.7;">${time}</div>
-                                </div>
-                            </div>
-                        `;
-
-                        // Mark as read if from user
-                        if (isUser && !msg.read) {
-                            db.collection('chats').doc(doc.id).update({ read: true });
-                        }
-                    });
-
-                    adminChatMessages.innerHTML = html;
-                    adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
-                });
-        }
-
-        async function sendAdminMessage() {
-            if (!selectedChatUserId) {
-                alert('Please select a user first');
-                return;
-            }
-
-            const input = document.getElementById('adminChatInput');
-            const message = input.value.trim();
-
-            if (!message) return;
-
-            try {
-                // Get user info
-                const userChats = await db.collection('chats')
-                    .where('userId', '==', selectedChatUserId)
-                    .limit(1)
-                    .get();
-
-                let userData = { userName: 'User', userIdNumber: 'N/A', userEmail: 'N/A' };
-                if (!userChats.empty) {
-                    userData = userChats.docs[0].data();
-                }
-
-                await db.collection('chats').add({
-                    userId: selectedChatUserId,
-                    userIdNumber: userData.userIdNumber,
-                    userName: userData.userName,
-                    userEmail: userData.userEmail,
-                    message: message,
-                    senderType: 'admin',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    read: false
-                });
-
-                input.value = '';
-            } catch (error) {
-                console.error('Error sending message:', error);
-                alert('Failed to send message');
-            }
-        }
-
-        // Chat Support Functions
-        let selectedChatUserId = null;
-        let chatUsersListener = null;
-        let chatMessagesListener = null;
-
-        function showChatSupport() {
-            document.getElementById('tradesSection').style.display = 'none';
-            document.getElementById('userManagementSection').style.display = 'none';
-            document.getElementById('chatSupportSection').style.display = 'block';
-            loadChatUsers();
-        }
-
-        function loadChatUsers() {
-            if (chatUsersListener) chatUsersListener();
-            
-            chatUsersListener = db.collection('chats')
-                .orderBy('timestamp', 'desc')
-                .onSnapshot(snapshot => {
-                    const userChats = {};
-                    
-                    snapshot.forEach(doc => {
-                        const chat = doc.data();
-                        if (!userChats[chat.userId]) {
-                            userChats[chat.userId] = {
-                                userId: chat.userId,
-                                userIdNumber: chat.userIdNumber,
-                                userName: chat.userName,
-                                userEmail: chat.userEmail,
-                                lastMessage: chat.message,
-                                timestamp: chat.timestamp,
-                                unread: !chat.read && chat.senderType === 'user'
-                            };
-                        }
-                    });
-
-                    const chatUsersList = document.getElementById('chatUsersList');
-                    const users = Object.values(userChats);
-                    
-                    if (users.length ===<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -244,8 +47,8 @@ function searchTrades() {
         .filter-btn.active { background: #4285f4; border-color: #4285f4; }
         
         .trades-table { background: #2a2a2a; border-radius: 15px; overflow: hidden; }
-        .table-header { display: grid; grid-template-columns: 100px 120px 150px 100px 100px 100px 120px 180px; gap: 15px; padding: 15px 20px; background: #333; font-weight: 600; font-size: 14px; }
-        .table-row { display: grid; grid-template-columns: 100px 120px 150px 100px 100px 100px 120px 180px; gap: 15px; padding: 15px 20px; border-bottom: 1px solid #333; align-items: center; }
+        .table-header { display: grid; gap: 15px; padding: 15px 20px; background: #333; font-weight: 600; font-size: 14px; }
+        .table-row { display: grid; gap: 15px; padding: 15px 20px; border-bottom: 1px solid #333; align-items: center; }
         .table-row:hover { background: #333; }
         
         .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-align: center; }
@@ -259,11 +62,7 @@ function searchTrades() {
         .search-input { background: #333; border: 2px solid #444; }
         
         .no-data { text-align: center; padding: 40px; color: #666; }
-        
         .countdown { color: #ff9800; font-weight: 600; }
-        
-        .user-row { padding: 15px; background: #2a2a2a; border-radius: 8px; margin-bottom: 10px; }
-        .user-row:hover { background: #333; }
         
         .toggle-switch { position: relative; display: inline-block; width: 60px; height: 30px; }
         .toggle-switch input { opacity: 0; width: 0; height: 0; }
@@ -274,19 +73,14 @@ function searchTrades() {
         .mode-label { font-size: 12px; font-weight: 600; margin-left: 8px; }
         .mode-label.win { color: #4caf50; }
         .mode-label.loss { color: #f44336; }
-        
-        .chat-user-item { padding: 12px; margin-bottom: 8px; background: #333; border-radius: 8px; cursor: pointer; transition: .3s; }
-        .chat-user-item:hover { background: #444; }
-        .chat-user-item.active { background: #4285f4; }
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
     <div class="login-container" id="loginContainer">
         <div class="login-box">
             <h1 class="login-title">🔐 Admin Panel</h1>
-            <div style="background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ffc107; font-size: 13px;">
-                ⚠️ <strong>Restricted Access:</strong> Admin accounts only. Unauthorized access is prohibited.
+            <div style="background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ffc107; font-size: 13px; color: #333;">
+                ⚠️ <strong>Restricted Access:</strong> Admin accounts only.
             </div>
             <div id="loginMessage"></div>
             <div class="input-group">
@@ -301,7 +95,6 @@ function searchTrades() {
         </div>
     </div>
 
-    <!-- Admin Panel -->
     <div class="admin-panel" id="adminPanel">
         <div class="header">
             <h1>⚡ Admin Control Panel</h1>
@@ -309,7 +102,6 @@ function searchTrades() {
         </div>
 
         <div class="container">
-            <!-- Stats -->
             <div class="stats">
                 <div class="stat-card">
                     <div class="stat-value" id="totalTrades">0</div>
@@ -329,7 +121,6 @@ function searchTrades() {
                 </div>
             </div>
 
-            <!-- Filters -->
             <div class="filters">
                 <button class="filter-btn active" onclick="filterTrades('all')">All Trades</button>
                 <button class="filter-btn" onclick="filterTrades('pending')">Pending</button>
@@ -339,16 +130,14 @@ function searchTrades() {
                 <button class="filter-btn" onclick="showChatSupport()" style="background: #ff9800; color: white;">Support Chat</button>
             </div>
 
-            <!-- Search -->
             <div class="search-box">
                 <input type="text" class="search-input" id="searchInput" placeholder="Search by User ID, Email, or Trade ID..." oninput="searchTrades()">
             </div>
 
             <div id="adminMessage"></div>
 
-            <!-- User Management Section -->
             <div id="userManagementSection" style="display: none;">
-                <h2 style="margin-bottom: 20px; color: #fff;">User Management</h2>
+                <h2 style="margin-bottom: 20px;">User Management</h2>
                 <div class="search-box">
                     <input type="text" class="search-input" id="userSearchInput" placeholder="Search by User ID or Email..." oninput="searchUsers()">
                 </div>
@@ -359,16 +148,15 @@ function searchTrades() {
                         <div>Email</div>
                         <div>Balance</div>
                         <div>Win/Loss Mode</div>
-                        <div>Balance Actions</div>
+                        <div>Actions</div>
                     </div>
                     <div id="usersContainer"></div>
                 </div>
                 <button class="btn btn-small btn-warning" onclick="showTradesSection()" style="margin-top: 20px;">Back to Trades</button>
             </div>
 
-            <!-- Chat Support Section -->
             <div id="chatSupportSection" style="display: none;">
-                <h2 style="margin-bottom: 20px; color: #fff;">Support Chat</h2>
+                <h2 style="margin-bottom: 20px;">Support Chat</h2>
                 <div style="display: grid; grid-template-columns: 300px 1fr; gap: 20px; height: 600px;">
                     <div style="background: #2a2a2a; border-radius: 15px; padding: 15px; overflow-y: auto;">
                         <h3 style="margin-bottom: 15px;">Active Chats</h3>
@@ -378,9 +166,7 @@ function searchTrades() {
                         <div id="selectedUserInfo" style="padding-bottom: 15px; border-bottom: 2px solid #444; margin-bottom: 15px;">
                             Select a user to view chat
                         </div>
-                        <div id="adminChatMessages" style="flex: 1; overflow-y: auto; padding: 15px; background: #1a1a1a; border-radius: 12px; margin-bottom: 15px;">
-                            <!-- Messages will appear here -->
-                        </div>
+                        <div id="adminChatMessages" style="flex: 1; overflow-y: auto; padding: 15px; background: #1a1a1a; border-radius: 12px; margin-bottom: 15px;"></div>
                         <div style="display: flex; gap: 10px;">
                             <input type="text" id="adminChatInput" placeholder="Type your message..." style="flex: 1; padding: 12px; border: 2px solid #444; border-radius: 12px; background: #333; color: #fff;" onkeypress="if(event.key==='Enter') sendAdminMessage()">
                             <button class="btn btn-small btn-success" style="padding: 12px 24px;" onclick="sendAdminMessage()">Send</button>
@@ -390,24 +176,21 @@ function searchTrades() {
                 <button class="btn btn-small btn-warning" onclick="showTradesSection()" style="margin-top: 20px;">Back to Trades</button>
             </div>
 
-            <!-- Trades Section -->
             <div id="tradesSection">
-                <h2 style="margin-bottom: 20px; color: #fff;">Trade Management</h2>
-
-            <!-- Trades Table -->
-            <div class="trades-table">
-                <div class="table-header">
-                    <div>User ID</div>
-                    <div>User Name</div>
-                    <div>Email</div>
-                    <div>Coin</div>
-                    <div>Amount</div>
-                    <div>Direction</div>
-                    <div>Status</div>
-                    <div>Actions</div>
+                <h2 style="margin-bottom: 20px;">Trade Management</h2>
+                <div class="trades-table">
+                    <div class="table-header" style="grid-template-columns: 100px 120px 150px 100px 100px 100px 120px 180px;">
+                        <div>User ID</div>
+                        <div>User Name</div>
+                        <div>Email</div>
+                        <div>Coin</div>
+                        <div>Amount</div>
+                        <div>Direction</div>
+                        <div>Status</div>
+                        <div>Actions</div>
+                    </div>
+                    <div id="tradesContainer"></div>
                 </div>
-                <div id="tradesContainer"></div>
-            </div>
             </div>
         </div>
     </div>
@@ -417,7 +200,6 @@ function searchTrades() {
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <script>
-        // Firebase Config (Same as your main app)
         const firebaseConfig = {
             apiKey: "AIzaSyDWQBTrvvxCL5Qd23iSMTQlWkaPKZgjhqw",
             authDomain: "trading-dapp-d5aa4.firebaseapp.com",
@@ -435,6 +217,9 @@ function searchTrades() {
         let allTrades = [];
         let allUsers = [];
         let countdownIntervals = {};
+        let selectedChatUserId = null;
+        let chatUsersListener = null;
+        let chatMessagesListener = null;
 
         function showMessage(elementId, message, type) {
             const el = document.getElementById(elementId);
@@ -453,8 +238,7 @@ function searchTrades() {
                 return;
             }
 
-            // SECURE: Only allow specific admin email
-            const ADMIN_EMAIL = 'dawitamene1122@gmail.com'; // Your admin email
+            const ADMIN_EMAIL = 'dawitamene1122@gmail.com';
             
             if (email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
                 showMessage('loginMessage', 'Access denied. Not an admin account.', 'error');
@@ -464,7 +248,6 @@ function searchTrades() {
             try {
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 
-                // Verify again after login
                 if (userCredential.user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
                     await auth.signOut();
                     showMessage('loginMessage', 'Access denied. Admin privileges required.', 'error');
@@ -472,7 +255,6 @@ function searchTrades() {
                 }
                 
                 showMessage('loginMessage', 'Admin login successful!', 'success');
-                // Dashboard will load automatically via auth state listener
             } catch (error) {
                 if (error.code === 'auth/user-not-found') {
                     showMessage('loginMessage', 'Admin account not found. Please register this email first in the main app.', 'error');
@@ -495,7 +277,6 @@ function searchTrades() {
             await loadStats();
             await loadTrades();
             
-            // Auto-refresh every 10 seconds
             setInterval(loadTrades, 10000);
         }
 
@@ -557,12 +338,10 @@ function searchTrades() {
 
             let filteredTrades = allTrades;
 
-            // Apply filter
             if (currentFilter !== 'all') {
                 filteredTrades = allTrades.filter(trade => trade.status === currentFilter);
             }
 
-            // Apply search
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             if (searchTerm) {
                 filteredTrades = filteredTrades.filter(trade => 
@@ -598,10 +377,8 @@ function searchTrades() {
                 if (trade.status === 'pending' && remainingSec > 0) {
                     actions = `
                         <div class="countdown" id="countdown-${trade.id}">${remainingSec}s</div>
-                        <div style="font-size: 11px; color: #888; margin-top: 5px;">Auto-processing based on user mode</div>
+                        <div style="font-size: 11px; color: #888; margin-top: 5px;">Auto-processing</div>
                     `;
-                    
-                    // Start countdown
                     startCountdown(trade.id, endTime);
                 } else if (trade.status === 'pending') {
                     actions = `<span style="color: #ff9800;">Processing...</span>`;
@@ -610,7 +387,7 @@ function searchTrades() {
                 }
 
                 return `
-                    <div class="table-row">
+                    <div class="table-row" style="grid-template-columns: 100px 120px 150px 100px 100px 100px 120px 180px;">
                         <div>${trade.userIdNumber || 'N/A'}</div>
                         <div>${trade.userName || 'N/A'}</div>
                         <div style="font-size: 12px;">${trade.userEmail || 'N/A'}</div>
@@ -656,7 +433,6 @@ function searchTrades() {
             renderTrades();
         }
 
-        // User Management Functions
         function showUserManagement() {
             document.getElementById('tradesSection').style.display = 'none';
             document.getElementById('userManagementSection').style.display = 'block';
@@ -695,18 +471,32 @@ function searchTrades() {
                 );
             }
 
-            const html = filteredUsers.map(user => `
-                <div class="table-row" style="grid-template-columns: 100px 150px 200px 150px 200px;">
+            const html = filteredUsers.map(user => {
+                const tradingMode = user.tradingMode || 'loss';
+                const isWinMode = tradingMode === 'win';
+                
+                return `
+                <div class="table-row" style="grid-template-columns: 80px 120px 180px 100px 150px 200px; align-items: center;">
                     <div>${user.userId || 'N/A'}</div>
                     <div>${user.name || 'N/A'}</div>
-                    <div style="font-size: 12px;">${user.email || 'N/A'}</div>
-                    <div style="font-weight: 600;">${(user.balance || 0).toFixed(2)}</div>
-                    <div>
-                        <button class="btn btn-small btn-success" onclick="adjustBalance('${user.uid}', 'add')">Add $</button>
-                        <button class="btn btn-small btn-danger" onclick="adjustBalance('${user.uid}', 'remove')">Remove $</button>
+                    <div style="font-size: 11px;">${user.email || 'N/A'}</div>
+                    <div style="font-weight: 600; color: #4caf50;">$${(user.balance || 0).toFixed(2)}</div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <label class="toggle-switch">
+                            <input type="checkbox" ${isWinMode ? 'checked' : ''} onchange="toggleTradingMode('${user.uid}', this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="mode-label ${isWinMode ? 'win' : 'loss'}" id="mode-${user.uid}" style="min-width: 45px;">
+                            ${isWinMode ? 'WIN' : 'LOSS'}
+                        </span>
+                    </div>
+                    <div style="display: flex; gap: 5px;">
+                        <button class="btn btn-small btn-success" onclick="adjustBalance('${user.uid}', 'add')" style="font-size: 11px; padding: 6px 10px;">+$</button>
+                        <button class="btn btn-small btn-danger" onclick="adjustBalance('${user.uid}', 'remove')" style="font-size: 11px; padding: 6px 10px;">-$</button>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
 
             document.getElementById('usersContainer').innerHTML = html || '<div class="no-data">No users found</div>';
         }
@@ -762,7 +552,6 @@ function searchTrades() {
                     tradingMode: mode 
                 });
                 
-                // Update the label
                 const label = document.getElementById(`mode-${userId}`);
                 if (label) {
                     label.textContent = mode.toUpperCase();
@@ -771,7 +560,6 @@ function searchTrades() {
                 
                 showMessage('adminMessage', `User trading mode set to ${mode.toUpperCase()}`, 'success');
                 
-                // Update local data
                 const userIndex = allUsers.findIndex(u => u.uid === userId);
                 if (userIndex !== -1) {
                     allUsers[userIndex].tradingMode = mode;
@@ -781,10 +569,156 @@ function searchTrades() {
             }
         }
 
-        // Auth state listener
+        function showChatSupport() {
+            document.getElementById('tradesSection').style.display = 'none';
+            document.getElementById('userManagementSection').style.display = 'none';
+            document.getElementById('chatSupportSection').style.display = 'block';
+            loadChatUsers();
+        }
+
+        function loadChatUsers() {
+            if (chatUsersListener) chatUsersListener();
+            
+            chatUsersListener = db.collection('chats')
+                .orderBy('timestamp', 'desc')
+                .onSnapshot(snapshot => {
+                    const userChats = {};
+                    
+                    snapshot.forEach(doc => {
+                        const chat = doc.data();
+                        if (!userChats[chat.userId]) {
+                            userChats[chat.userId] = {
+                                userId: chat.userId,
+                                userIdNumber: chat.userIdNumber,
+                                userName: chat.userName,
+                                userEmail: chat.userEmail,
+                                lastMessage: chat.message,
+                                timestamp: chat.timestamp,
+                                unread: !chat.read && chat.senderType === 'user'
+                            };
+                        }
+                    });
+
+                    const chatUsersList = document.getElementById('chatUsersList');
+                    const users = Object.values(userChats);
+                    
+                    if (users.length === 0) {
+                        chatUsersList.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">No chats yet</div>';
+                        return;
+                    }
+
+                    chatUsersList.innerHTML = users.map(user => `
+                        <div onclick="selectChatUser('${user.userId}')" style="padding: 12px; margin-bottom: 8px; background: ${selectedChatUserId === user.userId ? '#4285f4' : '#333'}; border-radius: 8px; cursor: pointer; ${user.unread ? 'border-left: 3px solid #4caf50;' : ''}">
+                            <div style="font-weight: 600; margin-bottom: 5px;">${user.userName}</div>
+                            <div style="font-size: 11px; color: #aaa;">ID: ${user.userIdNumber}</div>
+                            ${user.unread ? '<div style="font-size: 10px; color: #4caf50; margin-top: 5px;">● New message</div>' : ''}
+                        </div>
+                    `).join('');
+                });
+        }
+
+        function selectChatUser(userId) {
+            selectedChatUserId = userId;
+            loadChatMessages(userId);
+            loadChatUsers();
+        }
+
+        function loadChatMessages(userId) {
+            if (chatMessagesListener) chatMessagesListener();
+
+            db.collection('chats')
+                .where('userId', '==', userId)
+                .limit(1)
+                .get()
+                .then(snapshot => {
+                    if (!snapshot.empty) {
+                        const userData = snapshot.docs[0].data();
+                        document.getElementById('selectedUserInfo').innerHTML = `
+                            <div style="font-weight: 600; font-size: 16px;">${userData.userName}</div>
+                            <div style="font-size: 12px; color: #aaa;">ID: ${userData.userIdNumber} | ${userData.userEmail}</div>
+                        `;
+                    }
+                });
+            
+            chatMessagesListener = db.collection('chats')
+                .where('userId', '==', userId)
+                .orderBy('timestamp', 'asc')
+                .onSnapshot(snapshot => {
+                    const adminChatMessages = document.getElementById('adminChatMessages');
+                    
+                    if (snapshot.empty) {
+                        adminChatMessages.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No messages yet</div>';
+                        return;
+                    }
+
+                    let html = '';
+                    snapshot.forEach(doc => {
+                        const msg = doc.data();
+                        const isUser = msg.senderType === 'user';
+                        const time = msg.timestamp ? new Date(msg.timestamp.toMillis()).toLocaleTimeString() : '';
+                        
+                        html += `
+                            <div style="margin-bottom: 15px; text-align: ${isUser ? 'left' : 'right'};">
+                                <div style="display: inline-block; max-width: 70%; padding: 10px 15px; border-radius: 12px; background: ${isUser ? '#333' : '#4285f4'}; color: #fff; text-align: left;">
+                                    <div style="font-weight: 600; font-size: 12px; margin-bottom: 5px; opacity: 0.8;">${isUser ? msg.userName : 'Admin'}</div>
+                                    <div>${msg.message}</div>
+                                    <div style="font-size: 10px; margin-top: 5px; opacity: 0.7;">${time}</div>
+                                </div>
+                            </div>
+                        `;
+
+                        if (isUser && !msg.read) {
+                            db.collection('chats').doc(doc.id).update({ read: true });
+                        }
+                    });
+
+                    adminChatMessages.innerHTML = html;
+                    adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
+                });
+        }
+
+        async function sendAdminMessage() {
+            if (!selectedChatUserId) {
+                alert('Please select a user first');
+                return;
+            }
+
+            const input = document.getElementById('adminChatInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            try {
+                const userChats = await db.collection('chats')
+                    .where('userId', '==', selectedChatUserId)
+                    .limit(1)
+                    .get();
+
+                let userData = { userName: 'User', userIdNumber: 'N/A', userEmail: 'N/A' };
+                if (!userChats.empty) {
+                    userData = userChats.docs[0].data();
+                }
+
+                await db.collection('chats').add({
+                    userId: selectedChatUserId,
+                    userIdNumber: userData.userIdNumber,
+                    userName: userData.userName,
+                    userEmail: userData.userEmail,
+                    message: message,
+                    senderType: 'admin',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    read: false
+                });
+
+                input.value = '';
+            } catch (error) {
+                console.error('Error sending message:', error);
+                alert('Failed to send message');
+            }
+        }
+
         auth.onAuthStateChanged((user) => {
             if (user) {
-                // Verify admin email
                 const ADMIN_EMAIL = 'dawitamene1122@gmail.com';
                 if (user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
                     loadDashboard();
