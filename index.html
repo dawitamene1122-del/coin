@@ -207,12 +207,13 @@
             </div>
 
             <div class="trade-section">
-                <div class="trade-label">Profit Percentage</div>
+                <div class="trade-label">Profit Percentage (Auto-set by time)</div>
                 <div class="percentage-btns">
-                    <button class="percentage-btn active" onclick="selectPercentage(15)">15%</button>
-                    <button class="percentage-btn" onclick="selectPercentage(25)">25%</button>
-                    <button class="percentage-btn" onclick="selectPercentage(35)">35%</button>
+                    <button class="percentage-btn active" id="profit15" disabled style="opacity: 0.7;">15%</button>
+                    <button class="percentage-btn" id="profit25" disabled style="opacity: 0.7;">25%</button>
+                    <button class="percentage-btn" id="profit35" disabled style="opacity: 0.7;">35%</button>
                 </div>
+                <div class="info-text">Profit percentage is automatically set based on contract time</div>
             </div>
 
             <div class="trade-section">
@@ -224,11 +225,12 @@
 
             <div class="trade-section">
                 <div class="trade-label">Contract Time</div>
-                <select class="trade-input" id="timeFrame">
-                    <option value="60">60 Seconds</option>
-                    <option value="90">90 Seconds</option>
-                    <option value="120">2 Minutes</option>
+                <select class="trade-input" id="timeFrame" onchange="updateTimeFrameAndProfit()">
+                    <option value="60">60 Seconds (15% Profit)</option>
+                    <option value="90">90 Seconds (25% Profit) - Requires 100K+ Balance</option>
+                    <option value="120">2 Minutes (35% Profit) - Requires 500K+ Balance</option>
                 </select>
+                <div class="info-text" id="timeFrameWarning" style="color: #f44336; display: none;">Insufficient balance for this timeframe</div>
             </div>
 
             <button class="trade-btn" onclick="executeTrade()">Execute Trade</button>
@@ -564,6 +566,48 @@
             updateExpectedProfit();
         }
 
+        function updateTimeFrameAndProfit() {
+            const timeFrame = parseInt(document.getElementById('timeFrame').value);
+            const warning = document.getElementById('timeFrameWarning');
+            
+            // Check balance requirements
+            if (timeFrame === 90 && userBalance < 100000) {
+                warning.style.display = 'block';
+                warning.textContent = 'Requires balance above 100,000 USDT';
+                document.getElementById('timeFrame').value = '60';
+                return;
+            }
+            
+            if (timeFrame === 120 && userBalance < 500000) {
+                warning.style.display = 'block';
+                warning.textContent = 'Requires balance above 500,000 USDT';
+                document.getElementById('timeFrame').value = '60';
+                return;
+            }
+            
+            warning.style.display = 'none';
+            
+            // Auto-set profit percentage based on time
+            if (timeFrame === 60) {
+                selectedPercentage = 15;
+                document.getElementById('profit15').classList.add('active');
+                document.getElementById('profit25').classList.remove('active');
+                document.getElementById('profit35').classList.remove('active');
+            } else if (timeFrame === 90) {
+                selectedPercentage = 25;
+                document.getElementById('profit15').classList.remove('active');
+                document.getElementById('profit25').classList.add('active');
+                document.getElementById('profit35').classList.remove('active');
+            } else if (timeFrame === 120) {
+                selectedPercentage = 35;
+                document.getElementById('profit15').classList.remove('active');
+                document.getElementById('profit25').classList.remove('active');
+                document.getElementById('profit35').classList.add('active');
+            }
+            
+            updateExpectedProfit();
+        }
+
         function updateExpectedProfit() {
             const amount = parseFloat(document.getElementById('tradeAmount').value) || 0;
             const profit = amount * (selectedPercentage / 100);
@@ -574,8 +618,9 @@
             const amount = parseFloat(document.getElementById('tradeAmount').value);
             const timeFrame = parseInt(document.getElementById('timeFrame').value);
 
-            if (!amount || amount < 1) {
-                showMessage('tradeMessage', 'Minimum amount is 1 USDT', 'error');
+            // Validation: Minimum amount
+            if (!amount || amount < 100) {
+                showMessage('tradeMessage', 'Minimum trade amount is 100 USDT', 'error');
                 return;
             }
 
@@ -584,7 +629,18 @@
                 return;
             }
 
+            // Check if user has pending trades
             try {
+                const pendingTrades = await db.collection('trades')
+                    .where('userId', '==', currentUser.uid)
+                    .where('status', '==', 'pending')
+                    .get();
+
+                if (!pendingTrades.empty) {
+                    showMessage('tradeMessage', 'Please wait for your current trade to finish before starting a new one', 'error');
+                    return;
+                }
+
                 const newBalance = userBalance - amount;
                 await db.collection('users').doc(currentUser.uid).update({ balance: newBalance });
 
@@ -907,8 +963,8 @@
 
                 document.getElementById('totalTrades').textContent = totalTrades;
                 document.getElementById('winRate').textContent = winRate + '%';
-                document.getElementById('totalProfit').textContent = '$' + totalProfit.toFixed(2);
-                document.getElementById('totalLoss').textContent = '$' + totalLoss.toFixed(2);
+                document.getElementById('totalProfit').textContent = ' + totalProfit.toFixed(2);
+                document.getElementById('totalLoss').textContent = ' + totalLoss.toFixed(2);
 
             } catch (error) {
                 console.error('Error loading analytics:', error);
