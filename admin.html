@@ -228,26 +228,33 @@
             }
 
             // SECURE: Only allow specific admin email
-            const ADMIN_EMAIL = 'dawitamene1122@gmail.com'; // Change this to YOUR admin email
+            const ADMIN_EMAIL = 'dawitamene1122@gmail.com'; // Your admin email
             
-            if (email !== ADMIN_EMAIL) {
+            if (email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
                 showMessage('loginMessage', 'Access denied. Not an admin account.', 'error');
                 return;
             }
 
             try {
-                await auth.signInWithEmailAndPassword(email, password);
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 
-                // Double check after login
-                if (auth.currentUser.email !== ADMIN_EMAIL) {
+                // Verify again after login
+                if (userCredential.user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
                     await auth.signOut();
                     showMessage('loginMessage', 'Access denied. Admin privileges required.', 'error');
                     return;
                 }
                 
-                showMessage('loginMessage', 'Login successful!', 'success');
+                showMessage('loginMessage', 'Admin login successful!', 'success');
+                // Dashboard will load automatically via auth state listener
             } catch (error) {
-                showMessage('loginMessage', 'Invalid credentials: ' + error.message, 'error');
+                if (error.code === 'auth/user-not-found') {
+                    showMessage('loginMessage', 'Admin account not found. Please register this email first in the main app.', 'error');
+                } else if (error.code === 'auth/wrong-password') {
+                    showMessage('loginMessage', 'Invalid password', 'error');
+                } else {
+                    showMessage('loginMessage', 'Login failed: ' + error.message, 'error');
+                }
             }
         }
 
@@ -549,7 +556,15 @@
         // Auth state listener
         auth.onAuthStateChanged((user) => {
             if (user) {
-                loadDashboard();
+                // Verify admin email
+                const ADMIN_EMAIL = 'dawitamene1122@gmail.com';
+                if (user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                    loadDashboard();
+                } else {
+                    auth.signOut();
+                    showLogin();
+                    showMessage('loginMessage', 'Access denied. Admin account required.', 'error');
+                }
             } else {
                 showLogin();
             }
