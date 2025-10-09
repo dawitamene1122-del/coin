@@ -133,9 +133,9 @@
                     <label>Password</label>
                     <input type="password" id="regPassword" placeholder="Enter password">
                 </div>
-                <button class="btn btn-primary" onclick="register()">Register</button>
+                <button class="btn btn-primary" id="registerBtn">Register</button>
                 <div class="switch-text">
-                    Already have an account? <span class="switch-link" onclick="showLogin()">Sign In</span>
+                    Already have an account? <span class="switch-link" id="showLoginBtn">Sign In</span>
                 </div>
             </div>
 
@@ -150,12 +150,12 @@
                     <label>Password</label>
                     <input type="password" id="loginPassword" placeholder="Enter password">
                 </div>
-                <button class="btn btn-primary" onclick="login()">Sign In</button>
+                <button class="btn btn-primary" id="loginBtn">Sign In</button>
                 <div class="switch-text">
-                    <span class="switch-link" onclick="forgotPassword()">Forgot Password?</span>
+                    <span class="switch-link" id="forgotPasswordBtn">Forgot Password?</span>
                 </div>
                 <div class="switch-text">
-                    Don't have an account? <span class="switch-link" onclick="showRegister()">Register</span>
+                    Don't have an account? <span class="switch-link" id="showRegisterBtn">Register</span>
                 </div>
             </div>
         </div>
@@ -165,7 +165,7 @@
         <div class="header">
             <div class="header-top">
                 <div class="brand">Hibt</div>
-                <button class="btn-small" onclick="logout()">Logout</button>
+                <button class="btn-small" id="logoutBtn">Logout</button>
             </div>
             <div class="user-info-box">
                 <div class="user-id">ID: <span id="userId"></span></div>
@@ -175,10 +175,10 @@
                     <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">Available Balance</div>
                 </div>
                 <div class="btn-group">
-                    <button class="btn-small" onclick="openProfile()">Profile</button>
-                    <button class="btn-small" onclick="openHistory()">My Contract</button>
-                    <button class="btn-small" onclick="openDeposit()">Deposit</button>
-                    <button class="btn-small" onclick="openAnalytics()">Analytics</button>
+                    <button class="btn-small" id="profileBtn">Profile</button>
+                    <button class="btn-small" id="contractBtn">My Contract</button>
+                    <button class="btn-small" id="depositBtn">Deposit</button>
+                    <button class="btn-small" id="analyticsBtn">Analytics</button>
                 </div>
             </div>
         </div>
@@ -191,178 +191,113 @@
         </div>
     </div>
 
-    <!-- Trading Modal -->
+    <!-- All Modals -->
     <div class="modal" id="tradingModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title" id="modalTitle">Trade</h2>
-                <button class="close-btn" onclick="closeTradeModal()">&times;</button>
+                <button class="close-btn" id="closeTradingBtn">&times;</button>
             </div>
-            
             <div id="tradeMessage"></div>
-            
             <div class="trade-section">
                 <div class="trade-label">Direction</div>
                 <div class="direction-btns">
-                    <button class="direction-btn up" id="upBtn" onclick="selectDirection('up')">Buy Up</button>
-                    <button class="direction-btn down inactive" id="downBtn" onclick="selectDirection('down')">Buy Down</button>
+                    <button class="direction-btn up" id="upBtn">Buy Up</button>
+                    <button class="direction-btn down inactive" id="downBtn">Buy Down</button>
                 </div>
             </div>
-
             <div class="trade-section">
                 <div class="trade-label">Profit Percentage (Auto-set by time)</div>
                 <div class="percentage-btns">
-                    <button class="percentage-btn active" id="profit15" disabled style="opacity: 0.7;">15%</button>
-                    <button class="percentage-btn" id="profit25" disabled style="opacity: 0.7;">25%</button>
-                    <button class="percentage-btn" id="profit35" disabled style="opacity: 0.7;">35%</button>
+                    <button class="percentage-btn active" id="profit15" disabled>15%</button>
+                    <button class="percentage-btn" id="profit25" disabled>25%</button>
+                    <button class="percentage-btn" id="profit35" disabled>35%</button>
                 </div>
-                <div class="info-text">Profit percentage is automatically set based on contract time</div>
             </div>
-
             <div class="trade-section">
                 <div class="trade-label">Amount (USDT)</div>
-                <input type="number" class="trade-input" id="tradeAmount" placeholder="Enter amount (min 100 USDT)" min="100">
+                <input type="number" class="trade-input" id="tradeAmount" placeholder="Min 100 USDT" min="100">
                 <div class="info-text">Available: <span id="availableBalance">0.00</span> USDT</div>
                 <div class="info-text">Expected Profit: <span id="expectedProfit">0.00</span> USDT</div>
             </div>
-
             <div class="trade-section">
                 <div class="trade-label">Contract Time</div>
-                <select class="trade-input" id="timeFrame" onchange="updateTimeFrameAndProfit()">
-                    <option value="60">60 Seconds (15% Profit)</option>
-                    <option value="90">90 Seconds (25% Profit) - Requires 100K+ Balance</option>
-                    <option value="120">2 Minutes (35% Profit) - Requires 500K+ Balance</option>
+                <select class="trade-input" id="timeFrame">
+                    <option value="60">60 Seconds (15%)</option>
+                    <option value="90">90 Seconds (25%)</option>
+                    <option value="120">2 Minutes (35%)</option>
                 </select>
-                <div class="info-text" id="timeFrameWarning" style="color: #f44336; display: none;">Insufficient balance for this timeframe</div>
+                <div class="info-text" id="timeFrameWarning" style="color: #f44336; display: none;"></div>
             </div>
-
-            <button class="trade-btn" onclick="executeTrade()">Execute Trade</button>
+            <button class="trade-btn" id="executeTradeBtn">Execute Trade</button>
         </div>
     </div>
 
-    <!-- History Modal -->
     <div class="modal" id="historyModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title">My Contract</h2>
-                <button class="close-btn" onclick="closeHistory()">&times;</button>
+                <button class="close-btn" id="closeHistoryBtn">&times;</button>
             </div>
             <div class="tab-container">
-                <button class="tab active" id="waitTab" onclick="switchHistoryTab('wait')">Wait</button>
-                <button class="tab" id="finishedTab" onclick="switchHistoryTab('finished')">Finished</button>
+                <button class="tab active" id="waitTab">Wait</button>
+                <button class="tab" id="finishedTab">Finished</button>
             </div>
             <div class="history-list" id="historyList"></div>
         </div>
     </div>
 
-    <!-- Trade Detail Modal -->
     <div class="modal" id="tradeDetailModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title" id="detailCoinName">BTC/USDT</h2>
-                <button class="close-btn" onclick="closeTradeDetail()">&times;</button>
+                <button class="close-btn" id="closeDetailBtn">&times;</button>
             </div>
             <div id="tradeDetailContent"></div>
         </div>
     </div>
 
-    <!-- Profile Modal -->
     <div class="modal" id="profileModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title">Profile</h2>
-                <button class="close-btn" onclick="closeProfile()">&times;</button>
+                <button class="close-btn" id="closeProfileBtn">&times;</button>
             </div>
             <div style="text-align: center; padding: 20px;">
-                <div style="font-size: 18px; color: #666; margin-bottom: 10px;">UID: <span id="profileUserId"></span></div>
-                <div style="font-size: 16px; font-weight: 600; margin-bottom: 20px;" id="profileUserName"></div>
-                <button class="btn btn-primary" onclick="openDeposit()">View Deposit</button>
-                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef;">
-                    <h3 style="margin-bottom: 15px;">Functions</h3>
-                    <div style="text-align: left;">
-                        <div style="padding: 15px; margin-bottom: 10px; background: #f8f9fa; border-radius: 8px; cursor: pointer;" onclick="openAnalytics()">Analytics</div>
-                        <div style="padding: 15px; margin-bottom: 10px; background: #f8f9fa; border-radius: 8px; cursor: pointer;" onclick="openChangePassword()">Change Password</div>
-                        <div style="padding: 15px; margin-bottom: 10px; background: #f8f9fa; border-radius: 8px; cursor: pointer;" onclick="openChat()">Contact Support</div>
-                        <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; cursor: pointer;" onclick="alert('Settings - Coming Soon')">Settings</div>
-                    </div>
-                </div>
+                <div style="font-size: 18px; color: #666;">UID: <span id="profileUserId"></span></div>
+                <div style="font-size: 16px; font-weight: 600; margin: 20px 0;" id="profileUserName"></div>
+                <button class="btn btn-primary" id="viewDepositBtn">View Deposit</button>
             </div>
         </div>
     </div>
 
-    <!-- Deposit Modal -->
     <div class="modal" id="depositModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title">Deposit Funds</h2>
-                <button class="close-btn" onclick="closeDeposit()">&times;</button>
+                <button class="close-btn" id="closeDepositBtn">&times;</button>
             </div>
-            <div style="padding: 20px 0;">
-                <div class="trade-section">
-                    <div class="trade-label">Select Cryptocurrency</div>
-                    <select class="trade-input" id="depositCrypto" onchange="updateDepositAddress()">
-                        <option value="btc">Bitcoin (BTC)</option>
-                        <option value="eth">Ethereum (ETH)</option>
-                        <option value="other">Other Coins</option>
-                    </select>
-                </div>
-
-                <div class="trade-section">
-                    <div class="trade-label">Deposit Address</div>
-                    <div class="deposit-address" id="depositAddress">Select a cryptocurrency</div>
-                    <button class="copy-btn" onclick="copyAddress()">Copy Address</button>
-                </div>
+            <div class="trade-section">
+                <div class="trade-label">Select Cryptocurrency</div>
+                <select class="trade-input" id="depositCrypto">
+                    <option value="btc">Bitcoin (BTC)</option>
+                    <option value="eth">Ethereum (ETH)</option>
+                    <option value="other">Other Coins</option>
+                </select>
+            </div>
+            <div class="trade-section">
+                <div class="trade-label">Deposit Address</div>
+                <div class="deposit-address" id="depositAddress">Select cryptocurrency</div>
+                <button class="copy-btn" id="copyAddressBtn">Copy Address</button>
             </div>
         </div>
     </div>
 
-    <!-- Change Password Modal -->
-    <div class="modal" id="changePasswordModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Change Password</h2>
-                <button class="close-btn" onclick="closeChangePassword()">&times;</button>
-            </div>
-            <div id="changePasswordMessage"></div>
-            <div class="input-group">
-                <label>Current Password</label>
-                <input type="password" id="currentPassword" placeholder="Enter current password">
-            </div>
-            <div class="input-group">
-                <label>New Password</label>
-                <input type="password" id="newPassword" placeholder="Enter new password">
-            </div>
-            <div class="input-group">
-                <label>Confirm New Password</label>
-                <input type="password" id="confirmPassword" placeholder="Confirm new password">
-            </div>
-            <button class="btn btn-primary" onclick="changePassword()">Change Password</button>
-        </div>
-    </div>
-
-    <!-- Chat Modal -->
-    <div class="modal" id="chatModal">
-        <div class="modal-content" style="max-width: 600px; height: 600px; display: flex; flex-direction: column;">
-            <div class="modal-header">
-                <h2 class="modal-title">Support Chat</h2>
-                <button class="close-btn" onclick="closeChat()">&times;</button>
-            </div>
-            <div id="chatMessages" style="flex: 1; overflow-y: auto; padding: 15px; background: #f8f9fa; border-radius: 12px; margin-bottom: 15px;">
-                <div style="text-align: center; color: #666; padding: 20px;">Loading messages...</div>
-            </div>
-            <div style="display: flex; gap: 10px;">
-                <input type="text" id="chatInput" placeholder="Type your message..." style="flex: 1; padding: 12px; border: 2px solid #e9ecef; border-radius: 12px;" onkeypress="if(event.key==='Enter') sendMessage()">
-                <button class="btn btn-primary" style="width: auto; padding: 12px 24px; margin: 0;" onclick="sendMessage()">Send</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Analytics Modal -->
     <div class="modal" id="analyticsModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Trading Analytics</h2>
-                <button class="close-btn" onclick="closeAnalytics()">&times;</button>
+                <h2 class="modal-title">Analytics</h2>
+                <button class="close-btn" id="closeAnalyticsBtn">&times;</button>
             </div>
             <div class="stats-grid">
                 <div class="stat-card">
@@ -382,17 +317,12 @@
                     <div class="stat-value red" id="totalLoss">$0</div>
                 </div>
             </div>
-            <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 12px;">
-                <h3 style="margin-bottom: 15px;">Performance Summary</h3>
-                <div id="performanceChart" style="text-align: center; color: #666; padding: 20px;">Trade more to see detailed analytics</div>
-            </div>
         </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDWQBTrvvxCL5Qd23iSMTQlWkaPKZgjhqw",
@@ -417,7 +347,6 @@
         let historyFilter = 'wait';
         let countdownIntervals = {};
         let balanceUpdateListener = null;
-        let chatListener = null;
 
         const WALLET_ADDRESSES = {
             btc: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
@@ -445,8 +374,8 @@
         function showMessage(elementId, message, type) {
             const el = document.getElementById(elementId);
             if (el) {
-                el.innerHTML = `<div class="message ${type}">${message}</div>`;
-                setTimeout(() => { el.innerHTML = ''; }, 4000);
+                el.innerHTML = '<div class="message ' + type + '">' + message + '</div>';
+                setTimeout(function() { el.innerHTML = ''; }, 4000);
             }
         }
 
@@ -529,7 +458,6 @@
 
         function logout() {
             if (balanceUpdateListener) balanceUpdateListener();
-            if (chatListener) chatListener();
             auth.signOut();
         }
 
@@ -543,13 +471,9 @@
 
             try {
                 await auth.sendPasswordResetEmail(email);
-                showMessage('loginMessage', 'Password reset email sent! Check your inbox.', 'success');
+                showMessage('loginMessage', 'Password reset email sent!', 'success');
             } catch (error) {
-                if (error.code === 'auth/user-not-found') {
-                    showMessage('loginMessage', 'No account found with this email', 'error');
-                } else {
-                    showMessage('loginMessage', error.message, 'error');
-                }
+                showMessage('loginMessage', error.message, 'error');
             }
         }
 
@@ -564,7 +488,7 @@
                 updateBalanceDisplay();
                 
                 if (balanceUpdateListener) balanceUpdateListener();
-                balanceUpdateListener = db.collection('users').doc(currentUser.uid).onSnapshot(doc => {
+                balanceUpdateListener = db.collection('users').doc(currentUser.uid).onSnapshot(function(doc) {
                     if (doc.exists) {
                         userBalance = doc.data().balance || 0;
                         updateBalanceDisplay();
@@ -581,20 +505,21 @@
 
         function renderCoins() {
             const coinList = document.getElementById('coinList');
-            coinList.innerHTML = coins.map((coin, index) => `
-                <div class="coin-item" onclick="openTrade(${index})">
-                    <div class="coin-icon ${coin.class}">${coin.name}</div>
-                    <div class="coin-info">
-                        <div class="coin-name">${coin.fullName}</div>
-                    </div>
-                    <div class="coin-price">${coin.price.toLocaleString()}</div>
-                </div>
-            `).join('');
+            let html = '';
+            for (let i = 0; i < coins.length; i++) {
+                const coin = coins[i];
+                html += '<div class="coin-item" onclick="openTrade(' + i + ')">';
+                html += '<div class="coin-icon ' + coin.class + '">' + coin.name + '</div>';
+                html += '<div class="coin-info"><div class="coin-name">' + coin.fullName + '</div></div>';
+                html += '<div class="coin-price">$' + coin.price.toLocaleString() + '</div>';
+                html += '</div>';
+            }
+            coinList.innerHTML = html;
         }
 
         function openTrade(index) {
             selectedCoin = coins[index];
-            document.getElementById('modalTitle').textContent = `Trade ${selectedCoin.fullName}`;
+            document.getElementById('modalTitle').textContent = 'Trade ' + selectedCoin.fullName;
             document.getElementById('availableBalance').textContent = userBalance.toFixed(2);
             document.getElementById('tradeAmount').value = '';
             document.getElementById('expectedProfit').textContent = '0.00';
@@ -685,7 +610,7 @@
                     .get();
 
                 if (!pendingTrades.empty) {
-                    showMessage('tradeMessage', 'Please wait for your current trade to finish before starting a new one', 'error');
+                    showMessage('tradeMessage', 'Please wait for current trade to finish', 'error');
                     return;
                 }
 
@@ -713,9 +638,9 @@
                 userBalance = newBalance;
                 updateBalanceDisplay();
                 
-                showMessage('tradeMessage', 'Trade executed successfully! Check "My Contract" to track it.', 'success');
+                showMessage('tradeMessage', 'Trade executed! Check "My Contract"', 'success');
                 
-                setTimeout(() => {
+                setTimeout(function() {
                     closeTradeModal();
                 }, 2000);
 
@@ -732,7 +657,9 @@
 
         function closeHistory() {
             document.getElementById('historyModal').classList.remove('active');
-            Object.values(countdownIntervals).forEach(clearInterval);
+            for (let key in countdownIntervals) {
+                clearInterval(countdownIntervals[key]);
+            }
             countdownIntervals = {};
         }
 
@@ -747,7 +674,9 @@
             const historyList = document.getElementById('historyList');
             historyList.innerHTML = '<div style="text-align:center; padding:20px;">Loading...</div>';
 
-            Object.values(countdownIntervals).forEach(clearInterval);
+            for (let key in countdownIntervals) {
+                clearInterval(countdownIntervals[key]);
+            }
             countdownIntervals = {};
 
             try {
@@ -764,8 +693,13 @@
                 }
 
                 const trades = [];
-                for (const doc of tradesSnapshot.docs) {
-                    const trade = { id: doc.id, ...doc.data() };
+                for (let i = 0; i < tradesSnapshot.docs.length; i++) {
+                    const doc = tradesSnapshot.docs[i];
+                    const trade = { id: doc.id };
+                    const data = doc.data();
+                    for (let key in data) {
+                        trade[key] = data[key];
+                    }
                     
                     if (!trade.createdAt) continue;
                     
@@ -799,9 +733,13 @@
                     }
                     
                     if (historyFilter === 'wait' && !isFinished) {
-                        trades.push({ ...trade, endTime, tradeTime });
+                        trade.endTime = endTime;
+                        trade.tradeTime = tradeTime;
+                        trades.push(trade);
                     } else if (historyFilter === 'finished' && isFinished) {
-                        trades.push({ ...trade, endTime, tradeTime });
+                        trade.endTime = endTime;
+                        trade.tradeTime = tradeTime;
+                        trades.push(trade);
                     }
                 }
 
@@ -810,45 +748,46 @@
                     return;
                 }
 
-                historyList.innerHTML = trades.map(trade => {
+                let html = '';
+                for (let i = 0; i < trades.length; i++) {
+                    const trade = trades[i];
                     const date = new Date(trade.tradeTime);
                     const dateStr = date.toLocaleString();
                     
                     if (historyFilter === 'wait') {
                         const remainingMs = trade.endTime - now;
                         const remainingSec = Math.max(0, Math.floor(remainingMs / 1000));
-                        return `
-                            <div class="history-item wait" onclick="openTradeDetail('${trade.id}')">
-                                <div class="history-header">
-                                    <div class="history-coin">${trade.coinFull}/USDT</div>
-                                    <div class="history-time">${dateStr}</div>
-                                </div>
-                                <div>Amount: ${trade.amount.toFixed(2)} USDT | Direction: <span style="color: ${trade.direction === 'up' ? '#4caf50' : '#f44336'}; font-weight: 600;">${trade.direction.toUpperCase()}</span></div>
-                                <div class="countdown" id="countdown-${trade.id}">${remainingSec}s remaining</div>
-                            </div>
-                        `;
+                        html += '<div class="history-item wait" onclick="openTradeDetail(\'' + trade.id + '\')">';
+                        html += '<div class="history-header">';
+                        html += '<div class="history-coin">' + trade.coinFull + '/USDT</div>';
+                        html += '<div class="history-time">' + dateStr + '</div>';
+                        html += '</div>';
+                        html += '<div>Amount: ' + trade.amount.toFixed(2) + ' USDT | Direction: <span style="color: ' + (trade.direction === 'up' ? '#4caf50' : '#f44336') + ';">' + trade.direction.toUpperCase() + '</span></div>';
+                        html += '<div class="countdown" id="countdown-' + trade.id + '">' + remainingSec + 's remaining</div>';
+                        html += '</div>';
                     } else {
                         const profitClass = trade.status === 'win' ? 'win' : 'loss';
-                        return `
-                            <div class="history-item finished ${profitClass}" onclick="openTradeDetail('${trade.id}')">
-                                <div class="history-header">
-                                    <div class="history-coin">${trade.coinFull}/USDT</div>
-                                    <div class="history-time">${dateStr}</div>
-                                </div>
-                                <div>Amount: ${trade.amount.toFixed(2)} USDT | Direction: <span style="color: ${trade.direction === 'up' ? '#4caf50' : '#f44336'}; font-weight: 600;">${trade.direction.toUpperCase()}</span></div>
-                                ${trade.status === 'win' ? 
-                                    `<div class="history-profit">Profit: +${trade.profit.toFixed(2)} USDT</div>` : 
-                                    `<div class="history-loss">Loss: -${trade.amount.toFixed(2)} USDT</div>`
-                                }
-                            </div>
-                        `;
+                        html += '<div class="history-item finished ' + profitClass + '" onclick="openTradeDetail(\'' + trade.id + '\')">';
+                        html += '<div class="history-header">';
+                        html += '<div class="history-coin">' + trade.coinFull + '/USDT</div>';
+                        html += '<div class="history-time">' + dateStr + '</div>';
+                        html += '</div>';
+                        html += '<div>Amount: ' + trade.amount.toFixed(2) + ' USDT | Direction: <span style="color: ' + (trade.direction === 'up' ? '#4caf50' : '#f44336') + ';">' + trade.direction.toUpperCase() + '</span></div>';
+                        if (trade.status === 'win') {
+                            html += '<div class="history-profit">Profit: +' + trade.profit.toFixed(2) + ' USDT</div>';
+                        } else {
+                            html += '<div class="history-loss">Loss: -' + trade.amount.toFixed(2) + ' USDT</div>';
+                        }
+                        html += '</div>';
                     }
-                }).join('');
+                }
+                
+                historyList.innerHTML = html;
 
                 if (historyFilter === 'wait') {
-                    trades.forEach(trade => {
-                        startCountdown(trade.id, trade.endTime);
-                    });
+                    for (let i = 0; i < trades.length; i++) {
+                        startCountdown(trades[i].id, trades[i].endTime);
+                    }
                 }
 
             } catch (error) {
@@ -858,10 +797,10 @@
         }
 
         function startCountdown(tradeId, endTime) {
-            const countdownEl = document.getElementById(`countdown-${tradeId}`);
+            const countdownEl = document.getElementById('countdown-' + tradeId);
             if (!countdownEl) return;
 
-            countdownIntervals[tradeId] = setInterval(() => {
+            countdownIntervals[tradeId] = setInterval(function() {
                 const now = Date.now();
                 const remainingMs = endTime - now;
                 const remainingSec = Math.max(0, Math.floor(remainingMs / 1000));
@@ -869,9 +808,10 @@
                 if (remainingSec <= 0) {
                     clearInterval(countdownIntervals[tradeId]);
                     delete countdownIntervals[tradeId];
-                    setTimeout(() => loadTradeHistory(), 1000);
+                    setTimeout(function() { loadTradeHistory(); }, 1000);
                 } else {
-                    countdownEl.textContent = `${remainingSec}s remaining`;
+                    const el = document.getElementById('countdown-' + tradeId);
+                    if (el) el.textContent = remainingSec + 's remaining';
                 }
             }, 1000);
         }
@@ -881,59 +821,31 @@
             if (!tradeDoc.exists) return;
 
             const trade = tradeDoc.data();
-            const tradeTime = trade.createdAt?.toMillis() || 0;
+            const tradeTime = trade.createdAt ? trade.createdAt.toMillis() : 0;
             const endTime = tradeTime + (trade.timeFrame * 1000);
             const dateStr = new Date(tradeTime).toLocaleString();
             const deliveryStr = new Date(endTime).toLocaleString();
 
-            document.getElementById('detailCoinName').textContent = `${trade.coinFull}/USDT`;
-            document.getElementById('tradeDetailContent').innerHTML = `
-                <div class="detail-row">
-                    <div class="detail-label">Purchase Amount</div>
-                    <div class="detail-value">${trade.amount.toFixed(2)} USDT</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Direction</div>
-                    <div class="detail-value ${trade.direction}">${trade.direction === 'up' ? 'Buy Up' : 'Buy Down'}</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Purchase Price</div>
-                    <div class="detail-value">${trade.purchasePrice ? trade.purchasePrice.toFixed(2) : 'N/A'} USDT</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Contract Time</div>
-                    <div class="detail-value">${trade.timeFrame} Seconds</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Profit Percentage</div>
-                    <div class="detail-value">${trade.percentage}%</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Purchase Time</div>
-                    <div class="detail-value">${dateStr}</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Delivery Time</div>
-                    <div class="detail-value">${deliveryStr}</div>
-                </div>
-                ${trade.status === 'win' ? `
-                <div class="detail-row">
-                    <div class="detail-label">Result</div>
-                    <div class="detail-value profit">WIN +${trade.profit.toFixed(2)} USDT</div>
-                </div>
-                ` : trade.status === 'loss' ? `
-                <div class="detail-row">
-                    <div class="detail-label">Result</div>
-                    <div class="detail-value red">LOSS -${trade.amount.toFixed(2)} USDT</div>
-                </div>
-                ` : `
-                <div class="detail-row">
-                    <div class="detail-label">Status</div>
-                    <div class="detail-value" style="color: #ff9800;">PENDING</div>
-                </div>
-                `}
-            `;
+            document.getElementById('detailCoinName').textContent = trade.coinFull + '/USDT';
+            
+            let html = '';
+            html += '<div class="detail-row"><div class="detail-label">Amount</div><div class="detail-value">' + trade.amount.toFixed(2) + ' USDT</div></div>';
+            html += '<div class="detail-row"><div class="detail-label">Direction</div><div class="detail-value ' + trade.direction + '">' + (trade.direction === 'up' ? 'Buy Up' : 'Buy Down') + '</div></div>';
+            html += '<div class="detail-row"><div class="detail-label">Price</div><div class="detail-value">$' + (trade.purchasePrice ? trade.purchasePrice.toFixed(2) : 'N/A') + '</div></div>';
+            html += '<div class="detail-row"><div class="detail-label">Time</div><div class="detail-value">' + trade.timeFrame + ' Seconds</div></div>';
+            html += '<div class="detail-row"><div class="detail-label">Percentage</div><div class="detail-value">' + trade.percentage + '%</div></div>';
+            html += '<div class="detail-row"><div class="detail-label">Purchase</div><div class="detail-value">' + dateStr + '</div></div>';
+            html += '<div class="detail-row"><div class="detail-label">Delivery</div><div class="detail-value">' + deliveryStr + '</div></div>';
+            
+            if (trade.status === 'win') {
+                html += '<div class="detail-row"><div class="detail-label">Result</div><div class="detail-value profit">WIN +' + trade.profit.toFixed(2) + ' USDT</div></div>';
+            } else if (trade.status === 'loss') {
+                html += '<div class="detail-row"><div class="detail-label">Result</div><div class="detail-value red">LOSS -' + trade.amount.toFixed(2) + ' USDT</div></div>';
+            } else {
+                html += '<div class="detail-row"><div class="detail-label">Status</div><div class="detail-value" style="color: #ff9800;">PENDING</div></div>';
+            }
 
+            document.getElementById('tradeDetailContent').innerHTML = html;
             document.getElementById('tradeDetailModal').classList.add('active');
         }
 
@@ -967,8 +879,8 @@
 
         function copyAddress() {
             const address = document.getElementById('depositAddress').textContent;
-            navigator.clipboard.writeText(address).then(() => {
-                alert('Address copied to clipboard!');
+            navigator.clipboard.writeText(address).then(function() {
+                alert('Address copied!');
             });
         }
 
@@ -992,7 +904,7 @@
                 let totalProfit = 0;
                 let totalLoss = 0;
 
-                tradesSnapshot.forEach(doc => {
+                tradesSnapshot.forEach(function(doc) {
                     const trade = doc.data();
                     if (trade.status === 'win' || trade.status === 'loss') {
                         totalTrades++;
@@ -1009,205 +921,52 @@
 
                 document.getElementById('totalTrades').textContent = totalTrades;
                 document.getElementById('winRate').textContent = winRate + '%';
+                document.getElementById('totalProfit').textContent = '$' + totalProfit.toFixed(2);
                 document.getElementById('totalLoss').textContent = '$' + totalLoss.toFixed(2);
-            { name:  + totalProfit.toFixed(2);
-                document.getElementById('totalLoss').textContent = '', class: 'link', price: 28.91 },
-            { name:  + totalLoss.toFixed(2);
 
             } catch (error) {
                 console.error('Error loading analytics:', error);
             }
         }
 
-        function openChangePassword() {
-            closeProfile();
-            document.getElementById('changePasswordModal').classList.add('active');
-            document.getElementById('currentPassword').value = '';
-            document.getElementById('newPassword').value = '';
-            document.getElementById('confirmPassword').value = '';
-        }
+        // Event Listeners
+        document.getElementById('registerBtn').addEventListener('click', register);
+        document.getElementById('loginBtn').addEventListener('click', login);
+        document.getElementById('showLoginBtn').addEventListener('click', showLogin);
+        document.getElementById('showRegisterBtn').addEventListener('click', showRegister);
+        document.getElementById('forgotPasswordBtn').addEventListener('click', forgotPassword);
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+        document.getElementById('profileBtn').addEventListener('click', openProfile);
+        document.getElementById('contractBtn').addEventListener('click', openHistory);
+        document.getElementById('depositBtn').addEventListener('click', openDeposit);
+        document.getElementById('analyticsBtn').addEventListener('click', openAnalytics);
+        document.getElementById('closeTradingBtn').addEventListener('click', closeTradeModal);
+        document.getElementById('closeHistoryBtn').addEventListener('click', closeHistory);
+        document.getElementById('closeDetailBtn').addEventListener('click', closeTradeDetail);
+        document.getElementById('closeProfileBtn').addEventListener('click', closeProfile);
+        document.getElementById('closeDepositBtn').addEventListener('click', closeDeposit);
+        document.getElementById('closeAnalyticsBtn').addEventListener('click', closeAnalytics);
+        document.getElementById('upBtn').addEventListener('click', function() { selectDirection('up'); });
+        document.getElementById('downBtn').addEventListener('click', function() { selectDirection('down'); });
+        document.getElementById('executeTradeBtn').addEventListener('click', executeTrade);
+        document.getElementById('waitTab').addEventListener('click', function() { switchHistoryTab('wait'); });
+        document.getElementById('finishedTab').addEventListener('click', function() { switchHistoryTab('finished'); });
+        document.getElementById('viewDepositBtn').addEventListener('click', function() { closeProfile(); openDeposit(); });
+        document.getElementById('depositCrypto').addEventListener('change', updateDepositAddress);
+        document.getElementById('copyAddressBtn').addEventListener('click', copyAddress);
+        document.getElementById('tradeAmount').addEventListener('input', updateExpectedProfit);
+        document.getElementById('timeFrame').addEventListener('change', updateTimeFrameAndProfit);
 
-        function closeChangePassword() {
-            document.getElementById('changePasswordModal').classList.remove('active');
-        }
-
-        async function changePassword() {
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-
-            if (!currentPassword || !newPassword || !confirmPassword) {
-                showMessage('changePasswordMessage', 'Please fill all fields', 'error');
-                return;
-            }
-
-            if (newPassword.length < 6) {
-                showMessage('changePasswordMessage', 'New password must be at least 6 characters', 'error');
-                return;
-            }
-
-            if (newPassword !== confirmPassword) {
-                showMessage('changePasswordMessage', 'New passwords do not match', 'error');
-                return;
-            }
-
-            try {
-                const user = auth.currentUser;
-                const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
-
-                await user.reauthenticateWithCredential(credential);
-                await user.updatePassword(newPassword);
-
-                showMessage('changePasswordMessage', 'Password changed successfully!', 'success');
-                setTimeout(() => {
-                    closeChangePassword();
-                }, 2000);
-            } catch (error) {
-                if (error.code === 'auth/wrong-password') {
-                    showMessage('changePasswordMessage', 'Current password is incorrect', 'error');
-                } else {
-                    showMessage('changePasswordMessage', error.message, 'error');
-                }
-            }
-        }
-
-        function openChat() {
-            closeProfile();
-            document.getElementById('chatModal').classList.add('active');
-            loadChatMessages();
-        }
-
-        function closeChat() {
-            document.getElementById('chatModal').classList.remove('active');
-            if (chatListener) {
-                chatListener();
-                chatListener = null;
-            }
-        }
-
-        function loadChatMessages() {
-            const chatMessages = document.getElementById('chatMessages');
-            
-            chatListener = db.collection('chats')
-                .where('userId', '==', currentUser.uid)
-                .orderBy('timestamp', 'asc')
-                .onSnapshot(snapshot => {
-                    if (snapshot.empty) {
-                        chatMessages.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No messages yet. Start a conversation!</div>';
-                        return;
-                    }
-
-                    let html = '';
-                    snapshot.forEach(doc => {
-                        const msg = doc.data();
-                        const isUser = msg.senderType === 'user';
-                        const time = msg.timestamp ? new Date(msg.timestamp.toMillis()).toLocaleTimeString() : '';
-                        
-                        html += `
-                            <div style="margin-bottom: 15px; text-align: ${isUser ? 'right' : 'left'};">
-                                <div style="display: inline-block; max-width: 70%; padding: 10px 15px; border-radius: 12px; background: ${isUser ? '#4285f4' : '#fff'}; color: ${isUser ? '#fff' : '#333'}; text-align: left; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                                    <div style="font-weight: 600; font-size: 12px; margin-bottom: 5px; opacity: 0.8;">${isUser ? 'You' : 'Support'}</div>
-                                    <div>${msg.message}</div>
-                                    <div style="font-size: 10px; margin-top: 5px; opacity: 0.7;">${time}</div>
-                                </div>
-                            </div>
-                        `;
-                    });
-
-                    chatMessages.innerHTML = html;
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                });
-        }
-
-        async function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const message = input.value.trim();
-
-            if (!message) return;
-
-            try {
-                await db.collection('chats').add({
-                    userId: currentUser.uid,
-                    userIdNumber: userId,
-                    userName: userName,
-                    userEmail: currentUser.email,
-                    message: message,
-                    senderType: 'user',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    read: false
-                });
-
-                input.value = '';
-            } catch (error) {
-                console.error('Error sending message:', error);
-            }
-        }
-
-        async function checkCompletedTrades() {
-            if (!currentUser) return;
-
-            try {
-                const now = Date.now();
-                const tradesSnapshot = await db.collection('trades')
-                    .where('userId', '==', currentUser.uid)
-                    .where('status', '==', 'pending')
-                    .get();
-
-                for (const doc of tradesSnapshot.docs) {
-                    const trade = doc.data();
-                    const tradeTime = trade.createdAt?.toMillis() || 0;
-                    const endTime = tradeTime + (trade.timeFrame * 1000);
-
-                    if (now >= endTime) {
-                        const userDoc = await db.collection('users').doc(currentUser.uid).get();
-                        const userMode = userDoc.exists ? (userDoc.data().tradingMode || 'loss') : 'loss';
-                        
-                        const winResult = userMode === 'win';
-                        const profit = winResult ? trade.amount * (trade.percentage / 100) : 0;
-                        const finalStatus = winResult ? 'win' : 'loss';
-
-                        await db.collection('trades').doc(doc.id).update({
-                            status: finalStatus,
-                            profit: profit,
-                            result: userMode
-                        });
-
-                        if (winResult && userDoc.exists) {
-                            const currentBalance = userDoc.data().balance || 0;
-                            const newBalance = currentBalance + trade.amount + profit;
-                            await db.collection('users').doc(currentUser.uid).update({
-                                balance: newBalance
-                            });
-                            console.log(`✅ Trade WON! Profit: ${profit.toFixed(2)} USDT. New balance: ${newBalance.toFixed(2)} USDT`);
-                        } else {
-                            console.log(`❌ Trade LOST! Amount: ${trade.amount.toFixed(2)} USDT`);
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error('Error checking completed trades:', error);
-            }
-        }
-
-        auth.onAuthStateChanged(async (user) => {
+        auth.onAuthStateChanged(async function(user) {
             if (user) {
                 currentUser = user;
                 await loadUserData();
                 showDashboard();
-                setInterval(checkCompletedTrades, 5000);
             } else {
                 currentUser = null;
                 showAuth();
             }
         });
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const amountInput = document.getElementById('tradeAmount');
-            if (amountInput) {
-                amountInput.addEventListener('input', updateExpectedProfit);
-            }
-        });
     </script>
 </body>
-</html>', class: 'link', price: 28.91 },
-            { name:
+</html>
