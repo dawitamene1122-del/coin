@@ -233,27 +233,41 @@
         }
 
         async function adminLogin() {
-            const email = document.getElementById('adminEmail').value.trim();
-            const password = document.getElementById('adminPassword').value;
+    const email = document.getElementById('adminEmail').value.trim();
+    const password = document.getElementById('adminPassword').value;
 
-            if (!email || !password) {
-                showMessage('loginMessage', 'Please fill all fields', 'error');
-                return;
-            }
+    if (!email || !password) {
+        showMessage('loginMessage', 'Please fill all fields', 'error');
+        return;
+    }
 
-            try {
-                await auth.signInWithEmailAndPassword(email, password);
-                showMessage('loginMessage', 'Admin login successful!', 'success');
-            } catch (error) {
-                if (error.code === 'auth/user-not-found') {
-                    showMessage('loginMessage', 'Admin account not found.', 'error');
-                } else if (error.code === 'auth/wrong-password') {
-                    showMessage('loginMessage', 'Invalid password', 'error');
-                } else {
-                    showMessage('loginMessage', 'Login failed: ' + error.message, 'error');
-                }
-            }
+    const ADMIN_EMAIL = 'dawitamene1122@gmail.com';
+    
+    if (email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+        showMessage('loginMessage', 'Access denied. Not an admin account.', 'error');
+        return;
+    }
+
+    try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        
+        if (userCredential.user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+            await auth.signOut();
+            showMessage('loginMessage', 'Access denied. Admin privileges required.', 'error');
+            return;
         }
+        
+        showMessage('loginMessage', 'Admin login successful!', 'success');
+    } catch (error) {
+        if (error.code === 'auth/user-not-found') {
+            showMessage('loginMessage', 'Admin account not found. Please register this email first in the main app.', 'error');
+        } else if (error.code === 'auth/wrong-password') {
+            showMessage('loginMessage', 'Invalid password', 'error');
+        } else {
+            showMessage('loginMessage', 'Login failed: ' + error.message, 'error');
+        }
+    }
+}
 
         function adminLogout() {
             if (chatUsersListener) chatUsersListener();
@@ -306,8 +320,11 @@
         }
 
         async function loadTrades() {
-            try {
-                const tradesSnapshot = await db.collection('trades').limit(200).get();
+    try {
+        const tradesSnapshot = await db.collection('trades')
+            .orderBy('createdAt', 'desc')
+            .limit(100)
+            .get();
 
                 allTrades = [];
                 tradesSnapshot.forEach(doc => {
@@ -577,7 +594,9 @@
             if (chatUsersListener) chatUsersListener();
             
             chatUsersListener = db.collection('chats')
-                .onSnapshot(snapshot => {
+    .orderBy('timestamp', 'desc')
+    .onSnapshot(snapshot => {
+
                     const userChats = {};
                     const messages = [];
                     
@@ -650,8 +669,9 @@
                 });
             
             chatMessagesListener = db.collection('chats')
-                .where('userId', '==', userId)
-                .onSnapshot(snapshot => {
+    .where('userId', '==', userId)
+    .orderBy('timestamp', 'asc')
+    .onSnapshot(snapshot => {
                     const adminChatMessages = document.getElementById('adminChatMessages');
                     
                     if (snapshot.empty) {
@@ -742,12 +762,19 @@
         }
 
         auth.onAuthStateChanged((user) => {
-            if (user) {
-                loadDashboard();
-            } else {
-                showLogin();
-            }
-        });
+    if (user) {
+        const ADMIN_EMAIL = 'dawitamene1122@gmail.com';
+        if (user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+            loadDashboard();
+        } else {
+            auth.signOut();
+            showLogin();
+            showMessage('loginMessage', 'Access denied. Admin account required.', 'error');
+        }
+    } else {
+        showLogin();
+    }
+});
     </script>
 </body>
 </html>
