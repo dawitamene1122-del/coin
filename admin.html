@@ -73,6 +73,11 @@
         .mode-label { font-size: 12px; font-weight: 600; margin-left: 8px; }
         .mode-label.win { color: #4caf50; }
         .mode-label.loss { color: #f44336; }
+        
+        .chat-user-item { padding: 12px; margin-bottom: 8px; background: #333; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .chat-user-item:hover { background: #3a3a3a; }
+        .chat-user-item.active { background: #4285f4; }
+        .chat-user-item.unread { border-left: 3px solid #4caf50; }
     </style>
 </head>
 <body>
@@ -267,6 +272,8 @@
         }
 
         function adminLogout() {
+            if (chatUsersListener) chatUsersListener();
+            if (chatMessagesListener) chatMessagesListener();
             auth.signOut();
         }
 
@@ -278,6 +285,7 @@
             await loadTrades();
             
             setInterval(loadTrades, 10000);
+            setInterval(loadStats, 30000);
         }
 
         function showLogin() {
@@ -596,141 +604,3 @@
                                 timestamp: chat.timestamp,
                                 unread: !chat.read && chat.senderType === 'user'
                             };
-                        }
-                    });
-
-                    const chatUsersList = document.getElementById('chatUsersList');
-                    const users = Object.values(userChats);
-                    
-                    if (users.length === 0) {
-                        chatUsersList.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">No chats yet</div>';
-                        return;
-                    }
-
-                    chatUsersList.innerHTML = users.map(user => `
-                        <div onclick="selectChatUser('${user.userId}')" style="padding: 12px; margin-bottom: 8px; background: ${selectedChatUserId === user.userId ? '#4285f4' : '#333'}; border-radius: 8px; cursor: pointer; ${user.unread ? 'border-left: 3px solid #4caf50;' : ''}">
-                            <div style="font-weight: 600; margin-bottom: 5px;">${user.userName}</div>
-                            <div style="font-size: 11px; color: #aaa;">ID: ${user.userIdNumber}</div>
-                            ${user.unread ? '<div style="font-size: 10px; color: #4caf50; margin-top: 5px;">● New message</div>' : ''}
-                        </div>
-                    `).join('');
-                });
-        }
-
-        function selectChatUser(userId) {
-            selectedChatUserId = userId;
-            loadChatMessages(userId);
-            loadChatUsers();
-        }
-
-        function loadChatMessages(userId) {
-            if (chatMessagesListener) chatMessagesListener();
-
-            db.collection('chats')
-                .where('userId', '==', userId)
-                .limit(1)
-                .get()
-                .then(snapshot => {
-                    if (!snapshot.empty) {
-                        const userData = snapshot.docs[0].data();
-                        document.getElementById('selectedUserInfo').innerHTML = `
-                            <div style="font-weight: 600; font-size: 16px;">${userData.userName}</div>
-                            <div style="font-size: 12px; color: #aaa;">ID: ${userData.userIdNumber} | ${userData.userEmail}</div>
-                        `;
-                    }
-                });
-            
-            chatMessagesListener = db.collection('chats')
-                .where('userId', '==', userId)
-                .orderBy('timestamp', 'asc')
-                .onSnapshot(snapshot => {
-                    const adminChatMessages = document.getElementById('adminChatMessages');
-                    
-                    if (snapshot.empty) {
-                        adminChatMessages.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No messages yet</div>';
-                        return;
-                    }
-
-                    let html = '';
-                    snapshot.forEach(doc => {
-                        const msg = doc.data();
-                        const isUser = msg.senderType === 'user';
-                        const time = msg.timestamp ? new Date(msg.timestamp.toMillis()).toLocaleTimeString() : '';
-                        
-                        html += `
-                            <div style="margin-bottom: 15px; text-align: ${isUser ? 'left' : 'right'};">
-                                <div style="display: inline-block; max-width: 70%; padding: 10px 15px; border-radius: 12px; background: ${isUser ? '#333' : '#4285f4'}; color: #fff; text-align: left;">
-                                    <div style="font-weight: 600; font-size: 12px; margin-bottom: 5px; opacity: 0.8;">${isUser ? msg.userName : 'Admin'}</div>
-                                    <div>${msg.message}</div>
-                                    <div style="font-size: 10px; margin-top: 5px; opacity: 0.7;">${time}</div>
-                                </div>
-                            </div>
-                        `;
-
-                        if (isUser && !msg.read) {
-                            db.collection('chats').doc(doc.id).update({ read: true });
-                        }
-                    });
-
-                    adminChatMessages.innerHTML = html;
-                    adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
-                });
-        }
-
-        async function sendAdminMessage() {
-            if (!selectedChatUserId) {
-                alert('Please select a user first');
-                return;
-            }
-
-            const input = document.getElementById('adminChatInput');
-            const message = input.value.trim();
-
-            if (!message) return;
-
-            try {
-                const userChats = await db.collection('chats')
-                    .where('userId', '==', selectedChatUserId)
-                    .limit(1)
-                    .get();
-
-                let userData = { userName: 'User', userIdNumber: 'N/A', userEmail: 'N/A' };
-                if (!userChats.empty) {
-                    userData = userChats.docs[0].data();
-                }
-
-                await db.collection('chats').add({
-                    userId: selectedChatUserId,
-                    userIdNumber: userData.userIdNumber,
-                    userName: userData.userName,
-                    userEmail: userData.userEmail,
-                    message: message,
-                    senderType: 'admin',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    read: false
-                });
-
-                input.value = '';
-            } catch (error) {
-                console.error('Error sending message:', error);
-                alert('Failed to send message');
-            }
-        }
-
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                const ADMIN_EMAIL = 'dawitamene1122@gmail.com';
-                if (user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-                    loadDashboard();
-                } else {
-                    auth.signOut();
-                    showLogin();
-                    showMessage('loginMessage', 'Access denied. Admin account required.', 'error');
-                }
-            } else {
-                showLogin();
-            }
-        });
-    </script>
-</body>
-</html>
