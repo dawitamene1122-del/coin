@@ -56,8 +56,6 @@
         .status-win { background: #4caf50; color: #fff; }
         .status-loss { background: #f44336; color: #fff; }
         
-        .action-btns { display: flex; gap: 8px; }
-        
         .search-box { background: #2a2a2a; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
         .search-input { background: #333; border: 2px solid #444; }
         
@@ -243,26 +241,12 @@
                 return;
             }
 
-            const ADMIN_EMAIL = 'dawitamene1122@gmail.com';
-            
-            if (email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-                showMessage('loginMessage', 'Access denied. Not an admin account.', 'error');
-                return;
-            }
-
             try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                
-                if (userCredential.user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-                    await auth.signOut();
-                    showMessage('loginMessage', 'Access denied. Admin privileges required.', 'error');
-                    return;
-                }
-                
+                await auth.signInWithEmailAndPassword(email, password);
                 showMessage('loginMessage', 'Admin login successful!', 'success');
             } catch (error) {
                 if (error.code === 'auth/user-not-found') {
-                    showMessage('loginMessage', 'Admin account not found. Please register this email first in the main app.', 'error');
+                    showMessage('loginMessage', 'Admin account not found.', 'error');
                 } else if (error.code === 'auth/wrong-password') {
                     showMessage('loginMessage', 'Invalid password', 'error');
                 } else {
@@ -323,15 +307,20 @@
 
         async function loadTrades() {
             try {
-                const tradesSnapshot = await db.collection('trades')
-                    .orderBy('createdAt', 'desc')
-                    .limit(100)
-                    .get();
+                const tradesSnapshot = await db.collection('trades').limit(200).get();
 
                 allTrades = [];
                 tradesSnapshot.forEach(doc => {
                     allTrades.push({ id: doc.id, ...doc.data() });
                 });
+                
+                allTrades.sort((a, b) => {
+                    const timeA = a.createdAt?.toMillis() || 0;
+                    const timeB = b.createdAt?.toMillis() || 0;
+                    return timeB - timeA;
+                });
+                
+                allTrades = allTrades.slice(0, 100);
 
                 renderTrades();
             } catch (error) {
@@ -588,12 +577,21 @@
             if (chatUsersListener) chatUsersListener();
             
             chatUsersListener = db.collection('chats')
-                .orderBy('timestamp', 'desc')
                 .onSnapshot(snapshot => {
                     const userChats = {};
+                    const messages = [];
                     
                     snapshot.forEach(doc => {
-                        const chat = doc.data();
+                        messages.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    messages.sort((a, b) => {
+                        const timeA = a.timestamp?.toMillis() || 0;
+                        const timeB = b.timestamp?.toMillis() || 0;
+                        return timeB - timeA;
+                    });
+                    
+                    messages.forEach(chat => {
                         if (!userChats[chat.userId]) {
                             userChats[chat.userId] = {
                                 userId: chat.userId,
@@ -604,3 +602,152 @@
                                 timestamp: chat.timestamp,
                                 unread: !chat.read && chat.senderType === 'user'
                             };
+                        }
+                    });
+                    
+                    const chatUsersList = document.getElementById('chatUsersList');
+                    const users = Object.values(userChats);
+                    
+                    if (users.length === 0) {
+                        chatUsersList.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">No chats yet</div>';
+                        return;
+                    }
+
+                    chatUsersList.innerHTML = users.map(user => `
+                        <div class="chat-user-item ${selectedChatUserId === user.userId ? 'active' : ''} ${user.unread ? 'unread' : ''}" onclick="selectChatUser('${user.userId}')">
+                            <div style="font-weight: 600; margin-bottom: 5px;">${user.userName}</div>
+                            <div style="font-size: 11px; color: #aaa;">ID: ${user.userIdNumber}</div>
+                            ${user.unread ? '<div style="font-size: 10px; color: #4caf50; margin-top: 5px;">● New message</div>' : ''}
+                        </div>
+                    `).join('');
+                }, error => {
+                    console.error('Error loading chat users:', error);
+                    document.getElementById('chatUsersList').innerHTML = '<div style="color: #f44; text-align: center; padding: 20px;">Error loading chats</div>';
+                });
+        }
+
+        function selectChatUser(userId) {
+            selectedChatUserId = userId;
+            loadChatMessages(userId);
+            loadChatUsers();
+        }
+
+        function loadChatMessages(userId) {
+            if (chatMessagesListener) chatMessagesListener();
+
+            db.collection('chats')
+                .where('userId', '==', userId)
+                .limit(1)
+                .get()
+                .then(snapshot => {
+                    if (!snapshot.empty) {
+                        const userData = snapshot.docs[0].data();
+                        document.getElementById('selectedUserInfo').innerHTML = `
+                            <div style="font-weight: 600; font-size: 16px;">${userData.userName}</div>
+                            <div style="font-size: 12px; color: #aaa;">ID: ${userData.userIdNumber} | ${userData.userEmail}</div>
+                        `;
+                    }
+                });
+            
+            chatMessagesListener = db.collection('chats')
+                .where('userId', '==', userId)
+                .onSnapshot(snapshot => {
+                    const adminChatMessages = document.getElementById('adminChatMessages');
+                    
+                    if (snapshot.empty) {
+                        adminChatMessages.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No messages yet</div>';
+                        return;
+                    }
+
+                    const messages = [];
+                    snapshot.forEach(doc => {
+                        messages.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    messages.sort((a, b) => {
+                        const timeA = a.timestamp?.toMillis() || 0;
+                        const timeB = b.timestamp?.toMillis() || 0;
+                        return timeA - timeB;
+                    });
+
+                    let html = '';
+                    messages.forEach(msg => {
+                        const isUser = msg.senderType === 'user';
+                        const time = msg.timestamp ? new Date(msg.timestamp.toMillis()).toLocaleTimeString() : '';
+                        
+                        html += `
+                            <div style="margin-bottom: 15px; text-align: ${isUser ? 'left' : 'right'};">
+                                <div style="display: inline-block; max-width: 70%; padding: 10px 15px; border-radius: 12px; background: ${isUser ? '#333' : '#4285f4'}; color: #fff; text-align: left;">
+                                    <div style="font-weight: 600; font-size: 12px; margin-bottom: 5px; opacity: 0.8;">${isUser ? msg.userName : 'Admin'}</div>
+                                    <div>${msg.message}</div>
+                                    <div style="font-size: 10px; margin-top: 5px; opacity: 0.7;">${time}</div>
+                                </div>
+                            </div>
+                        `;
+
+                        if (isUser && !msg.read) {
+                            db.collection('chats').doc(msg.id).update({ read: true });
+                        }
+                    });
+
+                    adminChatMessages.innerHTML = html;
+                    adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
+                }, error => {
+                    console.error('Error loading messages:', error);
+                    const adminChatMessages = document.getElementById('adminChatMessages');
+                    if (adminChatMessages) {
+                        adminChatMessages.innerHTML = '<div style="text-align: center; color: #f44; padding: 20px;">Error loading messages</div>';
+                    }
+                });
+        }
+
+        async function sendAdminMessage() {
+            if (!selectedChatUserId) {
+                alert('Please select a user first');
+                return;
+            }
+
+            const input = document.getElementById('adminChatInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            try {
+                const userChats = await db.collection('chats')
+                    .where('userId', '==', selectedChatUserId)
+                    .limit(1)
+                    .get();
+
+                let userData = { userName: 'User', userIdNumber: 'N/A', userEmail: 'N/A' };
+                if (!userChats.empty) {
+                    userData = userChats.docs[0].data();
+                }
+
+                await db.collection('chats').add({
+                    userId: selectedChatUserId,
+                    userIdNumber: userData.userIdNumber,
+                    userName: userData.userName,
+                    userEmail: userData.userEmail,
+                    message: message,
+                    senderType: 'admin',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    read: false
+                });
+
+                input.value = '';
+            } catch (error) {
+                console.error('Error sending message:', error);
+                alert('Failed to send message');
+            }
+        }
+
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                loadDashboard();
+            } else {
+                showLogin();
+            }
+        });
+    </script>
+</body>
+</html>
