@@ -1077,10 +1077,8 @@
 
                 document.getElementById('totalTrades').textContent = totalTrades;
                 document.getElementById('winRate').textContent = winRate + '%';
-                document.getElementById('totalProfit').textContent = '
-             + totalProfit.toFixed(2);
-                document.getElementById('totalLoss').textContent = '
-             + totalLoss.toFixed(2);
+                document.getElementById('totalProfit').textContent = '$' + totalProfit.toFixed(2);
+                document.getElementById('totalLoss').textContent = '$' + totalLoss.toFixed(2);
 
             } catch (error) {
                 console.error('Error loading analytics:', error);
