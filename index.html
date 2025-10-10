@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hibt - Professional Trading Platform</title>
+    <title>Hibt - Trading Platform</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fa; }
         
-        /* Auth Styles */
         .auth-container { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
         .auth-box { background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); width: 90%; max-width: 400px; }
         .auth-title { font-size: 24px; font-weight: 600; margin-bottom: 30px; text-align: center; }
@@ -19,7 +18,6 @@
         .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 20px; }
         .btn-primary { background: #667eea; color: white; }
         .btn-primary:hover { background: #5a67d8; }
-        .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
         .switch-text { margin-top: 20px; color: #6c757d; text-align: center; }
         .switch-link { color: #667eea; cursor: pointer; text-decoration: underline; }
         .message { padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: 500; }
@@ -27,95 +25,89 @@
         .success { background: #efe; color: #363; border: 1px solid #cfc; }
         .hidden { display: none; }
         
-        /* Main App Layout */
-        .app-container { display: none; min-height: 100vh; }
-        .app-container.active { display: flex; }
+        .dashboard { display: none; min-height: 100vh; }
+        .dashboard.active { display: block; }
+        .header { background: linear-gradient(135deg, #4285f4 0%, #3367d6 100%); color: white; padding: 20px; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .brand { font-size: 36px; font-weight: bold; }
+        .user-info-box { background: rgba(255,255,255,0.2); padding: 15px; border-radius: 12px; margin-top: 15px; }
+        .user-id { font-size: 14px; opacity: 0.9; margin-bottom: 5px; }
+        .user-name { font-size: 18px; font-weight: 600; margin-bottom: 10px; }
+        .balance-display { font-size: 32px; font-weight: bold; margin: 10px 0; }
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+        .btn-small { padding: 8px 16px; background: rgba(255,255,255,0.2); border: none; border-radius: 20px; color: white; cursor: pointer; font-size: 14px; }
+        .btn-small:hover { background: rgba(255,255,255,0.3); }
         
-        /* Top Header */
-        .top-header { background: linear-gradient(135deg, #4285f4 0%, #3367d6 100%); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .brand { font-size: 28px; font-weight: bold; }
-        .header-right { display: flex; align-items: center; gap: 15px; }
-        .balance-badge { background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-weight: 600; }
-        .logout-btn { padding: 8px 16px; background: rgba(255,255,255,0.2); border: none; border-radius: 20px; color: white; cursor: pointer; font-weight: 600; }
-        .logout-btn:hover { background: rgba(255,255,255,0.3); }
-        
-        /* Bottom Navigation */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; padding: 8px 16px; cursor: pointer; color: #666; transition: 0.3s; border-radius: 12px; }
-        .nav-item.active { color: #4285f4; background: #e3f2fd; }
-        .nav-icon { font-size: 24px; margin-bottom: 4px; }
-        .nav-label { font-size: 12px; font-weight: 600; }
-        
-        /* Page Content */
-        .page-content { flex: 1; padding: 20px; padding-bottom: 80px; max-width: 1200px; margin: 0 auto; width: 100%; }
-        .page { display: none; }
-        .page.active { display: block; }
-        
-        /* Cards */
-        .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .card-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; }
-        
-        /* Dashboard Styles */
-        .welcome-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-        .welcome-title { font-size: 16px; opacity: 0.9; margin-bottom: 5px; }
-        .welcome-name { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
-        .balance-big { font-size: 36px; font-weight: bold; margin: 15px 0; }
-        .balance-label { font-size: 14px; opacity: 0.9; }
-        
-        .quick-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
-        .action-btn { padding: 15px; background: rgba(255,255,255,0.2); border: none; border-radius: 12px; color: white; font-weight: 600; cursor: pointer; transition: 0.3s; }
-        .action-btn:hover { background: rgba(255,255,255,0.3); }
-        
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .stat-item { text-align: center; padding: 15px; background: #f8f9fa; border-radius: 12px; }
-        .stat-value { font-size: 24px; font-weight: bold; color: #4285f4; }
-        .stat-label { font-size: 12px; color: #666; margin-top: 5px; }
-        
-        /* Market/Trading Styles */
-        .coin-list { background: white; border-radius: 15px; overflow: hidden; }
-        .coin-item { display: flex; align-items: center; padding: 16px; border-bottom: 1px solid #f1f3f4; cursor: pointer; }
+        .market-section { padding: 20px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .section-title { font-size: 24px; font-weight: bold; }
+        .live-indicator { display: inline-block; width: 8px; height: 8px; background: #4caf50; border-radius: 50%; margin-left: 10px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .coin-list { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .coin-item { display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid #f1f3f4; cursor: pointer; }
         .coin-item:hover { background: #f8f9fb; }
         .coin-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 15px; font-size: 14px; }
         .coin-info { flex: 1; }
         .coin-name { font-weight: 600; font-size: 16px; }
-        .coin-change { font-size: 11px; font-weight: 600; margin-top: 3px; }
-        .coin-price { text-align: right; font-weight: 600; font-size: 16px; }
-        .live-label { font-size: 10px; color: #888; margin-top: 3px; }
+        .coin-price { text-align: right; font-weight: 600; font-size: 16px; transition: all 0.3s ease; }
+        .coin-price.price-up { color: #4caf50; animation: priceFlash 1s; }
+        .coin-price.price-down { color: #f44336; animation: priceFlash 1s; }
+        @keyframes priceFlash { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         
-        /* Wallet Styles */
-        .wallet-section { margin-bottom: 30px; }
-        .deposit-address { background: #f8f9fa; padding: 15px; border-radius: 12px; margin: 15px 0; word-break: break-all; font-family: monospace; font-size: 13px; border: 2px dashed #ddd; }
-        .copy-btn { padding: 12px 24px; background: #4285f4; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; margin-top: 10px; }
-        .copy-btn:hover { background: #3367d6; }
-        
-        .withdrawal-form { margin-top: 20px; }
-        .form-group { margin-bottom: 20px; }
-        .form-label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; }
-        .form-input { width: 100%; padding: 15px; border: 2px solid #e1e5e9; border-radius: 12px; font-size: 16px; }
-        .form-input:focus { outline: none; border-color: #4285f4; }
-        .submit-btn { width: 100%; padding: 15px; background: #4285f4; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
-        .submit-btn:hover { background: #3367d6; }
-        .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
-        
-        /* Profile Styles */
-        .profile-header { text-align: center; padding: 30px 20px; }
-        .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; font-weight: bold; margin: 0 auto 15px; }
-        .profile-name { font-size: 24px; font-weight: bold; margin-bottom: 5px; }
-        .profile-email { color: #666; font-size: 14px; }
-        .menu-list { margin-top: 20px; }
-        .menu-item { padding: 16px; background: white; margin-bottom: 10px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.3s; }
-        .menu-item:hover { background: #f8f9fa; }
-        .menu-icon { font-size: 20px; margin-right: 15px; }
-        
-        /* Modal Styles */
         .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto; }
         .modal.active { display: flex; justify-content: center; align-items: center; padding: 20px; }
         .modal-content { background: white; border-radius: 20px; padding: 30px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-title { font-size: 24px; font-weight: 600; }
         .close-btn { background: none; border: none; font-size: 32px; cursor: pointer; color: #666; line-height: 1; }
+        .trade-section { margin-bottom: 20px; }
+        .trade-label { font-weight: 600; margin-bottom: 10px; }
+        .direction-btns { display: flex; gap: 10px; margin-top: 10px; }
+        .direction-btn { flex: 1; padding: 15px; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; }
+        .direction-btn.up { background: #4caf50; color: white; }
+        .direction-btn.down { background: #f44336; color: white; }
+        .direction-btn.inactive { background: #e9ecef; color: #666; }
+        .percentage-btns { display: flex; gap: 10px; margin-top: 10px; }
+        .percentage-btn { flex: 1; padding: 12px; border: 2px solid #e9ecef; border-radius: 12px; background: white; cursor: not-allowed; font-weight: 600; }
+        .percentage-btn.active { background: #4285f4; color: white; border-color: #4285f4; }
+        .trade-input { width: 100%; padding: 15px; border: 2px solid #e9ecef; border-radius: 12px; font-size: 16px; margin-top: 10px; }
+        .info-text { color: #666; font-size: 14px; margin-top: 10px; }
+        .trade-btn { width: 100%; padding: 18px; background: #4285f4; color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: 600; cursor: pointer; margin-top: 20px; }
+        .trade-btn:hover { background: #3367d6; }
         
-        /* Coin Colors */
+        .tab-container { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab { flex: 1; padding: 12px; background: #f0f0f0; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .tab.active { background: #4285f4; color: white; }
+        .history-list { margin-top: 20px; max-height: 400px; overflow-y: auto; }
+        .history-item { background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; }
+        .history-item.wait { border-left: 4px solid #ff9800; background: #fff8f0; }
+        .history-item.finished.win { border-left: 4px solid #4caf50; background: #f1f8f4; }
+        .history-item.finished.loss { border-left: 4px solid #f44336; background: #fef1f1; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .history-coin { font-weight: 600; font-size: 16px; }
+        .history-time { font-size: 12px; color: #666; }
+        .countdown { font-size: 16px; font-weight: 600; color: #ff9800; }
+        .history-profit { font-size: 14px; color: #4caf50; font-weight: 600; margin-top: 8px; }
+        .history-loss { font-size: 14px; color: #f44336; font-weight: 600; margin-top: 8px; }
+        .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+        .detail-label { color: #666; }
+        .detail-value { font-weight: 600; }
+        .detail-value.up { color: #4caf50; }
+        .detail-value.down { color: #f44336; }
+        .detail-value.profit { color: #4caf50; font-size: 18px; }
+        .detail-value.red { color: #f44336; font-size: 18px; }
+        
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+        .stat-card { background: #f8f9fa; padding: 15px; border-radius: 12px; text-align: center; }
+        .stat-label { font-size: 12px; color: #666; margin-bottom: 5px; }
+        .stat-value { font-size: 24px; font-weight: bold; color: #333; }
+        .stat-value.green { color: #4caf50; }
+        .stat-value.red { color: #f44336; }
+        
+        .deposit-address { background: #f8f9fa; padding: 15px; border-radius: 12px; margin: 15px 0; word-break: break-all; font-family: monospace; font-size: 13px; border: 2px dashed #ddd; }
+        .copy-btn { padding: 10px 20px; background: #4285f4; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .copy-btn:hover { background: #3367d6; }
+        
         .btc { background: #f7931a; }
         .eth { background: #627eea; }
         .xrp { background: #23292f; }
@@ -126,404 +118,12 @@
         .link { background: #375BD2; }
         .dot { background: #E6007A; }
         .ltc { background: #345D9D; }
-        
-        /* Loading */
-        .loading { text-align: center; padding: 40px; color: #666; }
-        
-        /* Tab System */
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #f0f0f0; }
-        .tab { padding: 12px 24px; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-weight: 600; color: #666; transition: 0.3s; }
-        .tab.active { color: #4285f4; border-bottom-color: #4285f4; }
     </style>
 </head>
 <body>
-    <!-- Auth Container -->
     <div class="auth-container" id="authContainer">
         <div class="auth-box">
-            if (method === 'crypto') {
-                const crypto = document.getElementById('withdrawCrypto').value;
-                const address = document.getElementById('withdrawAddress').value;
-                
-                if (!address) {
-                    alert('Please enter wallet address');
-                    return;
-                }
-                
-                withdrawalData.crypto = crypto;
-                withdrawalData.address = address;
-            } else {
-                const bankName = document.getElementById('bankName').value;
-                const accountNumber = document.getElementById('accountNumber').value;
-                const accountHolder = document.getElementById('accountHolder').value;
-                
-                if (!bankName || !accountNumber || !accountHolder) {
-                    alert('Please fill all bank details');
-                    return;
-                }
-                
-                withdrawalData.bankName = bankName;
-                withdrawalData.accountNumber = accountNumber;
-                withdrawalData.accountHolder = accountHolder;
-            }
-
-            try {
-                await db.collection('withdrawals').add(withdrawalData);
-                alert('Withdrawal request submitted successfully! We will process it within 24-48 hours.');
-                document.getElementById('withdrawAmount').value = '';
-                if (document.getElementById('withdrawAddress')) {
-                    document.getElementById('withdrawAddress').value = '';
-                }
-            } catch (error) {
-                alert('Failed to submit withdrawal: ' + error.message);
-            }
-        }
-
-        // Initialize withdraw method listener
-        setTimeout(() => {
-            const withdrawMethodEl = document.getElementById('withdrawMethod');
-            if (withdrawMethodEl) {
-                withdrawMethodEl.addEventListener('change', function() {
-                    if (this.value === 'crypto') {
-                        document.getElementById('cryptoWithdrawFields').style.display = 'block';
-                        document.getElementById('bankWithdrawFields').style.display = 'none';
-                    } else {
-                        document.getElementById('cryptoWithdrawFields').style.display = 'none';
-                        document.getElementById('bankWithdrawFields').style.display = 'block';
-                    }
-                });
-            }
-        }, 1000);
-
-        // Portfolio Functions
-        async function loadPortfolio() {
-            const portfolioContent = document.getElementById('portfolioContent');
-            portfolioContent.innerHTML = `
-                <div style="text-align: center; padding: 40px; color: #666;">
-                    <div style="font-size: 48px; margin-bottom: 20px;">💼</div>
-                    <div style="font-size: 18px; font-weight: 600; margin-bottom: 10px;">Your Portfolio</div>
-                    <div style="margin-bottom: 20px;">Total Balance: ${userBalance.toFixed(2)} USDT</div>
-                    <div style="font-size: 14px; color: #999;">Crypto assets coming soon!</div>
-                </div>
-            `;
-        }
-
-        // History Functions
-        function switchHistoryTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            if (tab === 'trades') {
-                document.getElementById('tradesHistory').style.display = 'block';
-                document.getElementById('transactionsHistory').style.display = 'none';
-                loadTradesHistory();
-            } else {
-                document.getElementById('tradesHistory').style.display = 'none';
-                document.getElementById('transactionsHistory').style.display = 'block';
-                loadTransactionsHistory();
-            }
-        }
-
-        async function loadTradesHistory() {
-            const content = document.getElementById('tradesHistoryContent');
-            try {
-                const tradesSnapshot = await db.collection('trades')
-                    .where('userId', '==', currentUser.uid)
-                    .get();
-
-                if (tradesSnapshot.empty) {
-                    content.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">No trades yet</div>';
-                    return;
-                }
-
-                const trades = [];
-                tradesSnapshot.forEach(doc => {
-                    trades.push({ id: doc.id, ...doc.data() });
-                });
-
-                trades.sort((a, b) => {
-                    const timeA = a.createdAt?.toMillis() || 0;
-                    const timeB = b.createdAt?.toMillis() || 0;
-                    return timeB - timeA;
-                });
-
-                content.innerHTML = trades.slice(0, 20).map(trade => {
-                    const time = trade.createdAt ? new Date(trade.createdAt.toMillis()).toLocaleString() : 'N/A';
-                    const statusColor = trade.status === 'win' ? '#4caf50' : trade.status === 'loss' ? '#f44336' : '#ff9800';
-                    const statusText = trade.status === 'win' ? 'WIN' : trade.status === 'loss' ? 'LOSS' : 'PENDING';
-                    
-                    return `
-                    <div style="padding: 15px; border-bottom: 1px solid #f0f0f0;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <div style="font-weight: 600;">${trade.coinFull}</div>
-                            <div style="color: ${statusColor}; font-weight: 600;">${statusText}</div>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; font-size: 13px; color: #666;">
-                            <div>${trade.amount.toFixed(2)} USDT</div>
-                            <div>${time}</div>
-                        </div>
-                        ${trade.status === 'win' ? `<div style="color: #4caf50; font-size: 13px; margin-top: 5px;">+${trade.profit.toFixed(2)} USDT</div>` : ''}
-                    </div>
-                `;
-                }).join('');
-            } catch (error) {
-                content.innerHTML = '<div style="text-align: center; padding: 40px; color: #f44;">Error loading trades</div>';
-            }
-        }
-
-        async function loadTransactionsHistory() {
-            const content = document.getElementById('transactionsHistoryContent');
-            try {
-                const withdrawalsSnapshot = await db.collection('withdrawals')
-                    .where('userId', '==', currentUser.uid)
-                    .get();
-
-                if (withdrawalsSnapshot.empty) {
-                    content.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">No transactions yet</div>';
-                    return;
-                }
-
-                const transactions = [];
-                withdrawalsSnapshot.forEach(doc => {
-                    transactions.push({ id: doc.id, type: 'withdrawal', ...doc.data() });
-                });
-
-                transactions.sort((a, b) => {
-                    const timeA = a.createdAt?.toMillis() || 0;
-                    const timeB = b.createdAt?.toMillis() || 0;
-                    return timeB - timeA;
-                });
-
-                content.innerHTML = transactions.map(tx => {
-                    const time = tx.createdAt ? new Date(tx.createdAt.toMillis()).toLocaleString() : 'N/A';
-                    const statusColor = tx.status === 'completed' ? '#4caf50' : tx.status === 'rejected' ? '#f44336' : '#ff9800';
-                    
-                    return `
-                    <div style="padding: 15px; border-bottom: 1px solid #f0f0f0;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <div style="font-weight: 600;">Withdrawal (${tx.method})</div>
-                            <div style="color: ${statusColor}; font-weight: 600; text-transform: uppercase;">${tx.status}</div>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; font-size: 13px; color: #666;">
-                            <div>${tx.amount.toFixed(2)} USDT</div>
-                            <div>${time}</div>
-                        </div>
-                    </div>
-                `;
-                }).join('');
-            } catch (error) {
-                content.innerHTML = '<div style="text-align: center; padding: 40px; color: #f44;">Error loading transactions</div>';
-            }
-        }
-
-        // Support Chat Functions
-        function openSupportChat() {
-            document.getElementById('chatModal').classList.add('active');
-            loadChatMessages();
-        }
-
-        function closeChatModal() {
-            document.getElementById('chatModal').classList.remove('active');
-            if (chatListener) {
-                chatListener();
-                chatListener = null;
-            }
-        }
-
-        function loadChatMessages() {
-            const chatMessages = document.getElementById('chatMessages');
-            
-            if (chatListener) {
-                chatListener();
-                chatListener = null;
-            }
-            
-            chatListener = db.collection('chats')
-                .where('userId', '==', currentUser.uid)
-                .onSnapshot(snapshot => {
-                    if (snapshot.empty) {
-                        chatMessages.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No messages yet. Start a conversation!</div>';
-                        return;
-                    }
-
-                    const messages = [];
-                    snapshot.forEach(doc => {
-                        messages.push({ id: doc.id, ...doc.data() });
-                    });
-                    
-                    messages.sort((a, b) => {
-                        const timeA = a.timestamp?.toMillis() || 0;
-                        const timeB = b.timestamp?.toMillis() || 0;
-                        return timeA - timeB;
-                    });
-
-                    let html = '';
-                    messages.forEach(msg => {
-                        const isUser = msg.senderType === 'user';
-                        const time = msg.timestamp ? new Date(msg.timestamp.toMillis()).toLocaleTimeString() : '';
-                        
-                        html += `
-                            <div style="margin-bottom: 15px; text-align: ${isUser ? 'right' : 'left'};">
-                                <div style="display: inline-block; max-width: 70%; padding: 10px 15px; border-radius: 12px; background: ${isUser ? '#4285f4' : '#e9ecef'}; color: ${isUser ? '#fff' : '#333'}; text-align: left;">
-                                    <div style="font-weight: 600; font-size: 12px; margin-bottom: 5px; opacity: 0.8;">${isUser ? 'You' : 'Support'}</div>
-                                    <div>${msg.message}</div>
-                                    <div style="font-size: 10px; margin-top: 5px; opacity: 0.7;">${time}</div>
-                                </div>
-                            </div>
-                        `;
-                        
-                        if (!isUser && !msg.read) {
-                            db.collection('chats').doc(msg.id).update({ read: true });
-                        }
-                    });
-
-                    chatMessages.innerHTML = html;
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                }, error => {
-                    console.error('Error loading chat messages:', error);
-                    chatMessages.innerHTML = '<div style="text-align: center; color: #f44; padding: 20px;">Error loading messages</div>';
-                });
-        }
-
-        async function sendChatMessage() {
-            const input = document.getElementById('chatInput');
-            const message = input.value.trim();
-
-            if (!message) return;
-
-            try {
-                await db.collection('chats').add({
-                    userId: currentUser.uid,
-                    userIdNumber: userId,
-                    userName: userName,
-                    userEmail: currentUser.email,
-                    message: message,
-                    senderType: 'user',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    read: false
-                });
-
-                input.value = '';
-            } catch (error) {
-                console.error('Error sending message:', error);
-                alert('Failed to send message. Please try again.');
-            }
-        }
-
-        // Change Password Functions
-        function openChangePassword() {
-            document.getElementById('changePasswordModal').classList.add('active');
-        }
-
-        function closeChangePasswordModal() {
-            document.getElementById('changePasswordModal').classList.remove('active');
-        }
-
-        async function changePassword() {
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
-
-            if (!currentPassword || !newPassword || !confirmNewPassword) {
-                showMessage('changePasswordMessage', 'Please fill all fields', 'error');
-                return;
-            }
-
-            if (newPassword !== confirmNewPassword) {
-                showMessage('changePasswordMessage', 'New passwords do not match', 'error');
-                return;
-            }
-
-            if (newPassword.length < 6) {
-                showMessage('changePasswordMessage', 'Password must be at least 6 characters', 'error');
-                return;
-            }
-
-            try {
-                const user = auth.currentUser;
-                const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
-
-                await user.reauthenticateWithCredential(credential);
-                await user.updatePassword(newPassword);
-
-                showMessage('changePasswordMessage', 'Password changed successfully!', 'success');
-                setTimeout(() => {
-                    closeChangePasswordModal();
-                    document.getElementById('currentPassword').value = '';
-                    document.getElementById('newPassword').value = '';
-                    document.getElementById('confirmNewPassword').value = '';
-                }, 2000);
-            } catch (error) {
-                if (error.code === 'auth/wrong-password') {
-                    showMessage('changePasswordMessage', 'Current password is incorrect', 'error');
-                } else {
-                    showMessage('changePasswordMessage', error.message, 'error');
-                }
-            }
-        }
-
-        // Auto-complete pending trades
-        async function checkCompletedTrades() {
-            if (!currentUser) return;
-
-            try {
-                const now = Date.now();
-                const tradesSnapshot = await db.collection('trades')
-                    .where('userId', '==', currentUser.uid)
-                    .where('status', '==', 'pending')
-                    .get();
-
-                for (const doc of tradesSnapshot.docs) {
-                    const trade = doc.data();
-                    const tradeTime = trade.createdAt?.toMillis() || 0;
-                    const endTime = tradeTime + (trade.timeFrame * 1000);
-
-                    if (now >= endTime) {
-                        const userDoc = await db.collection('users').doc(currentUser.uid).get();
-                        const userMode = userDoc.exists ? (userDoc.data().tradingMode || 'loss') : 'loss';
-                        
-                        const winResult = userMode === 'win';
-                        const profit = winResult ? trade.amount * (trade.percentage / 100) : 0;
-                        const finalStatus = winResult ? 'win' : 'loss';
-
-                        await db.collection('trades').doc(doc.id).update({
-                            status: finalStatus,
-                            profit: profit,
-                            result: userMode
-                        });
-
-                        if (winResult && userDoc.exists) {
-                            const currentBalance = userDoc.data().balance || 0;
-                            const newBalance = currentBalance + trade.amount + profit;
-                            await db.collection('users').doc(currentUser.uid).update({
-                                balance: newBalance
-                            });
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error('Error checking completed trades:', error);
-            }
-        }
-
-        // Initialize App
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                currentUser = user;
-                await loadUserData();
-                document.getElementById('authContainer').style.display = 'none';
-                document.getElementById('appContainer').classList.add('active');
-                fetchLivePrices();
-                setInterval(fetchLivePrices, 60000);
-                setInterval(checkCompletedTrades, 5000);
-            } else {
-                currentUser = null;
-                document.getElementById('authContainer').style.display = 'flex';
-                document.getElementById('appContainer').classList.remove('active');
-            }
-        });
-    </script>
-</body>
-</html><div id="registerForm">
+            <div id="registerForm">
                 <h2 class="auth-title">Create Account</h2>
                 <div id="authMessage"></div>
                 <div class="input-group">
@@ -537,10 +137,6 @@
                 <div class="input-group">
                     <label>Password</label>
                     <input type="password" id="regPassword" placeholder="Enter password">
-                </div>
-                <div class="input-group">
-                    <label>Confirm Password</label>
-                    <input type="password" id="regConfirmPassword" placeholder="Re-enter password">
                 </div>
                 <button class="btn btn-primary" onclick="register()">Register</button>
                 <div class="switch-text">
@@ -570,250 +166,33 @@
         </div>
     </div>
 
-    <!-- Main App Container -->
-    <div class="app-container" id="appContainer">
-        <!-- Top Header -->
-        <div style="width: 100%;">
-            <div class="top-header">
+    <div class="dashboard" id="dashboard">
+        <div class="header">
+            <div class="header-top">
                 <div class="brand">Hibt</div>
-                <div class="header-right">
-                    <div class="balance-badge">
-                        <span id="headerBalance">0.00</span> USDT
-                    </div>
-                    <button class="logout-btn" onclick="logout()">Logout</button>
+                <button class="btn-small" onclick="logout()">Logout</button>
+            </div>
+            <div class="user-info-box">
+                <div class="user-id">ID: <span id="userId"></span></div>
+                <div class="user-name" id="userName"></div>
+                <div class="balance-display">
+                    <span id="userBalance">0.00</span> USDT
+                    <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">Available Balance</div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn-small" onclick="openProfile()">Profile</button>
+                    <button class="btn-small" onclick="openHistory()">My Contract</button>
+                    <button class="btn-small" onclick="openDeposit()">Deposit</button>
+                    <button class="btn-small" onclick="openAnalytics()">Analytics</button>
                 </div>
             </div>
+        </div>
 
-            <!-- Page Content -->
-            <div class="page-content">
-                <!-- Dashboard Page -->
-                <div class="page active" id="dashboardPage">
-                    <div class="card welcome-card">
-                        <div class="welcome-title">Welcome back,</div>
-                        <div class="welcome-name" id="dashUserName">User</div>
-                        <div class="balance-label">Your Balance</div>
-                        <div class="balance-big"><span id="dashBalance">0.00</span> USDT</div>
-                        <div class="quick-actions">
-                            <button class="action-btn" onclick="navigateTo('wallet')">💰 Deposit</button>
-                            <button class="action-btn" onclick="navigateTo('wallet')">📤 Withdraw</button>
-                            <button class="action-btn" onclick="navigateTo('markets')">📈 Trade</button>
-                            <button class="action-btn" onclick="navigateTo('portfolio')">💼 Portfolio</button>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-title">Trading Statistics</div>
-                        <div class="stats-grid">
-                            <div class="stat-item">
-                                <div class="stat-value" id="dashTotalTrades">0</div>
-                                <div class="stat-label">Total Trades</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value" style="color: #4caf50;" id="dashWinRate">0%</div>
-                                <div class="stat-label">Win Rate</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value" style="color: #4caf50;" id="dashProfit">$0</div>
-                                <div class="stat-label">Total Profit</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value" style="color: #f44336;" id="dashLoss">$0</div>
-                                <div class="stat-label">Total Loss</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Markets Page -->
-                <div class="page" id="marketsPage">
-                    <div class="card">
-                        <div class="card-title">Live Markets 🔴</div>
-                        <div class="coin-list" id="coinList">
-                            <div class="loading">Loading markets...</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Portfolio Page -->
-                <div class="page" id="portfolioPage">
-                    <div class="card">
-                        <div class="card-title">My Portfolio</div>
-                        <div id="portfolioContent">
-                            <div class="loading">Loading portfolio...</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Wallet Page -->
-                <div class="page" id="walletPage">
-                    <div class="tabs">
-                        <button class="tab active" onclick="switchWalletTab('deposit')">Deposit</button>
-                        <button class="tab" onclick="switchWalletTab('withdraw')">Withdraw</button>
-                    </div>
-
-                    <!-- Deposit Section -->
-                    <div id="depositSection">
-                        <div class="card wallet-section">
-                            <div class="card-title">Deposit Cryptocurrency</div>
-                            <div class="form-group">
-                                <label class="form-label">Select Cryptocurrency</label>
-                                <select class="form-input" id="depositCrypto" onchange="updateDepositAddress()">
-                                    <option value="btc">Bitcoin (BTC)</option>
-                                    <option value="eth">Ethereum (ETH)</option>
-                                    <option value="usdt">Tether (USDT)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Deposit Address</label>
-                                <div class="deposit-address" id="depositAddress">Select a cryptocurrency</div>
-                                <button class="copy-btn" onclick="copyDepositAddress()">📋 Copy Address</button>
-                            </div>
-                            <div style="padding: 15px; background: #fff3cd; border-radius: 12px; margin-top: 15px; color: #856404;">
-                                ⚠️ <strong>Important:</strong> Only send selected cryptocurrency to this address. Sending other coins may result in permanent loss.
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Withdraw Section -->
-                    <div id="withdrawSection" style="display: none;">
-                        <div class="card wallet-section">
-                            <div class="card-title">Withdraw Funds</div>
-                            <div class="withdrawal-form">
-                                <div class="form-group">
-                                    <label class="form-label">Withdrawal Method</label>
-                                    <select class="form-input" id="withdrawMethod">
-                                        <option value="btc">Bitcoin (BTC)</option>
-                                        <option value="eth">Ethereum (ETH)</option>
-                                        <option value="usdt">Tether (USDT)</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Wallet Address</label>
-                                    <input type="text" class="form-input" id="withdrawAddress" placeholder="Enter wallet address">
-                                </div>
-                            </div>
-                            <div id="bankWithdrawFields" style="display: none;">
-                                <div class="form-group">
-                                    <label class="form-label">Bank Name</label>
-                                    <input type="text" class="form-input" id="bankName" placeholder="Enter bank name">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Account Number</label>
-                                    <input type="text" class="form-input" id="accountNumber" placeholder="Enter account number">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Account Holder Name</label>
-                                    <input type="text" class="form-input" id="accountHolder" placeholder="Enter account holder name">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Amount (USDT)</label>
-                                <input type="number" class="form-input" id="withdrawAmount" placeholder="Enter amount" min="10">
-                                <div style="font-size: 12px; color: #666; margin-top: 5px;">
-                                    Available: <span id="withdrawAvailable">0.00</span> USDT | Min: 10 USDT
-                                </div>
-                            </div>
-                            <button class="submit-btn" onclick="submitWithdrawal()">Submit Withdrawal Request</button>
-                            <div style="padding: 15px; background: #e3f2fd; border-radius: 12px; margin-top: 15px; color: #1565c0; font-size: 13px;">
-                                ℹ️ Withdrawals are processed within 24-48 hours. You'll receive a confirmation email once approved.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- History Page -->
-                <div class="page" id="historyPage">
-                    <div class="tabs">
-                        <button class="tab active" onclick="switchHistoryTab('trades')">Trades</button>
-                        <button class="tab" onclick="switchHistoryTab('transactions')">Transactions</button>
-                    </div>
-
-                    <div id="tradesHistory">
-                        <div class="card">
-                            <div class="card-title">Trade History</div>
-                            <div id="tradesHistoryContent">
-                                <div class="loading">Loading trades...</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="transactionsHistory" style="display: none;">
-                        <div class="card">
-                            <div class="card-title">Transaction History</div>
-                            <div id="transactionsHistoryContent">
-                                <div class="loading">Loading transactions...</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Profile Page -->
-                <div class="page" id="profilePage">
-                    <div class="profile-header">
-                        <div class="profile-avatar" id="profileAvatar">U</div>
-                        <div class="profile-name" id="profileName">User Name</div>
-                        <div class="profile-email" id="profileEmail">user@email.com</div>
-                        <div style="font-size: 14px; color: #888; margin-top: 5px;">
-                            ID: <span id="profileUserId">00000</span>
-                        </div>
-                    </div>
-
-                    <div class="menu-list">
-                        <div class="menu-item" onclick="openSupportChat()">
-                            <div style="display: flex; align-items: center;">
-                                <span class="menu-icon">💬</span>
-                                <span>Contact Support</span>
-                            </div>
-                            <span>›</span>
-                        </div>
-                        <div class="menu-item" onclick="openChangePassword()">
-                            <div style="display: flex; align-items: center;">
-                                <span class="menu-icon">🔒</span>
-                                <span>Change Password</span>
-                            </div>
-                            <span>›</span>
-                        </div>
-                        <div class="menu-item" onclick="alert('Coming soon!')">
-                            <div style="display: flex; align-items: center;">
-                                <span class="menu-icon">🔔</span>
-                                <span>Notifications</span>
-                            </div>
-                            <span>›</span>
-                        </div>
-                        <div class="menu-item" onclick="alert('Coming soon!')">
-                            <div style="display: flex; align-items: center;">
-                                <span class="menu-icon">⚙️</span>
-                                <span>Settings</span>
-                            </div>
-                            <span>›</span>
-                        </div>
-                    </div>
-                </div>
+        <div class="market-section">
+            <div class="section-header">
+                <h2 class="section-title">Markets <span class="live-indicator"></span></h2>
             </div>
-
-            <!-- Bottom Navigation -->
-            <div class="bottom-nav">
-                <div class="nav-item active" onclick="navigateTo('dashboard')">
-                    <div class="nav-icon">🏠</div>
-                    <div class="nav-label">Home</div>
-                </div>
-                <div class="nav-item" onclick="navigateTo('markets')">
-                    <div class="nav-icon">📊</div>
-                    <div class="nav-label">Markets</div>
-                </div>
-                <div class="nav-item" onclick="navigateTo('portfolio')">
-                    <div class="nav-icon">💼</div>
-                    <div class="nav-label">Portfolio</div>
-                </div>
-                <div class="nav-item" onclick="navigateTo('wallet')">
-                    <div class="nav-icon">💰</div>
-                    <div class="nav-label">Wallet</div>
-                </div>
-                <div class="nav-item" onclick="navigateTo('profile')">
-                    <div class="nav-icon">👤</div>
-                    <div class="nav-label">Profile</div>
-                </div>
-            </div>
+            <div class="coin-list" id="coinList"></div>
         </div>
     </div>
 
@@ -822,48 +201,122 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title" id="modalTitle">Trade</h2>
-                <button class="close-btn" onclick="closeTradingModal()">&times;</button>
+                <button class="close-btn" onclick="closeTradeModal()">&times;</button>
             </div>
+            
             <div id="tradeMessage"></div>
-            <div style="margin-bottom: 20px;">
-                <label style="font-weight: 600; margin-bottom: 10px; display: block;">Direction</label>
-                <div style="display: flex; gap: 10px;">
-                    <button id="buyBtn" onclick="selectDirection('up')" style="flex: 1; padding: 15px; border: none; border-radius: 12px; background: #4caf50; color: white; font-weight: 600; cursor: pointer;">Buy Up ↑</button>
-                    <button id="sellBtn" onclick="selectDirection('down')" style="flex: 1; padding: 15px; border: none; border-radius: 12px; background: #e9ecef; color: #666; font-weight: 600; cursor: pointer;">Buy Down ↓</button>
+            
+            <div class="trade-section">
+                <div class="trade-label">Direction</div>
+                <div class="direction-btns">
+                    <button class="direction-btn up" id="upBtn" onclick="selectDirection('up')">Buy Up</button>
+                    <button class="direction-btn down inactive" id="downBtn" onclick="selectDirection('down')">Buy Down</button>
                 </div>
             </div>
-            <div style="margin-bottom: 20px;">
-                <label style="font-weight: 600; margin-bottom: 10px; display: block;">Amount (USDT)</label>
-                <input type="number" id="tradeAmount" placeholder="Min 100 USDT" min="100" style="width: 100%; padding: 15px; border: 2px solid #e1e5e9; border-radius: 12px; font-size: 16px;">
-                <div style="font-size: 12px; color: #666; margin-top: 5px;">
-                    Available: <span id="tradeAvailable">0.00</span> USDT
+
+            <div class="trade-section">
+                <div class="trade-label">Profit Percentage (Auto-set by time)</div>
+                <div class="percentage-btns">
+                    <button class="percentage-btn active" id="profit15" disabled style="opacity: 0.7;">15%</button>
+                    <button class="percentage-btn" id="profit25" disabled style="opacity: 0.7;">25%</button>
+                    <button class="percentage-btn" id="profit35" disabled style="opacity: 0.7;">35%</button>
                 </div>
+                <div class="info-text">Profit percentage is automatically set based on contract time</div>
             </div>
-            <div style="margin-bottom: 20px;">
-                <label style="font-weight: 600; margin-bottom: 10px; display: block;">Contract Time</label>
-                <select id="tradeTime" style="width: 100%; padding: 15px; border: 2px solid #e1e5e9; border-radius: 12px; font-size: 16px;">
+
+            <div class="trade-section">
+                <div class="trade-label">Amount (USDT)</div>
+                <input type="number" class="trade-input" id="tradeAmount" placeholder="Enter amount (min 100 USDT)" min="100">
+                <div class="info-text">Available: <span id="availableBalance">0.00</span> USDT</div>
+                <div class="info-text">Expected Profit: <span id="expectedProfit">0.00</span> USDT</div>
+            </div>
+
+            <div class="trade-section">
+                <div class="trade-label">Contract Time</div>
+                <select class="trade-input" id="timeFrame" onchange="updateTimeFrameAndProfit()">
                     <option value="60">60 Seconds (15% Profit)</option>
-                    <option value="90">90 Seconds (25% Profit)</option>
-                    <option value="120">2 Minutes (35% Profit)</option>
+                    <option value="90">90 Seconds (25% Profit) - Requires 100K+ Balance</option>
+                    <option value="120">2 Minutes (35% Profit) - Requires 500K+ Balance</option>
                 </select>
+                <div class="info-text" id="timeFrameWarning" style="color: #f44336; display: none;">Insufficient balance for this timeframe</div>
             </div>
-            <button id="executeTradeBtn" onclick="executeTrade()" style="width: 100%; padding: 18px; background: #4285f4; color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: 600; cursor: pointer;">Execute Trade</button>
+
+            <button class="trade-btn" onclick="executeTrade()">Execute Trade</button>
         </div>
     </div>
 
-    <!-- Support Chat Modal -->
-    <div class="modal" id="chatModal">
-        <div class="modal-content" style="max-height: 600px; display: flex; flex-direction: column;">
+    <!-- History Modal -->
+    <div class="modal" id="historyModal">
+        <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Support Chat</h2>
-                <button class="close-btn" onclick="closeChatModal()">&times;</button>
+                <h2 class="modal-title">My Contract</h2>
+                <button class="close-btn" onclick="closeHistory()">&times;</button>
             </div>
-            <div id="chatMessages" style="flex: 1; overflow-y: auto; padding: 15px; background: #f8f9fa; border-radius: 12px; margin-bottom: 15px; min-height: 300px;">
-                <div class="loading">Loading messages...</div>
+            <div class="tab-container">
+                <button class="tab active" id="waitTab" onclick="switchHistoryTab('wait')">Wait</button>
+                <button class="tab" id="finishedTab" onclick="switchHistoryTab('finished')">Finished</button>
             </div>
-            <div style="display: flex; gap: 10px;">
-                <input type="text" id="chatInput" placeholder="Type your message..." style="flex: 1; padding: 12px; border: 2px solid #e1e5e9; border-radius: 12px;" onkeypress="if(event.key==='Enter') sendChatMessage()">
-                <button onclick="sendChatMessage()" style="padding: 12px 24px; background: #4285f4; color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer;">Send</button>
+            <div class="history-list" id="historyList"></div>
+        </div>
+    </div>
+
+    <!-- Trade Detail Modal -->
+    <div class="modal" id="tradeDetailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="detailCoinName">BTC/USDT</h2>
+                <button class="close-btn" onclick="closeTradeDetail()">&times;</button>
+            </div>
+            <div id="tradeDetailContent"></div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Profile</h2>
+                <button class="close-btn" onclick="closeProfile()">&times;</button>
+            </div>
+            <div style="text-align: center; padding: 20px;">
+                <div style="font-size: 18px; color: #666; margin-bottom: 10px;">UID: <span id="profileUserId"></span></div>
+                <div style="font-size: 16px; font-weight: 600; margin-bottom: 20px;" id="profileUserName"></div>
+                <button class="btn btn-primary" onclick="openDeposit()">View Deposit</button>
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef;">
+                    <h3 style="margin-bottom: 15px;">Functions</h3>
+                    <div style="text-align: left;">
+                        <div style="padding: 15px; margin-bottom: 10px; background: #f8f9fa; border-radius: 8px; cursor: pointer;" onclick="openAnalytics()">Analytics</div>
+                        <div style="padding: 15px; margin-bottom: 10px; background: #f8f9fa; border-radius: 8px; cursor: pointer;" onclick="openChangePassword()">Change Password</div>
+                        <div style="padding: 15px; margin-bottom: 10px; background: #f8f9fa; border-radius: 8px; cursor: pointer;" onclick="openChat()">Contact Support</div>
+                        <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; cursor: pointer;" onclick="alert('Settings - Coming Soon')">Settings</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deposit Modal -->
+    <div class="modal" id="depositModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Deposit Funds</h2>
+                <button class="close-btn" onclick="closeDeposit()">&times;</button>
+            </div>
+            <div style="padding: 20px 0;">
+                <div class="trade-section">
+                    <div class="trade-label">Select Cryptocurrency</div>
+                    <select class="trade-input" id="depositCrypto" onchange="updateDepositAddress()">
+                        <option value="btc">Bitcoin (BTC)</option>
+                        <option value="eth">Ethereum (ETH)</option>
+                        <option value="other">Other Coins</option>
+                    </select>
+                </div>
+
+                <div class="trade-section">
+                    <div class="trade-label">Deposit Address</div>
+                    <div class="deposit-address" id="depositAddress">Select a cryptocurrency</div>
+                    <button class="copy-btn" onclick="copyAddress()">Copy Address</button>
+                </div>
             </div>
         </div>
     </div>
@@ -873,22 +326,71 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title">Change Password</h2>
-                <button class="close-btn" onclick="closeChangePasswordModal()">&times;</button>
+                <button class="close-btn" onclick="closeChangePassword()">&times;</button>
             </div>
             <div id="changePasswordMessage"></div>
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Current Password</label>
-                <input type="password" id="currentPassword" placeholder="Enter current password" style="width: 100%; padding: 15px; border: 2px solid #e1e5e9; border-radius: 12px; font-size: 16px;">
+            <div class="input-group">
+                <label>Current Password</label>
+                <input type="password" id="currentPassword" placeholder="Enter current password">
             </div>
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600;">New Password</label>
-                <input type="password" id="newPassword" placeholder="Enter new password" style="width: 100%; padding: 15px; border: 2px solid #e1e5e9; border-radius: 12px; font-size: 16px;">
+            <div class="input-group">
+                <label>New Password</label>
+                <input type="password" id="newPassword" placeholder="Enter new password">
             </div>
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Confirm New Password</label>
-                <input type="password" id="confirmNewPassword" placeholder="Confirm new password" style="width: 100%; padding: 15px; border: 2px solid #e1e5e9; border-radius: 12px; font-size: 16px;">
+            <div class="input-group">
+                <label>Confirm New Password</label>
+                <input type="password" id="confirmPassword" placeholder="Confirm new password">
             </div>
-            <button onclick="changePassword()" style="width: 100%; padding: 15px; background: #4285f4; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer;">Change Password</button>
+            <button class="btn btn-primary" onclick="changePassword()">Change Password</button>
+        </div>
+    </div>
+
+    <!-- Chat Modal -->
+    <div class="modal" id="chatModal">
+        <div class="modal-content" style="max-width: 600px; height: 600px; display: flex; flex-direction: column;">
+            <div class="modal-header">
+                <h2 class="modal-title">Support Chat</h2>
+                <button class="close-btn" onclick="closeChat()">&times;</button>
+            </div>
+            <div id="chatMessages" style="flex: 1; overflow-y: auto; padding: 15px; background: #f8f9fa; border-radius: 12px; margin-bottom: 15px;">
+                <div style="text-align: center; color: #666; padding: 20px;">Loading messages...</div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="chatInput" placeholder="Type your message..." style="flex: 1; padding: 12px; border: 2px solid #e9ecef; border-radius: 12px;" onkeypress="if(event.key==='Enter') sendMessage()">
+                <button class="btn btn-primary" style="width: auto; padding: 12px 24px; margin: 0;" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Modal -->
+    <div class="modal" id="analyticsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Trading Analytics</h2>
+                <button class="close-btn" onclick="closeAnalytics()">&times;</button>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Trades</div>
+                    <div class="stat-value" id="totalTrades">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Win Rate</div>
+                    <div class="stat-value green" id="winRate">0%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Profit</div>
+                    <div class="stat-value green" id="totalProfit">$0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Loss</div>
+                    <div class="stat-value red" id="totalLoss">$0</div>
+                </div>
+            </div>
+            <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 12px;">
+                <h3 style="margin-bottom: 15px;">Performance Summary</h3>
+                <div id="performanceChart" style="text-align: center; color: #666; padding: 20px;">Trade more to see detailed analytics</div>
+            </div>
         </div>
     </div>
 
@@ -914,15 +416,18 @@
         let userBalance = 0;
         let userName = '';
         let userId = '';
-        let userEmail = '';
         let selectedCoin = null;
         let tradeDirection = 'up';
+        let selectedPercentage = 15;
+        let historyFilter = 'wait';
+        let countdownIntervals = {};
+        let balanceUpdateListener = null;
         let chatListener = null;
 
-        const DEPOSIT_ADDRESSES = {
-            btc: "bc1q234567890abcdefghijklmnopqrstuvwxyz",
-            eth: "0x1234567890abcdef1234567890abcdef12345678",
-            usdt: "TXyz123456789ABCDEFGHIJKLMNOPQRSTUVWXYz"
+        const WALLET_ADDRESSES = {
+            btc: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+            eth: "0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
+            other: "Contact support for other coins"
         };
 
         const coins = [
@@ -938,7 +443,36 @@
             { name: 'LTC', fullName: 'Litecoin', class: 'ltc', price: 156.78, symbol: 'litecoin' }
         ];
 
-        // Auth Functions
+        async function fetchLivePrices() {
+            try {
+                const symbols = coins.map(c => c.symbol).join(',');
+                const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${symbols}&vs_currencies=usd&include_24hr_change=true`);
+                const data = await response.json();
+                
+                coins.forEach(coin => {
+                    if (data[coin.symbol] && data[coin.symbol].usd) {
+                        const oldPrice = coin.price;
+                        coin.price = data[coin.symbol].usd;
+                        coin.change24h = data[coin.symbol].usd_24h_change || 0;
+                        coin.priceDirection = coin.price > oldPrice ? 'up' : coin.price < oldPrice ? 'down' : 'same';
+                    }
+                });
+                
+                renderCoins();
+            } catch (error) {
+                console.log('Using cached prices - API limit may be reached');
+            }
+        }
+
+        function startPriceUpdates() {
+            fetchLivePrices();
+            setInterval(fetchLivePrices, 60000);
+        }
+
+        function generateUserId() {
+            return Math.floor(10000 + Math.random() * 90000).toString();
+        }
+
         function showMessage(elementId, message, type) {
             const el = document.getElementById(elementId);
             if (el) {
@@ -957,19 +491,25 @@
             document.getElementById('loginForm').classList.remove('hidden');
         }
 
+        function showAuth() {
+            document.getElementById('authContainer').style.display = 'flex';
+            document.getElementById('dashboard').classList.remove('active');
+        }
+
+        function showDashboard() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('dashboard').classList.add('active');
+            renderCoins();
+            startPriceUpdates();
+        }
+
         async function register() {
             const name = document.getElementById('regName').value.trim();
             const email = document.getElementById('regEmail').value.trim();
             const password = document.getElementById('regPassword').value;
-            const confirmPassword = document.getElementById('regConfirmPassword').value;
 
-            if (!name || !email || !password || !confirmPassword) {
+            if (!name || !email || !password) {
                 showMessage('authMessage', 'Please fill all fields', 'error');
-                return;
-            }
-
-            if (password !== confirmPassword) {
-                showMessage('authMessage', 'Passwords do not match', 'error');
                 return;
             }
 
@@ -983,7 +523,7 @@
             try {
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
-                const newUserId = Math.floor(10000 + Math.random() * 90000).toString();
+                const newUserId = generateUserId();
 
                 await db.collection('users').doc(user.uid).set({
                     userId: newUserId,
@@ -1009,14 +549,18 @@
                 return;
             }
 
+            showMessage('loginMessage', 'Logging in...', 'success');
+
             try {
                 await auth.signInWithEmailAndPassword(email, password);
+                showMessage('loginMessage', 'Login successful!', 'success');
             } catch (error) {
                 showMessage('loginMessage', error.message, 'error');
             }
         }
 
         function logout() {
+            if (balanceUpdateListener) balanceUpdateListener();
             if (chatListener) chatListener();
             auth.signOut();
         }
@@ -1031,27 +575,16 @@
 
             try {
                 await auth.sendPasswordResetEmail(email);
-                showMessage('loginMessage', 'Password reset email sent!', 'success');
+                showMessage('loginMessage', 'Password reset email sent! Check your inbox.', 'success');
             } catch (error) {
-                showMessage('loginMessage', error.message, 'error');
+                if (error.code === 'auth/user-not-found') {
+                    showMessage('loginMessage', 'No account found with this email', 'error');
+                } else {
+                    showMessage('loginMessage', error.message, 'error');
+                }
             }
         }
 
-        // Navigation
-        function navigateTo(page) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            
-            document.getElementById(page + 'Page').classList.add('active');
-            event.target.closest('.nav-item').classList.add('active');
-
-            if (page === 'dashboard') loadDashboardStats();
-            if (page === 'markets') renderCoins();
-            if (page === 'portfolio') loadPortfolio();
-            if (page === 'wallet') updateWithdrawAvailable();
-        }
-
-        // Load User Data
         async function loadUserData() {
             const userDoc = await db.collection('users').doc(currentUser.uid).get();
             if (userDoc.exists) {
@@ -1059,33 +592,464 @@
                 userBalance = userData.balance || 0;
                 userName = userData.name || 'User';
                 userId = userData.userId || '00000';
-                userEmail = userData.email || '';
                 
-                updateAllBalanceDisplays();
-                loadDashboardStats();
+                updateBalanceDisplay();
                 
-                db.collection('users').doc(currentUser.uid).onSnapshot(doc => {
+                if (balanceUpdateListener) balanceUpdateListener();
+                balanceUpdateListener = db.collection('users').doc(currentUser.uid).onSnapshot(doc => {
                     if (doc.exists) {
                         userBalance = doc.data().balance || 0;
-                        updateAllBalanceDisplays();
+                        updateBalanceDisplay();
                     }
                 });
             }
         }
 
-        function updateAllBalanceDisplays() {
-            document.getElementById('headerBalance').textContent = userBalance.toFixed(2);
-            document.getElementById('dashBalance').textContent = userBalance.toFixed(2);
-            document.getElementById('dashUserName').textContent = userName;
-            document.getElementById('profileName').textContent = userName;
-            document.getElementById('profileEmail').textContent = userEmail;
-            document.getElementById('profileUserId').textContent = userId;
-            document.getElementById('profileAvatar').textContent = userName.charAt(0).toUpperCase();
-            document.getElementById('tradeAvailable').textContent = userBalance.toFixed(2);
-            document.getElementById('withdrawAvailable').textContent = userBalance.toFixed(2);
+        function updateBalanceDisplay() {
+            document.getElementById('userBalance').textContent = userBalance.toFixed(2);
+            document.getElementById('userName').textContent = userName;
+            document.getElementById('userId').textContent = userId;
         }
 
-        async function loadDashboardStats() {
+        function renderCoins() {
+            const coinList = document.getElementById('coinList');
+            coinList.innerHTML = coins.map((coin, index) => {
+                const priceChange = Math.random() > 0.5 ? '+' : '-';
+                const changePercent = (Math.random() * 5).toFixed(2);
+                const changeColor = priceChange === '+' ? '#4caf50' : '#f44336';
+                
+                return `
+                <div class="coin-item" onclick="openTrade(${index})">
+                    <div class="coin-icon ${coin.class}">${coin.name}</div>
+                    <div class="coin-info">
+                        <div class="coin-name">${coin.fullName}</div>
+                        <div style="font-size: 11px; color: ${changeColor}; font-weight: 600;">
+                            ${priceChange}${changePercent}% 24h
+                        </div>
+                    </div>
+                    <div class="coin-price">
+                        ${coin.price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 8})}
+                        <div style="font-size: 10px; color: #888; margin-top: 3px;">Live Price</div>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        function openTrade(index) {
+            selectedCoin = coins[index];
+            document.getElementById('modalTitle').textContent = `Trade ${selectedCoin.fullName}`;
+            document.getElementById('availableBalance').textContent = userBalance.toFixed(2);
+            document.getElementById('tradeAmount').value = '';
+            document.getElementById('expectedProfit').textContent = '0.00';
+            document.getElementById('timeFrame').value = '60';
+            document.getElementById('timeFrameWarning').style.display = 'none';
+            updateTimeFrameAndProfit();
+            document.getElementById('tradingModal').classList.add('active');
+            
+            tradeDirection = 'up';
+            document.getElementById('upBtn').className = 'direction-btn up';
+            document.getElementById('downBtn').className = 'direction-btn down inactive';
+        }
+
+        function closeTradeModal() {
+            document.getElementById('tradingModal').classList.remove('active');
+        }
+
+        function selectDirection(direction) {
+            tradeDirection = direction;
+            document.getElementById('upBtn').className = direction === 'up' ? 'direction-btn up' : 'direction-btn up inactive';
+            document.getElementById('downBtn').className = direction === 'down' ? 'direction-btn down' : 'direction-btn down inactive';
+        }
+
+        function updateTimeFrameAndProfit() {
+            const timeFrame = parseInt(document.getElementById('timeFrame').value);
+            const warning = document.getElementById('timeFrameWarning');
+            
+            if (timeFrame === 90 && userBalance < 100000) {
+                warning.style.display = 'block';
+                warning.textContent = 'Requires balance above 100,000 USDT';
+                document.getElementById('timeFrame').value = '60';
+                return;
+            }
+            
+            if (timeFrame === 120 && userBalance < 500000) {
+                warning.style.display = 'block';
+                warning.textContent = 'Requires balance above 500,000 USDT';
+                document.getElementById('timeFrame').value = '60';
+                return;
+            }
+            
+            warning.style.display = 'none';
+            
+            if (timeFrame === 60) {
+                selectedPercentage = 15;
+                document.getElementById('profit15').classList.add('active');
+                document.getElementById('profit25').classList.remove('active');
+                document.getElementById('profit35').classList.remove('active');
+            } else if (timeFrame === 90) {
+                selectedPercentage = 25;
+                document.getElementById('profit15').classList.remove('active');
+                document.getElementById('profit25').classList.add('active');
+                document.getElementById('profit35').classList.remove('active');
+            } else if (timeFrame === 120) {
+                selectedPercentage = 35;
+                document.getElementById('profit15').classList.remove('active');
+                document.getElementById('profit25').classList.remove('active');
+                document.getElementById('profit35').classList.add('active');
+            }
+            
+            updateExpectedProfit();
+        }
+
+        function updateExpectedProfit() {
+            const amount = parseFloat(document.getElementById('tradeAmount').value) || 0;
+            const profit = amount * (selectedPercentage / 100);
+            document.getElementById('expectedProfit').textContent = profit.toFixed(2);
+        }
+
+        async function executeTrade() {
+            const amount = parseFloat(document.getElementById('tradeAmount').value);
+            const timeFrame = parseInt(document.getElementById('timeFrame').value);
+
+            if (!amount || amount < 100) {
+                showMessage('tradeMessage', 'Minimum trade amount is 100 USDT', 'error');
+                return;
+            }
+
+            if (amount > userBalance) {
+                showMessage('tradeMessage', 'Insufficient balance', 'error');
+                return;
+            }
+
+            try {
+                const pendingTrades = await db.collection('trades')
+                    .where('userId', '==', currentUser.uid)
+                    .where('status', '==', 'pending')
+                    .get();
+
+                if (!pendingTrades.empty) {
+                    showMessage('tradeMessage', 'Please wait for your current trade to finish before starting a new one', 'error');
+                    return;
+                }
+
+                const newBalance = userBalance - amount;
+                await db.collection('users').doc(currentUser.uid).update({ balance: newBalance });
+
+                await db.collection('trades').add({
+                    userId: currentUser.uid,
+                    userIdNumber: userId,
+                    userName: userName,
+                    userEmail: currentUser.email,
+                    coin: selectedCoin.name,
+                    coinFull: selectedCoin.fullName,
+                    purchasePrice: selectedCoin.price,
+                    amount: amount,
+                    direction: tradeDirection,
+                    percentage: selectedPercentage,
+                    timeFrame: timeFrame,
+                    status: 'pending',
+                    result: null,
+                    profit: 0,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                userBalance = newBalance;
+                updateBalanceDisplay();
+                
+                showMessage('tradeMessage', 'Trade executed successfully! Check "My Contract" to track it.', 'success');
+                
+                setTimeout(() => {
+                    closeTradeModal();
+                }, 2000);
+
+            } catch (error) {
+                showMessage('tradeMessage', 'Trade failed: ' + error.message, 'error');
+            }
+        }
+
+        function openHistory() {
+            document.getElementById('historyModal').classList.add('active');
+            historyFilter = 'wait';
+            switchHistoryTab('wait');
+        }
+
+        function closeHistory() {
+            document.getElementById('historyModal').classList.remove('active');
+            Object.values(countdownIntervals).forEach(clearInterval);
+            countdownIntervals = {};
+        }
+
+        function switchHistoryTab(tab) {
+            historyFilter = tab;
+            document.getElementById('waitTab').classList.toggle('active', tab === 'wait');
+            document.getElementById('finishedTab').classList.toggle('active', tab === 'finished');
+            loadTradeHistory();
+        }
+
+        async function loadTradeHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '<div style="text-align:center; padding:20px;">Loading...</div>';
+
+            Object.values(countdownIntervals).forEach(clearInterval);
+            countdownIntervals = {};
+
+            try {
+                const now = Date.now();
+                
+                // Fetch trades without ordering by createdAt to avoid index requirement
+                const tradesSnapshot = await db.collection('trades')
+                    .where('userId', '==', currentUser.uid)
+                    .get();
+
+                if (tradesSnapshot.empty) {
+                    historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No contracts yet</div>';
+                    return;
+                }
+
+                const trades = [];
+                const batch = db.batch();
+                
+                // Convert to array and sort manually
+                const allTrades = [];
+                tradesSnapshot.forEach(doc => {
+                    allTrades.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Sort by createdAt manually
+                allTrades.sort((a, b) => {
+                    const timeA = a.createdAt?.toMillis() || 0;
+                    const timeB = b.createdAt?.toMillis() || 0;
+                    return timeB - timeA;
+                });
+                
+                for (const trade of allTrades.slice(0, 50)) {
+                    if (!trade.createdAt) continue;
+                    
+                    const tradeTime = trade.createdAt.toMillis();
+                    const endTime = tradeTime + (trade.timeFrame * 1000);
+                    const isFinished = now >= endTime;
+                    
+                    if (isFinished && trade.status === 'pending') {
+                        const userDoc = await db.collection('users').doc(trade.userId).get();
+                        const userMode = userDoc.exists ? (userDoc.data().tradingMode || 'loss') : 'loss';
+                        
+                        const winResult = userMode === 'win';
+                        const profit = winResult ? trade.amount * (trade.percentage / 100) : 0;
+                        const finalStatus = winResult ? 'win' : 'loss';
+                        
+                        batch.update(db.collection('trades').doc(trade.id), { 
+                            status: finalStatus,
+                            profit: profit,
+                            result: userMode
+                        });
+                        
+                        if (winResult && userDoc.exists) {
+                            const currentBalance = userDoc.data().balance || 0;
+                            batch.update(db.collection('users').doc(trade.userId), {
+                                balance: currentBalance + trade.amount + profit
+                            });
+                        }
+                        
+                        trade.status = finalStatus;
+                        trade.profit = profit;
+                    }
+                    
+                    if (historyFilter === 'wait' && (trade.status === 'pending' && !isFinished)) {
+                        trades.push({ ...trade, endTime, tradeTime });
+                    } else if (historyFilter === 'finished' && (trade.status === 'win' || trade.status === 'loss')) {
+                        trades.push({ ...trade, endTime, tradeTime });
+                    }
+                }
+
+                if (batch._mutations && batch._mutations.length > 0) {
+                    await batch.commit();
+                }
+
+                if (trades.length === 0) {
+                    historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No contracts</div>';
+                    return;
+                }
+
+                historyList.innerHTML = trades.map(trade => {
+                    const date = new Date(trade.tradeTime);
+                    const dateStr = date.toLocaleString();
+                    
+                    if (historyFilter === 'wait') {
+                        const remainingMs = trade.endTime - now;
+                        const remainingSec = Math.max(0, Math.floor(remainingMs / 1000));
+                        return `
+                            <div class="history-item wait" onclick="openTradeDetail('${trade.id}')">
+                                <div class="history-header">
+                                    <div class="history-coin">${trade.coinFull}/USDT</div>
+                                    <div class="history-time">${dateStr}</div>
+                                </div>
+                                <div>Amount: ${trade.amount.toFixed(2)} USDT | Direction: <span style="color: ${trade.direction === 'up' ? '#4caf50' : '#f44336'}; font-weight: 600;">${trade.direction.toUpperCase()}</span></div>
+                                <div class="countdown" id="countdown-${trade.id}">${remainingSec}s remaining</div>
+                            </div>
+                        `;
+                    } else {
+                        const profitClass = trade.status === 'win' ? 'win' : 'loss';
+                        return `
+                            <div class="history-item finished ${profitClass}" onclick="openTradeDetail('${trade.id}')">
+                                <div class="history-header">
+                                    <div class="history-coin">${trade.coinFull}/USDT</div>
+                                    <div class="history-time">${dateStr}</div>
+                                </div>
+                                <div>Amount: ${trade.amount.toFixed(2)} USDT | Direction: <span style="color: ${trade.direction === 'up' ? '#4caf50' : '#f44336'}; font-weight: 600;">${trade.direction.toUpperCase()}</span></div>
+                                ${trade.status === 'win' ? 
+                                    `<div class="history-profit">Profit: +${trade.profit.toFixed(2)} USDT</div>` : 
+                                    `<div class="history-loss">Loss: -${trade.amount.toFixed(2)} USDT</div>`
+                                }
+                            </div>
+                        `;
+                    }
+                }).join('');
+
+                if (historyFilter === 'wait') {
+                    trades.forEach(trade => {
+                        startCountdown(trade.id, trade.endTime);
+                    });
+                }
+
+            } catch (error) {
+                console.error('Error loading history:', error);
+                historyList.innerHTML = `<div style="text-align:center; padding:20px; color:#f44;">Error loading contracts. Please try again.</div>`;
+            }
+        }
+
+        function startCountdown(tradeId, endTime) {
+            const countdownEl = document.getElementById(`countdown-${tradeId}`);
+            if (!countdownEl) return;
+
+            countdownIntervals[tradeId] = setInterval(() => {
+                const now = Date.now();
+                const remainingMs = endTime - now;
+                const remainingSec = Math.max(0, Math.floor(remainingMs / 1000));
+
+                const el = document.getElementById(`countdown-${tradeId}`);
+                if (!el) {
+                    clearInterval(countdownIntervals[tradeId]);
+                    delete countdownIntervals[tradeId];
+                    return;
+                }
+
+                if (remainingSec <= 0) {
+                    clearInterval(countdownIntervals[tradeId]);
+                    delete countdownIntervals[tradeId];
+                    setTimeout(() => loadTradeHistory(), 2000);
+                } else {
+                    el.textContent = `${remainingSec}s remaining`;
+                }
+            }, 1000);
+        }
+
+        async function openTradeDetail(tradeId) {
+            const tradeDoc = await db.collection('trades').doc(tradeId).get();
+            if (!tradeDoc.exists) return;
+
+            const trade = tradeDoc.data();
+            const tradeTime = trade.createdAt?.toMillis() || 0;
+            const endTime = tradeTime + (trade.timeFrame * 1000);
+            const dateStr = new Date(tradeTime).toLocaleString();
+            const deliveryStr = new Date(endTime).toLocaleString();
+
+            document.getElementById('detailCoinName').textContent = `${trade.coinFull}/USDT`;
+            document.getElementById('tradeDetailContent').innerHTML = `
+                <div class="detail-row">
+                    <div class="detail-label">Purchase Amount</div>
+                    <div class="detail-value">${trade.amount.toFixed(2)} USDT</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Direction</div>
+                    <div class="detail-value ${trade.direction}">${trade.direction === 'up' ? 'Buy Up' : 'Buy Down'}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Purchase Price</div>
+                    <div class="detail-value">${trade.purchasePrice ? trade.purchasePrice.toFixed(2) : 'N/A'} USDT</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Contract Time</div>
+                    <div class="detail-value">${trade.timeFrame} Seconds</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Profit Percentage</div>
+                    <div class="detail-value">${trade.percentage}%</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Purchase Time</div>
+                    <div class="detail-value">${dateStr}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Delivery Time</div>
+                    <div class="detail-value">${deliveryStr}</div>
+                </div>
+                ${trade.status === 'win' ? `
+                <div class="detail-row">
+                    <div class="detail-label">Result</div>
+                    <div class="detail-value profit">WIN +${trade.profit.toFixed(2)} USDT</div>
+                </div>
+                ` : trade.status === 'loss' ? `
+                <div class="detail-row">
+                    <div class="detail-label">Result</div>
+                    <div class="detail-value red">LOSS -${trade.amount.toFixed(2)} USDT</div>
+                </div>
+                ` : `
+                <div class="detail-row">
+                    <div class="detail-label">Status</div>
+                    <div class="detail-value" style="color: #ff9800;">PENDING</div>
+                </div>
+                `}
+            `;
+
+            document.getElementById('tradeDetailModal').classList.add('active');
+        }
+
+        function closeTradeDetail() {
+            document.getElementById('tradeDetailModal').classList.remove('active');
+        }
+
+        function openProfile() {
+            document.getElementById('profileUserId').textContent = userId;
+            document.getElementById('profileUserName').textContent = userName;
+            document.getElementById('profileModal').classList.add('active');
+        }
+
+        function closeProfile() {
+            document.getElementById('profileModal').classList.remove('active');
+        }
+
+        function openDeposit() {
+            document.getElementById('depositModal').classList.add('active');
+            updateDepositAddress();
+        }
+
+        function closeDeposit() {
+            document.getElementById('depositModal').classList.remove('active');
+        }
+
+        function updateDepositAddress() {
+            const crypto = document.getElementById('depositCrypto').value;
+            document.getElementById('depositAddress').textContent = WALLET_ADDRESSES[crypto];
+        }
+
+        function copyAddress() {
+            const address = document.getElementById('depositAddress').textContent;
+            navigator.clipboard.writeText(address).then(() => {
+                alert('Address copied to clipboard!');
+            });
+        }
+
+        function openAnalytics() {
+            document.getElementById('analyticsModal').classList.add('active');
+            loadAnalytics();
+        }
+
+        function closeAnalytics() {
+            document.getElementById('analyticsModal').classList.remove('active');
+        }
+
+        async function loadAnalytics() {
             try {
                 const tradesSnapshot = await db.collection('trades')
                     .where('userId', '==', currentUser.uid)
@@ -1103,283 +1067,172 @@
                     }
                     if (trade.status === 'win') {
                         wins++;
-                        totalProfit += trade.profit || 0;
+                        totalProfit += trade.profit;
                     } else if (trade.status === 'loss') {
-                        totalLoss += trade.amount || 0;
+                        totalLoss += trade.amount;
                     }
                 });
 
                 const winRate = totalTrades > 0 ? ((wins / totalTrades) * 100).toFixed(1) : 0;
 
-                document.getElementById('dashTotalTrades').textContent = totalTrades;
-                document.getElementById('dashWinRate').textContent = winRate + '%';
-                document.getElementById('dashProfit').textContent = ' value="crypto">Cryptocurrency</option>
-                                        <option value="bank">Bank Transfer</option>
-                                    </select>
-                                </div>
-                                <div id="cryptoWithdrawFields">
-                                    <div class="form-group">
-                                        <label class="form-label">Select Cryptocurrency</label>
-                                        <select class="form-input" id="withdrawCrypto">
-                                            <option + totalProfit.toFixed(2);
-                document.getElementById('dashLoss').textContent = ' value="crypto">Cryptocurrency</option>
-                                        <option value="bank">Bank Transfer</option>
-                                    </select>
-                                </div>
-                                <div id="cryptoWithdrawFields">
-                                    <div class="form-group">
-                                        <label class="form-label">Select Cryptocurrency</label>
-                                        <select class="form-input" id="withdrawCrypto">
-                                            <option + totalLoss.toFixed(2);
+                document.getElementById('totalTrades').textContent = totalTrades;
+                document.getElementById('winRate').textContent = winRate + '%';
+                document.getElementById('totalProfit').textContent = '$' + totalProfit.toFixed(2);
+                document.getElementById('totalLoss').textContent = '$' + totalLoss.toFixed(2);
+
             } catch (error) {
-                console.error('Error loading stats:', error);
+                console.error('Error loading analytics:', error);
             }
         }
 
-        // Markets/Trading
-        async function fetchLivePrices() {
-            try {
-                const symbols = coins.map(c => c.symbol).join(',');
-                const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${symbols}&vs_currencies=usd&include_24hr_change=true`);
-                const data = await response.json();
-                
-                coins.forEach(coin => {
-                    if (data[coin.symbol] && data[coin.symbol].usd) {
-                        coin.price = data[coin.symbol].usd;
-                        coin.change24h = data[coin.symbol].usd_24h_change || 0;
-                    }
-                });
-                
-                renderCoins();
-            } catch (error) {
-                console.log('Using cached prices');
-            }
+        function openChangePassword() {
+            closeProfile();
+            document.getElementById('changePasswordModal').classList.add('active');
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
         }
 
-        function renderCoins() {
-            const coinList = document.getElementById('coinList');
-            coinList.innerHTML = coins.map((coin, index) => {
-                const change24h = coin.change24h || 0;
-                const changeColor = change24h >= 0 ? '#4caf50' : '#f44336';
-                const changeSign = change24h >= 0 ? '+' : '';
-                
-                return `
-                <div class="coin-item" onclick="openTrade(${index})">
-                    <div class="coin-icon ${coin.class}">${coin.name}</div>
-                    <div class="coin-info">
-                        <div class="coin-name">${coin.fullName}</div>
-                        <div class="coin-change" style="color: ${changeColor};">
-                            ${changeSign}${change24h.toFixed(2)}% 24h
-                        </div>
-                    </div>
-                    <div class="coin-price">
-                        ${coin.price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 8})}
-                        <div class="live-label">Live Price</div>
-                    </div>
-                </div>
-            `;
-            }).join('');
+        function closeChangePassword() {
+            document.getElementById('changePasswordModal').classList.remove('active');
         }
 
-        function openTrade(index) {
-            selectedCoin = coins[index];
-            document.getElementById('modalTitle').textContent = `Trade ${selectedCoin.fullName}`;
-            document.getElementById('tradeAmount').value = '';
-            document.getElementById('tradingModal').classList.add('active');
-            selectDirection('up');
-        }
+        async function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
 
-        function closeTradingModal() {
-            document.getElementById('tradingModal').classList.remove('active');
-        }
-
-        function selectDirection(direction) {
-            tradeDirection = direction;
-            const buyBtn = document.getElementById('buyBtn');
-            const sellBtn = document.getElementById('sellBtn');
-            
-            if (direction === 'up') {
-                buyBtn.style.background = '#4caf50';
-                buyBtn.style.color = 'white';
-                sellBtn.style.background = '#e9ecef';
-                sellBtn.style.color = '#666';
-            } else {
-                buyBtn.style.background = '#e9ecef';
-                buyBtn.style.color = '#666';
-                sellBtn.style.background = '#f44336';
-                sellBtn.style.color = 'white';
-            }
-        }
-
-        async function executeTrade() {
-            const amount = parseFloat(document.getElementById('tradeAmount').value);
-            const timeFrame = parseInt(document.getElementById('tradeTime').value);
-            const executeBtn = document.getElementById('executeTradeBtn');
-
-            if (!amount || amount < 100) {
-                showMessage('tradeMessage', 'Minimum trade amount is 100 USDT', 'error');
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                showMessage('changePasswordMessage', 'Please fill all fields', 'error');
                 return;
             }
 
-            if (amount > userBalance) {
-                showMessage('tradeMessage', 'Insufficient balance', 'error');
+            if (newPassword.length < 6) {
+                showMessage('changePasswordMessage', 'New password must be at least 6 characters', 'error');
                 return;
             }
 
-            executeBtn.disabled = true;
-            executeBtn.style.opacity = '0.6';
-            executeBtn.textContent = 'Processing...';
+            if (newPassword !== confirmPassword) {
+                showMessage('changePasswordMessage', 'New passwords do not match', 'error');
+                return;
+            }
 
             try {
-                const pendingTrades = await db.collection('trades')
-                    .where('userId', '==', currentUser.uid)
-                    .where('status', '==', 'pending')
-                    .get();
+                const user = auth.currentUser;
+                const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
 
-                if (!pendingTrades.empty) {
-                    showMessage('tradeMessage', 'Please wait for your current trade to finish', 'error');
-                    executeBtn.disabled = false;
-                    executeBtn.style.opacity = '1';
-                    executeBtn.textContent = 'Execute Trade';
-                    return;
+                await user.reauthenticateWithCredential(credential);
+                await user.updatePassword(newPassword);
+
+                showMessage('changePasswordMessage', 'Password changed successfully!', 'success');
+                setTimeout(() => {
+                    closeChangePassword();
+                }, 2000);
+            } catch (error) {
+                if (error.code === 'auth/wrong-password') {
+                    showMessage('changePasswordMessage', 'Current password is incorrect', 'error');
+                } else {
+                    showMessage('changePasswordMessage', error.message, 'error');
                 }
+            }
+        }
 
-                const percentage = timeFrame === 60 ? 15 : timeFrame === 90 ? 25 : 35;
-                const newBalance = userBalance - amount;
-                
-                await db.collection('users').doc(currentUser.uid).update({ balance: newBalance });
+        function openChat() {
+            closeProfile();
+            document.getElementById('chatModal').classList.add('active');
+            loadChatMessages();
+        }
 
-                await db.collection('trades').add({
+        function closeChat() {
+            document.getElementById('chatModal').classList.remove('active');
+            if (chatListener) {
+                chatListener();
+                chatListener = null;
+            }
+        }
+
+        function loadChatMessages() {
+            const chatMessages = document.getElementById('chatMessages');
+            
+            if (chatListener) {
+                chatListener();
+                chatListener = null;
+            }
+            
+            chatListener = db.collection('chats')
+                .where('userId', '==', currentUser.uid)
+                .onSnapshot(snapshot => {
+                    if (snapshot.empty) {
+                        chatMessages.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No messages yet. Start a conversation!</div>';
+                        return;
+                    }
+
+                    // Convert to array and sort manually
+                    const messages = [];
+                    snapshot.forEach(doc => {
+                        messages.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    // Sort by timestamp
+                    messages.sort((a, b) => {
+                        const timeA = a.timestamp?.toMillis() || 0;
+                        const timeB = b.timestamp?.toMillis() || 0;
+                        return timeA - timeB;
+                    });
+
+                    let html = '';
+                    messages.forEach(msg => {
+                        const isUser = msg.senderType === 'user';
+                        const time = msg.timestamp ? new Date(msg.timestamp.toMillis()).toLocaleTimeString() : '';
+                        
+                        html += `
+                            <div style="margin-bottom: 15px; text-align: ${isUser ? 'right' : 'left'};">
+                                <div style="display: inline-block; max-width: 70%; padding: 10px 15px; border-radius: 12px; background: ${isUser ? '#4285f4' : '#e9ecef'}; color: ${isUser ? '#fff' : '#333'}; text-align: left; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                                    <div style="font-weight: 600; font-size: 12px; margin-bottom: 5px; opacity: 0.8;">${isUser ? 'You' : 'Support'}</div>
+                                    <div>${msg.message}</div>
+                                    <div style="font-size: 10px; margin-top: 5px; opacity: 0.7;">${time}</div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        if (!isUser && !msg.read) {
+                            db.collection('chats').doc(msg.id).update({ read: true });
+                        }
+                    });
+
+                    chatMessages.innerHTML = html;
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, error => {
+                    console.error('Error loading chat messages:', error);
+                    chatMessages.innerHTML = '<div style="text-align: center; color: #f44; padding: 20px;">Error loading messages</div>';
+                });
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            try {
+                await db.collection('chats').add({
                     userId: currentUser.uid,
                     userIdNumber: userId,
                     userName: userName,
                     userEmail: currentUser.email,
-                    coin: selectedCoin.name,
-                    coinFull: selectedCoin.fullName,
-                    purchasePrice: selectedCoin.price,
-                    amount: amount,
-                    direction: tradeDirection,
-                    percentage: percentage,
-                    timeFrame: timeFrame,
-                    status: 'pending',
-                    result: null,
-                    profit: 0,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    message: message,
+                    senderType: 'user',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    read: false
                 });
 
-                showMessage('tradeMessage', 'Trade executed successfully!', 'success');
-                
-                setTimeout(() => {
-                    closeTradingModal();
-                    executeBtn.disabled = false;
-                    executeBtn.style.opacity = '1';
-                    executeBtn.textContent = 'Execute Trade';
-                }, 2000);
-
+                input.value = '';
             } catch (error) {
-                showMessage('tradeMessage', 'Trade failed: ' + error.message, 'error');
-                executeBtn.disabled = false;
-                executeBtn.style.opacity = '1';
-                executeBtn.textContent = 'Execute Trade';
+                console.error('Error sending message:', error);
+                alert('Failed to send message. Please try again.');
             }
         }
 
-        // Wallet Functions
-        function switchWalletTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            if (tab === 'deposit') {
-                document.getElementById('depositSection').style.display = 'block';
-                document.getElementById('withdrawSection').style.display = 'none';
-            } else {
-                document.getElementById('depositSection').style.display = 'none';
-                document.getElementById('withdrawSection').style.display = 'block';
-                updateWithdrawAvailable();
-            }
-        }
-
-        function updateDepositAddress() {
-            const crypto = document.getElementById('depositCrypto').value;
-            document.getElementById('depositAddress').textContent = DEPOSIT_ADDRESSES[crypto];
-        }
-
-        function copyDepositAddress() {
-            const address = document.getElementById('depositAddress').textContent;
-            navigator.clipboard.writeText(address).then(() => {
-                alert('Address copied to clipboard!');
-            });
-        }
-
-        function updateWithdrawAvailable() {
-            document.getElementById('withdrawAvailable').textContent = userBalance.toFixed(2);
-        }
-
-        document.getElementById('withdrawMethod')?.addEventListener('change', function() {
-            if (this.value === 'crypto') {
-                document.getElementById('cryptoWithdrawFields').style.display = 'block';
-                document.getElementById('bankWithdrawFields').style.display = 'none';
-            } else {
-                document.getElementById('cryptoWithdrawFields').style.display = 'none';
-                document.getElementById('bankWithdrawFields').style.display = 'block';
-            }
-        });
-
-        async function submitWithdrawal() {
-            const method = document.getElementById('withdrawMethod').value;
-            const amount = parseFloat(document.getElementById('withdrawAmount').value);
-
-            if (!amount || amount < 10) {
-                alert('Minimum withdrawal is 10 USDT');
-                return;
-            }
-
-            if (amount > userBalance) {
-                alert('Insufficient balance');
-                return;
-            }
-
-            };
-
-            if (method === 'crypto') {
-                const crypto = document.getElementById('withdrawCrypto').value;
-                const address = document.getElementById('withdrawAddress').value;
-                
-                if (!address) {
-                    alert('Please enter wallet address');
-                    return;
-                }
-                
-                withdrawalData.crypto = crypto;
-                withdrawalData.address = address;
-            } else if (method === 'bank') {
-                const bankName = document.getElementById('bankName').value;
-                const accountNumber = document.getElementById('accountNumber').value;
-                const accountHolder = document.getElementById('accountHolder').value;
-                
-                if (!bankName || !accountNumber || !accountHolder) {
-                    alert('Please fill all bank details');
-                    return;
-                }
-                
-                withdrawalData.bankName = bankName;
-                withdrawalData.accountNumber = accountNumber;
-                withdrawalData.accountHolder = accountHolder;
-            }
-
-            try {
-                await db.collection('withdrawals').add(withdrawalData);
-                alert('Withdrawal request submitted successfully! We will process it within 24-48 hours.');
-                document.getElementById('withdrawAmount').value = '';
-                if (document.getElementById('withdrawAddress')) {
-                    document.getElementById('withdrawAddress').value = '';
-                }
-            } catch (error) {
-                alert('Failed to submit withdrawal: ' + error.message);
-            }
-        }
-
-        // Auto-complete pending trades
         async function checkCompletedTrades() {
             if (!currentUser) return;
 
@@ -1415,6 +1268,9 @@
                             await db.collection('users').doc(currentUser.uid).update({
                                 balance: newBalance
                             });
+                            console.log(`✅ Trade WON! Profit: ${profit.toFixed(2)} USDT. New balance: ${newBalance.toFixed(2)} USDT`);
+                        } else {
+                            console.log(`❌ Trade LOST! Amount: ${trade.amount.toFixed(2)} USDT`);
                         }
                     }
                 }
@@ -1423,20 +1279,22 @@
             }
         }
 
-        // Initialize App
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
                 await loadUserData();
-                document.getElementById('authContainer').style.display = 'none';
-                document.getElementById('appContainer').classList.add('active');
-                fetchLivePrices();
-                setInterval(fetchLivePrices, 60000);
+                showDashboard();
                 setInterval(checkCompletedTrades, 5000);
             } else {
                 currentUser = null;
-                document.getElementById('authContainer').style.display = 'flex';
-                document.getElementById('appContainer').classList.remove('active');
+                showAuth();
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const amountInput = document.getElementById('tradeAmount');
+            if (amountInput) {
+                amountInput.addEventListener('input', updateExpectedProfit);
             }
         });
     </script>
