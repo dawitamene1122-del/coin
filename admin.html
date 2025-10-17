@@ -22,8 +22,8 @@
         
         .input-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; color: #aaa; font-weight: 500; }
-        input, select { width: 100%; padding: 15px; border: 2px solid #444; border-radius: 12px; font-size: 16px; background: #333; color: #fff; }
-        input:focus, select:focus { outline: none; border-color: #4285f4; }
+        input { width: 100%; padding: 15px; border: 2px solid #444; border-radius: 12px; font-size: 16px; background: #333; color: #fff; }
+        input:focus { outline: none; border-color: #4285f4; }
         
         .btn { padding: 15px 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
         .btn-primary { background: #4285f4; color: white; width: 100%; }
@@ -32,7 +32,6 @@
         .btn-success { background: #4caf50; color: white; }
         .btn-danger { background: #f44336; color: white; }
         .btn-warning { background: #ff9800; color: white; }
-        .btn-info { background: #2196f3; color: white; }
         
         .message { padding: 15px; border-radius: 12px; margin-bottom: 20px; font-weight: 500; }
         .error { background: #fee; color: #c33; border: 1px solid #fcc; }
@@ -52,19 +51,18 @@
         .table-row { display: grid; gap: 15px; padding: 15px 20px; border-bottom: 1px solid #333; align-items: center; }
         .table-row:hover { background: #333; }
         
-        .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-align: center; display: inline-block; }
+        .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-align: center; }
         .status-pending { background: #ff9800; color: #fff; }
         .status-win { background: #4caf50; color: #fff; }
         .status-loss { background: #f44336; color: #fff; }
-        .status-approved { background: #4caf50; color: #fff; }
-        .status-rejected { background: #f44336; color: #fff; }
         
-        .action-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+        .action-btns { display: flex; gap: 8px; }
         
         .search-box { background: #2a2a2a; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
         .search-input { background: #333; border: 2px solid #444; }
         
         .no-data { text-align: center; padding: 40px; color: #666; }
+        .countdown { color: #ff9800; font-weight: 600; }
         
         .toggle-switch { position: relative; display: inline-block; width: 60px; height: 30px; }
         .toggle-switch input { opacity: 0; width: 0; height: 0; }
@@ -75,13 +73,6 @@
         .mode-label { font-size: 12px; font-weight: 600; margin-left: 8px; }
         .mode-label.win { color: #4caf50; }
         .mode-label.loss { color: #f44336; }
-        
-        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; overflow-y: auto; }
-        .modal.active { display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .modal-content { background: #2a2a2a; border-radius: 20px; padding: 30px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-title { font-size: 24px; font-weight: 600; }
-        .close-btn { background: none; border: none; font-size: 32px; cursor: pointer; color: #888; line-height: 1; }
     </style>
 </head>
 <body>
@@ -125,41 +116,26 @@
                     <div class="stat-label">Total Users</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="pendingWithdrawals">0</div>
-                    <div class="stat-label">Pending Withdrawals</div>
+                    <div class="stat-value" id="activeTrades">0</div>
+                    <div class="stat-label">Active Now</div>
                 </div>
             </div>
 
             <div class="filters">
-                <button class="filter-btn active" onclick="showTradesSection()">Trades</button>
-                <button class="filter-btn" onclick="showUserManagement()">Users</button>
-                <button class="filter-btn" onclick="showWithdrawalManagement()">Withdrawals</button>
-                <button class="filter-btn" onclick="showChatSupport()">Support Chat</button>
+                <button class="filter-btn active" onclick="filterTrades('all')">All Trades</button>
+                <button class="filter-btn" onclick="filterTrades('pending')">Pending</button>
+                <button class="filter-btn" onclick="filterTrades('win')">Winners</button>
+                <button class="filter-btn" onclick="filterTrades('loss')">Losers</button>
+                <button class="filter-btn" onclick="showUserManagement()" style="background: #4285f4; color: white;">Manage Users</button>
+                <button class="filter-btn" onclick="showChatSupport()" style="background: #ff9800; color: white;">Support Chat</button>
+            </div>
+
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search by User ID, Email, or Trade ID..." oninput="searchTrades()">
             </div>
 
             <div id="adminMessage"></div>
 
-            <!-- Trades Section -->
-            <div id="tradesSection">
-                <h2 style="margin-bottom: 20px;">Trade Management</h2>
-                <div class="search-box">
-                    <input type="text" class="search-input" id="searchInput" placeholder="Search by User ID, Email, or Trade ID..." oninput="searchTrades()">
-                </div>
-                <div class="trades-table">
-                    <div class="table-header" style="grid-template-columns: 100px 120px 150px 100px 100px 100px 120px;">
-                        <div>User ID</div>
-                        <div>User Name</div>
-                        <div>Email</div>
-                        <div>Coin</div>
-                        <div>Amount</div>
-                        <div>Direction</div>
-                        <div>Status</div>
-                    </div>
-                    <div id="tradesContainer"></div>
-                </div>
-            </div>
-
-            <!-- User Management Section -->
             <div id="userManagementSection" style="display: none;">
                 <h2 style="margin-bottom: 20px;">User Management</h2>
                 <div class="search-box">
@@ -176,32 +152,9 @@
                     </div>
                     <div id="usersContainer"></div>
                 </div>
+                <button class="btn btn-small btn-warning" onclick="showTradesSection()" style="margin-top: 20px;">Back to Trades</button>
             </div>
 
-            <!-- Withdrawal Management Section -->
-            <div id="withdrawalManagementSection" style="display: none;">
-                <h2 style="margin-bottom: 20px;">Withdrawal Management</h2>
-                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                    <button class="btn btn-small btn-warning" onclick="filterWithdrawals('pending')">Pending</button>
-                    <button class="btn btn-small btn-success" onclick="filterWithdrawals('approved')">Approved</button>
-                    <button class="btn btn-small btn-danger" onclick="filterWithdrawals('rejected')">Rejected</button>
-                    <button class="btn btn-small btn-info" onclick="filterWithdrawals('all')">All</button>
-                </div>
-                <div class="trades-table">
-                    <div class="table-header" style="grid-template-columns: 80px 120px 100px 100px 200px 120px 200px;">
-                        <div>User ID</div>
-                        <div>Name</div>
-                        <div>Method</div>
-                        <div>Amount</div>
-                        <div>Details</div>
-                        <div>Status</div>
-                        <div>Actions</div>
-                    </div>
-                    <div id="withdrawalsContainer"></div>
-                </div>
-            </div>
-
-            <!-- Chat Support Section -->
             <div id="chatSupportSection" style="display: none;">
                 <h2 style="margin-bottom: 20px;">Support Chat</h2>
                 <div style="display: grid; grid-template-columns: 300px 1fr; gap: 20px; height: 600px;">
@@ -220,45 +173,24 @@
                         </div>
                     </div>
                 </div>
+                <button class="btn btn-small btn-warning" onclick="showTradesSection()" style="margin-top: 20px;">Back to Trades</button>
             </div>
-        </div>
-    </div>
 
-    <!-- Add Crypto Modal -->
-    <div class="modal" id="addCryptoModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Add Crypto to User</h2>
-                <button class="close-btn" onclick="closeAddCryptoModal()">&times;</button>
-            </div>
-            <div id="addCryptoMessage"></div>
-            <div class="input-group">
-                <label>Select Cryptocurrency</label>
-                <select id="cryptoType" style="width: 100%;">
-                    <option value="btc">Bitcoin (BTC)</option>
-                    <option value="eth">Ethereum (ETH)</option>
-                    <option value="usdt">Tether (USDT)</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label>Amount</label>
-                <input type="number" id="cryptoAmount" placeholder="Enter amount" step="0.00000001">
-            </div>
-            <button class="btn btn-primary" onclick="submitAddCrypto()">Add Crypto</button>
-        </div>
-    </div>
-
-    <!-- Withdrawal Detail Modal -->
-    <div class="modal" id="withdrawalDetailModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Withdrawal Details</h2>
-                <button class="close-btn" onclick="closeWithdrawalDetail()">&times;</button>
-            </div>
-            <div id="withdrawalDetailContent"></div>
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn btn-success" style="flex: 1;" onclick="approveWithdrawal()">Approve</button>
-                <button class="btn btn-danger" style="flex: 1;" onclick="rejectWithdrawal()">Reject</button>
+            <div id="tradesSection">
+                <h2 style="margin-bottom: 20px;">Trade Management</h2>
+                <div class="trades-table">
+                    <div class="table-header" style="grid-template-columns: 100px 120px 150px 100px 100px 100px 120px 180px;">
+                        <div>User ID</div>
+                        <div>User Name</div>
+                        <div>Email</div>
+                        <div>Coin</div>
+                        <div>Amount</div>
+                        <div>Direction</div>
+                        <div>Status</div>
+                        <div>Actions</div>
+                    </div>
+                    <div id="tradesContainer"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -281,15 +213,13 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        let currentFilter = 'all';
         let allTrades = [];
         let allUsers = [];
-        let allWithdrawals = [];
+        let countdownIntervals = {};
         let selectedChatUserId = null;
         let chatUsersListener = null;
         let chatMessagesListener = null;
-        let withdrawalFilter = 'pending';
-        let selectedUserId = null;
-        let selectedWithdrawalId = null;
 
         function showMessage(elementId, message, type) {
             const el = document.getElementById(elementId);
@@ -337,8 +267,6 @@
         }
 
         function adminLogout() {
-            if (chatUsersListener) chatUsersListener();
-            if (chatMessagesListener) chatMessagesListener();
             auth.signOut();
         }
 
@@ -349,7 +277,6 @@
             await loadStats();
             await loadTrades();
             
-            setInterval(loadStats, 10000);
             setInterval(loadTrades, 10000);
         }
 
@@ -362,23 +289,25 @@
             try {
                 const tradesSnapshot = await db.collection('trades').get();
                 const usersSnapshot = await db.collection('users').get();
-                const withdrawalsSnapshot = await db.collection('withdrawals').get();
                 
-                let pendingTradesCount = 0;
-                let pendingWithdrawalsCount = 0;
+                let pendingCount = 0;
+                let activeCount = 0;
+                const now = Date.now();
 
                 tradesSnapshot.forEach(doc => {
-                    if (doc.data().status === 'pending') pendingTradesCount++;
-                });
-
-                withdrawalsSnapshot.forEach(doc => {
-                    if (doc.data().status === 'pending') pendingWithdrawalsCount++;
+                    const trade = doc.data();
+                    if (trade.status === 'pending') {
+                        pendingCount++;
+                        const tradeTime = trade.createdAt?.toMillis() || 0;
+                        const endTime = tradeTime + (trade.timeFrame * 1000);
+                        if (now < endTime) activeCount++;
+                    }
                 });
 
                 document.getElementById('totalTrades').textContent = tradesSnapshot.size;
-                document.getElementById('pendingTrades').textContent = pendingTradesCount;
+                document.getElementById('pendingTrades').textContent = pendingCount;
                 document.getElementById('totalUsers').textContent = usersSnapshot.size;
-                document.getElementById('pendingWithdrawals').textContent = pendingWithdrawalsCount;
+                document.getElementById('activeTrades').textContent = activeCount;
             } catch (error) {
                 console.error('Error loading stats:', error);
             }
@@ -386,17 +315,14 @@
 
         async function loadTrades() {
             try {
-                const tradesSnapshot = await db.collection('trades').get();
+                const tradesSnapshot = await db.collection('trades')
+                    .orderBy('createdAt', 'desc')
+                    .limit(100)
+                    .get();
 
                 allTrades = [];
                 tradesSnapshot.forEach(doc => {
                     allTrades.push({ id: doc.id, ...doc.data() });
-                });
-
-                allTrades.sort((a, b) => {
-                    const timeA = a.createdAt?.toMillis() || 0;
-                    const timeB = b.createdAt?.toMillis() || 0;
-                    return timeB - timeA;
                 });
 
                 renderTrades();
@@ -407,11 +333,18 @@
         }
 
         function renderTrades() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            Object.values(countdownIntervals).forEach(clearInterval);
+            countdownIntervals = {};
+
             let filteredTrades = allTrades;
 
+            if (currentFilter !== 'all') {
+                filteredTrades = allTrades.filter(trade => trade.status === currentFilter);
+            }
+
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             if (searchTerm) {
-                filteredTrades = allTrades.filter(trade => 
+                filteredTrades = filteredTrades.filter(trade => 
                     trade.userIdNumber?.toString().includes(searchTerm) ||
                     trade.userEmail?.toLowerCase().includes(searchTerm) ||
                     trade.userName?.toLowerCase().includes(searchTerm) ||
@@ -424,7 +357,13 @@
                 return;
             }
 
-            const html = filteredTrades.slice(0, 50).map(trade => {
+            const now = Date.now();
+            const html = filteredTrades.map(trade => {
+                const tradeTime = trade.createdAt?.toMillis() || 0;
+                const endTime = tradeTime + (trade.timeFrame * 1000);
+                const remainingMs = endTime - now;
+                const remainingSec = Math.max(0, Math.floor(remainingMs / 1000));
+                
                 let statusBadge = '';
                 if (trade.status === 'pending') {
                     statusBadge = `<span class="status-badge status-pending">PENDING</span>`;
@@ -434,8 +373,21 @@
                     statusBadge = `<span class="status-badge status-loss">LOSS</span>`;
                 }
 
+                let actions = '';
+                if (trade.status === 'pending' && remainingSec > 0) {
+                    actions = `
+                        <div class="countdown" id="countdown-${trade.id}">${remainingSec}s</div>
+                        <div style="font-size: 11px; color: #888; margin-top: 5px;">Auto-processing</div>
+                    `;
+                    startCountdown(trade.id, endTime);
+                } else if (trade.status === 'pending') {
+                    actions = `<span style="color: #ff9800;">Processing...</span>`;
+                } else {
+                    actions = `<span style="color: #666;">Finished</span>`;
+                }
+
                 return `
-                    <div class="table-row" style="grid-template-columns: 100px 120px 150px 100px 100px 100px 120px;">
+                    <div class="table-row" style="grid-template-columns: 100px 120px 150px 100px 100px 100px 120px 180px;">
                         <div>${trade.userIdNumber || 'N/A'}</div>
                         <div>${trade.userName || 'N/A'}</div>
                         <div style="font-size: 12px;">${trade.userEmail || 'N/A'}</div>
@@ -443,6 +395,7 @@
                         <div>${trade.amount.toFixed(2)}</div>
                         <div style="color: ${trade.direction === 'up' ? '#4caf50' : '#f44336'}; font-weight: 600;">${trade.direction.toUpperCase()}</div>
                         <div>${statusBadge}</div>
+                        <div>${actions}</div>
                     </div>
                 `;
             }).join('');
@@ -450,56 +403,47 @@
             document.getElementById('tradesContainer').innerHTML = html;
         }
 
-        function searchTrades() {
+        function startCountdown(tradeId, endTime) {
+            countdownIntervals[tradeId] = setInterval(() => {
+                const now = Date.now();
+                const remainingMs = endTime - now;
+                const remainingSec = Math.max(0, Math.floor(remainingMs / 1000));
+
+                const countdownEl = document.getElementById(`countdown-${tradeId}`);
+                if (countdownEl) {
+                    countdownEl.textContent = `${remainingSec}s`;
+                    
+                    if (remainingSec <= 0) {
+                        clearInterval(countdownIntervals[tradeId]);
+                        delete countdownIntervals[tradeId];
+                        loadTrades();
+                    }
+                }
+            }, 1000);
+        }
+
+        function filterTrades(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
             renderTrades();
         }
 
-        function showTradesSection() {
-            document.getElementById('tradesSection').style.display = 'block';
-            document.getElementById('userManagementSection').style.display = 'none';
-            document.getElementById('withdrawalManagementSection').style.display = 'none';
-            document.getElementById('chatSupportSection').style.display = 'none';
-            
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            loadTrades();
+        function searchTrades() {
+            renderTrades();
         }
 
         function showUserManagement() {
             document.getElementById('tradesSection').style.display = 'none';
             document.getElementById('userManagementSection').style.display = 'block';
-            document.getElementById('withdrawalManagementSection').style.display = 'none';
             document.getElementById('chatSupportSection').style.display = 'none';
-            
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
             loadUsers();
         }
 
-        function showWithdrawalManagement() {
-            document.getElementById('tradesSection').style.display = 'none';
+        function showTradesSection() {
+            document.getElementById('tradesSection').style.display = 'block';
             document.getElementById('userManagementSection').style.display = 'none';
-            document.getElementById('withdrawalManagementSection').style.display = 'block';
             document.getElementById('chatSupportSection').style.display = 'none';
-            
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            loadWithdrawals();
-        }
-
-        function showChatSupport() {
-            document.getElementById('tradesSection').style.display = 'none';
-            document.getElementById('userManagementSection').style.display = 'none';
-            document.getElementById('withdrawalManagementSection').style.display = 'none';
-            document.getElementById('chatSupportSection').style.display = 'block';
-            
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            loadChatUsers();
         }
 
         async function loadUsers() {
@@ -536,20 +480,19 @@
                     <div>${user.userId || 'N/A'}</div>
                     <div>${user.name || 'N/A'}</div>
                     <div style="font-size: 11px;">${user.email || 'N/A'}</div>
-                    <div style="font-weight: 600; color: #4caf50;">${(user.balance || 0).toFixed(2)}</div>
+                    <div style="font-weight: 600; color: #4caf50;">$${(user.balance || 0).toFixed(2)}</div>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <label class="toggle-switch">
                             <input type="checkbox" ${isWinMode ? 'checked' : ''} onchange="toggleTradingMode('${user.uid}', this.checked)">
                             <span class="slider"></span>
                         </label>
-                        <span class="mode-label ${isWinMode ? 'win' : 'loss'}" id="mode-${user.uid}">
+                        <span class="mode-label ${isWinMode ? 'win' : 'loss'}" id="mode-${user.uid}" style="min-width: 45px;">
                             ${isWinMode ? 'WIN' : 'LOSS'}
                         </span>
                     </div>
-                    <div class="action-btns">
-                        <button class="btn btn-small btn-success" onclick="adjustBalance('${user.uid}', 'add')">+$</button>
-                        <button class="btn btn-small btn-danger" onclick="adjustBalance('${user.uid}', 'remove')">-$</button>
-                        <button class="btn btn-small btn-info" onclick="openAddCrypto('${user.uid}')">+Crypto</button>
+                    <div style="display: flex; gap: 5px;">
+                        <button class="btn btn-small btn-success" onclick="adjustBalance('${user.uid}', 'add')" style="font-size: 11px; padding: 6px 10px;">+$</button>
+                        <button class="btn btn-small btn-danger" onclick="adjustBalance('${user.uid}', 'remove')" style="font-size: 11px; padding: 6px 10px;">-$</button>
                     </div>
                 </div>
             `;
@@ -626,280 +569,18 @@
             }
         }
 
-        function openAddCrypto(userId) {
-            selectedUserId = userId;
-            document.getElementById('addCryptoModal').classList.add('active');
-            document.getElementById('cryptoAmount').value = '';
-        }
-
-        function closeAddCryptoModal() {
-            document.getElementById('addCryptoModal').classList.remove('active');
-            selectedUserId = null;
-        }
-
-        async function submitAddCrypto() {
-            const cryptoType = document.getElementById('cryptoType').value;
-            const amount = parseFloat(document.getElementById('cryptoAmount').value);
-
-            if (!amount || amount <= 0) {
-                showMessage('addCryptoMessage', 'Please enter a valid amount', 'error');
-                return;
-            }
-
-            try {
-                const userDoc = await db.collection('users').doc(selectedUserId).get();
-                if (!userDoc.exists) {
-                    showMessage('addCryptoMessage', 'User not found', 'error');
-                    return;
-                }
-
-                const userData = userDoc.data();
-                const updates = {};
-
-                if (cryptoType === 'btc') {
-                    updates.btcBalance = (userData.btcBalance || 0) + amount;
-                } else if (cryptoType === 'eth') {
-                    updates.ethBalance = (userData.ethBalance || 0) + amount;
-                } else if (cryptoType === 'usdt') {
-                    updates.usdtBalance = (userData.usdtBalance || 0) + amount;
-                }
-
-                await db.collection('users').doc(selectedUserId).update(updates);
-                
-                showMessage('addCryptoMessage', `${amount} ${cryptoType.toUpperCase()} added successfully!`, 'success');
-                setTimeout(() => closeAddCryptoModal(), 2000);
-                await loadUsers();
-            } catch (error) {
-                showMessage('addCryptoMessage', 'Error: ' + error.message, 'error');
-            }
-        }
-
-        async function loadWithdrawals() {
-            try {
-                const withdrawalsSnapshot = await db.collection('withdrawals').get();
-                allWithdrawals = [];
-                withdrawalsSnapshot.forEach(doc => {
-                    allWithdrawals.push({ id: doc.id, ...doc.data() });
-                });
-                
-                allWithdrawals.sort((a, b) => {
-                    const timeA = a.createdAt?.toMillis() || 0;
-                    const timeB = b.createdAt?.toMillis() || 0;
-                    return timeB - timeA;
-                });
-                
-                renderWithdrawals();
-            } catch (error) {
-                console.error('Error loading withdrawals:', error);
-            }
-        }
-
-        function filterWithdrawals(filter) {
-            withdrawalFilter = filter;
-            renderWithdrawals();
-        }
-
-        function renderWithdrawals() {
-            let filteredWithdrawals = allWithdrawals;
-
-            if (withdrawalFilter !== 'all') {
-                filteredWithdrawals = allWithdrawals.filter(w => w.status === withdrawalFilter);
-            }
-
-            if (filteredWithdrawals.length === 0) {
-                document.getElementById('withdrawalsContainer').innerHTML = '<div class="no-data">No withdrawals found</div>';
-                return;
-            }
-
-            const html = filteredWithdrawals.map(w => {
-                let statusBadge = '';
-                if (w.status === 'pending') {
-                    statusBadge = `<span class="status-badge status-pending">PENDING</span>`;
-                } else if (w.status === 'approved') {
-                    statusBadge = `<span class="status-badge status-approved">APPROVED</span>`;
-                } else if (w.status === 'rejected') {
-                    statusBadge = `<span class="status-badge status-rejected">REJECTED</span>`;
-                }
-
-                let details = '';
-                if (w.method === 'crypto') {
-                    details = `${w.crypto}: ${w.address.substring(0, 15)}...`;
-                } else {
-                    details = `${w.bankName} - ${w.accountNumber}`;
-                }
-
-                let actions = '';
-                if (w.status === 'pending') {
-                    actions = `
-                        <div class="action-btns">
-                            <button class="btn btn-small btn-info" onclick="viewWithdrawalDetail('${w.id}')">View</button>
-                            <button class="btn btn-small btn-success" onclick="quickApprove('${w.id}')">Approve</button>
-                            <button class="btn btn-small btn-danger" onclick="quickReject('${w.id}')">Reject</button>
-                        </div>
-                    `;
-                } else {
-                    actions = `<span style="color: #666;">Processed</span>`;
-                }
-
-                return `
-                    <div class="table-row" style="grid-template-columns: 80px 120px 100px 100px 200px 120px 200px;">
-                        <div>${w.userIdNumber || 'N/A'}</div>
-                        <div>${w.userName || 'N/A'}</div>
-                        <div>${w.method.toUpperCase()}</div>
-                        <div>${w.amount.toFixed(2)}</div>
-                        <div style="font-size: 11px;">${details}</div>
-                        <div>${statusBadge}</div>
-                        <div>${actions}</div>
-                    </div>
-                `;
-            }).join('');
-
-            document.getElementById('withdrawalsContainer').innerHTML = html;
-        }
-
-        function viewWithdrawalDetail(withdrawalId) {
-            selectedWithdrawalId = withdrawalId;
-            const withdrawal = allWithdrawals.find(w => w.id === withdrawalId);
-            
-            if (!withdrawal) return;
-
-            let detailsHtml = `
-                <div style="background: #333; padding: 15px; border-radius: 12px; margin-bottom: 15px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span style="color: #aaa;">User ID:</span>
-                        <span style="font-weight: 600;">${withdrawal.userIdNumber}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span style="color: #aaa;">Name:</span>
-                        <span style="font-weight: 600;">${withdrawal.userName}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span style="color: #aaa;">Email:</span>
-                        <span style="font-weight: 600;">${withdrawal.userEmail}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span style="color: #aaa;">Amount:</span>
-                        <span style="font-weight: 600; color: #4285f4; font-size: 18px;">${withdrawal.amount.toFixed(2)}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span style="color: #aaa;">Method:</span>
-                        <span style="font-weight: 600;">${withdrawal.method.toUpperCase()}</span>
-                    </div>
-            `;
-
-            if (withdrawal.method === 'crypto') {
-                detailsHtml += `
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span style="color: #aaa;">Crypto:</span>
-                        <span style="font-weight: 600;">${withdrawal.crypto}</span>
-                    </div>
-                    <div style="margin-top: 15px;">
-                        <div style="color: #aaa; margin-bottom: 5px;">Wallet Address:</div>
-                        <div style="background: #1a1a1a; padding: 10px; border-radius: 8px; word-break: break-all; font-family: monospace; font-size: 12px;">${withdrawal.address}</div>
-                    </div>
-                `;
-            } else {
-                detailsHtml += `
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span style="color: #aaa;">Bank:</span>
-                        <span style="font-weight: 600;">${withdrawal.bankName}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span style="color: #aaa;">Account:</span>
-                        <span style="font-weight: 600;">${withdrawal.accountNumber}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span style="color: #aaa;">Holder:</span>
-                        <span style="font-weight: 600;">${withdrawal.accountHolder}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span style="color: #aaa;">SWIFT/IBAN:</span>
-                        <span style="font-weight: 600;">${withdrawal.swiftCode}</span>
-                    </div>
-                `;
-            }
-
-            detailsHtml += `</div>`;
-
-            document.getElementById('withdrawalDetailContent').innerHTML = detailsHtml;
-            document.getElementById('withdrawalDetailModal').classList.add('active');
-        }
-
-        function closeWithdrawalDetail() {
-            document.getElementById('withdrawalDetailModal').classList.remove('active');
-            selectedWithdrawalId = null;
-        }
-
-        async function approveWithdrawal() {
-            if (!selectedWithdrawalId) return;
-
-            if (!confirm('Are you sure you want to approve this withdrawal?')) return;
-
-            try {
-                await db.collection('withdrawals').doc(selectedWithdrawalId).update({
-                    status: 'approved',
-                    processedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                showMessage('adminMessage', 'Withdrawal approved successfully!', 'success');
-                closeWithdrawalDetail();
-                await loadWithdrawals();
-                await loadStats();
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        }
-
-        async function rejectWithdrawal() {
-            if (!selectedWithdrawalId) return;
-
-            if (!confirm('Are you sure you want to reject this withdrawal? The amount will be refunded to the user.')) return;
-
-            try {
-                const withdrawalDoc = await db.collection('withdrawals').doc(selectedWithdrawalId).get();
-                if (!withdrawalDoc.exists) {
-                    alert('Withdrawal not found');
-                    return;
-                }
-
-                const withdrawal = withdrawalDoc.data();
-                const userDoc = await db.collection('users').doc(withdrawal.userId).get();
-                
-                if (userDoc.exists) {
-                    const currentBalance = userDoc.data().balance || 0;
-                    await db.collection('users').doc(withdrawal.userId).update({
-                        balance: currentBalance + withdrawal.amount
-                    });
-                }
-
-                await db.collection('withdrawals').doc(selectedWithdrawalId).update({
-                    status: 'rejected',
-                    processedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                showMessage('adminMessage', 'Withdrawal rejected and amount refunded!', 'success');
-                closeWithdrawalDetail();
-                await loadWithdrawals();
-                await loadStats();
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        }
-
-        async function quickApprove(withdrawalId) {
-            selectedWithdrawalId = withdrawalId;
-            await approveWithdrawal();
-        }
-
-        async function quickReject(withdrawalId) {
-            selectedWithdrawalId = withdrawalId;
-            await rejectWithdrawal();
+        function showChatSupport() {
+            document.getElementById('tradesSection').style.display = 'none';
+            document.getElementById('userManagementSection').style.display = 'none';
+            document.getElementById('chatSupportSection').style.display = 'block';
+            loadChatUsers();
         }
 
         function loadChatUsers() {
             if (chatUsersListener) chatUsersListener();
             
             chatUsersListener = db.collection('chats')
+                .orderBy('timestamp', 'desc')
                 .onSnapshot(snapshot => {
                     const userChats = {};
                     
@@ -961,6 +642,7 @@
             
             chatMessagesListener = db.collection('chats')
                 .where('userId', '==', userId)
+                .orderBy('timestamp', 'asc')
                 .onSnapshot(snapshot => {
                     const adminChatMessages = document.getElementById('adminChatMessages');
                     
@@ -969,19 +651,9 @@
                         return;
                     }
 
-                    const messages = [];
-                    snapshot.forEach(doc => {
-                        messages.push({ id: doc.id, ...doc.data() });
-                    });
-                    
-                    messages.sort((a, b) => {
-                        const timeA = a.timestamp?.toMillis() || 0;
-                        const timeB = b.timestamp?.toMillis() || 0;
-                        return timeA - timeB;
-                    });
-
                     let html = '';
-                    messages.forEach(msg => {
+                    snapshot.forEach(doc => {
+                        const msg = doc.data();
                         const isUser = msg.senderType === 'user';
                         const time = msg.timestamp ? new Date(msg.timestamp.toMillis()).toLocaleTimeString() : '';
                         
@@ -996,7 +668,7 @@
                         `;
 
                         if (isUser && !msg.read) {
-                            db.collection('chats').doc(msg.id).update({ read: true });
+                            db.collection('chats').doc(doc.id).update({ read: true });
                         }
                     });
 
