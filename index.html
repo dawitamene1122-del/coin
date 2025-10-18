@@ -148,12 +148,6 @@
         .page-section { display: none; }
         .page-section.active { display: block; }
         
-        /* Centered Content */
-        .centered-content {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        
         /* Cards */
         .card {
             background: #1a1a1a;
@@ -165,7 +159,6 @@
             font-size: 20px;
             font-weight: bold;
             margin-bottom: 15px;
-            text-align: center;
         }
         
         /* Coin List */
@@ -295,7 +288,6 @@
             border-radius: 12px;
             margin-bottom: 10px;
             cursor: pointer;
-            transition: all 0.3s;
         }
         .history-item:hover { background: #333; }
         .history-item.pending { border-left: 4px solid #ff9800; }
@@ -304,79 +296,10 @@
         .history-item.approved { border-left: 4px solid #4caf50; }
         .history-item.rejected { border-left: 4px solid #f44336; }
         .history-item.deposit { border-left: 4px solid #2196F3; }
-        .history-item.withdrawal { border-left: 4px solid #ff9800; }
         .history-header {
             display: flex;
             justify-content: space-between;
             margin-bottom: 10px;
-        }
-        
-        /* Crypto Balances */
-        .crypto-balance-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-        .crypto-balance-card {
-            background: #2a2a2a;
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-        }
-        .crypto-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin: 0 auto 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-        }
-        .crypto-amount {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        .crypto-label {
-            font-size: 12px;
-            color: #888;
-        }
-        
-        /* Swap Interface */
-        .swap-container {
-            background: #2a2a2a;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-        .swap-box {
-            background: #1a1a1a;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-        }
-        .swap-icon-container {
-            text-align: center;
-            margin: 15px 0;
-        }
-        .swap-icon {
-            width: 50px;
-            height: 50px;
-            background: #4285f4;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .swap-icon:hover {
-            transform: rotate(180deg);
-            background: #3367d6;
         }
         
         /* Withdrawal */
@@ -403,7 +326,7 @@
         /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
             margin-bottom: 20px;
         }
@@ -422,15 +345,16 @@
         .stat-value.red { color: #f44336; }
         .stat-label { color: #888; font-size: 14px; }
         
-        /* Detail Row */
-        .detail-row {
+        /* Crypto Balances */
+        .crypto-balance-item {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #2a2a2a;
+            align-items: center;
         }
-        .detail-label { color: #888; }
-        .detail-value { font-weight: 600; }
         
         /* Notification Toast */
         .notification {
@@ -451,6 +375,24 @@
             to { transform: translateX(0); opacity: 1; }
         }
         
+        /* Detail Box */
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #2a2a2a;
+        }
+        .detail-label { color: #888; }
+        .detail-value { font-weight: 600; }
+        .countdown-timer {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff9800;
+            text-align: center;
+            padding: 20px;
+            margin: 10px 0;
+        }
+        
         /* Coin Colors */
         .btc { background: #f7931a; }
         .eth { background: #627eea; }
@@ -462,7 +404,11 @@
         .link { background: #375BD2; }
         .dot { background: #E6007A; }
         .ltc { background: #345D9D; }
-        .usdt { background: #26A17B; }
+        
+        /* Mobile Navigation */
+        .mobile-nav {
+            display: none;
+        }
         
         /* Responsive */
         @media (max-width: 768px) {
@@ -495,11 +441,13 @@
             }
             .header {
                 flex-direction: column;
-                align-items: stretch;
+                align-items: center;
+                text-align: center;
             }
             .user-info {
                 flex-direction: column;
                 width: 100%;
+                text-align: center;
             }
             .balance-box {
                 width: 100%;
@@ -521,8 +469,19 @@
                 left: 10px;
                 max-width: none;
             }
+            /* CENTER ALIGNMENT FIX */
             .stats-grid {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 1fr;
+            }
+            .stat-card {
+                margin: 0 auto;
+                width: 100%;
+            }
+            .card {
+                text-align: center;
+            }
+            .history-item {
+                text-align: left;
             }
         }
     </style>
@@ -612,12 +571,12 @@
             <!-- Header -->
             <div class="header">
                 <div class="user-info">
-                    <div style="text-align: center; width: 100%;">
+                    <div>
                         <div style="color: #888; font-size: 12px;">UID: <span id="headerUserId"></span></div>
                         <div style="font-weight: 600;" id="headerUserName"></div>
                     </div>
                     <div class="balance-box">
-                        <div class="balance-label">Available Balance</div>
+                        <div class="balance-label">Available Balance (USDT)</div>
                         <div class="balance-value"><span id="headerBalance">0.00</span> USDT</div>
                     </div>
                 </div>
@@ -626,213 +585,178 @@
 
             <!-- Overview Page -->
             <div id="overviewPage" class="page-section active">
-                <div class="centered-content">
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-value" id="totalTradesCount">0</div>
-                            <div class="stat-label">Total Trades</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value green" id="totalProfitAmount">$0</div>
-                            <div class="stat-label">Total Profit</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value red" id="totalLossAmount">$0</div>
-                            <div class="stat-label">Total Loss</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="winRatePercent">0%</div>
-                            <div class="stat-label">Win Rate</div>
-                        </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalTradesCount">0</div>
+                        <div class="stat-label">Total Trades</div>
                     </div>
+                    <div class="stat-card">
+                        <div class="stat-value green" id="totalProfitAmount">$0</div>
+                        <div class="stat-label">Total Profit</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value red" id="totalLossAmount">$0</div>
+                        <div class="stat-label">Total Loss</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="winRatePercent">0%</div>
+                        <div class="stat-label">Win Rate</div>
+                    </div>
+                </div>
 
-                    <div class="card">
-                        <div class="card-title">Recent Activity</div>
-                        <div id="recentActivity">Loading...</div>
-                    </div>
+                <div class="card">
+                    <div class="card-title">Recent Activity</div>
+                    <div id="recentActivity">Loading...</div>
                 </div>
             </div>
 
             <!-- Markets Page -->
             <div id="marketsPage" class="page-section">
-                <div class="centered-content">
-                    <div class="card">
-                        <div class="card-title">Live Markets 🔴</div>
-                        <div class="coin-list" id="coinList"></div>
-                    </div>
+                <div class="card">
+                    <div class="card-title">Live Markets 🔴</div>
+                    <div class="coin-list" id="coinList"></div>
                 </div>
             </div>
 
             <!-- Wallet Page -->
             <div id="walletPage" class="page-section">
-                <div class="centered-content">
-                    <!-- Crypto Balances -->
-                    <div class="card">
-                        <div class="card-title">My Crypto Balances</div>
-                        <div class="crypto-balance-grid" id="cryptoBalances"></div>
+                <div class="card">
+                    <div class="card-title">My Crypto Balances</div>
+                    <div id="cryptoBalances">Loading...</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Swap Crypto</div>
+                    <div class="trade-section">
+                        <div class="trade-label">From</div>
+                        <select class="trade-input" id="swapFrom" onchange="updateSwapEstimate()">
+                            <option value="btc">Bitcoin (BTC)</option>
+                            <option value="eth">Ethereum (ETH)</option>
+                            <option value="usdt">USDT</option>
+                        </select>
+                    </div>
+                    <div class="trade-section">
+                        <div class="trade-label">To</div>
+                        <select class="trade-input" id="swapTo" onchange="updateSwapEstimate()">
+                            <option value="usdt">USDT</option>
+                            <option value="btc">Bitcoin (BTC)</option>
+                            <option value="eth">Ethereum (ETH)</option>
+                        </select>
+                    </div>
+                    <div class="trade-section">
+                        <div class="trade-label">Amount</div>
+                        <input type="number" class="trade-input" id="swapAmount" placeholder="Enter amount" oninput="updateSwapEstimate()">
+                        <div class="info-text">Available: <span id="swapAvailable">0.00</span></div>
+                        <div class="info-text">You will receive: <span id="swapEstimate">0.00</span></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="executeSwap()">Swap Now</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Deposit Funds</div>
+                    <div class="trade-section">
+                        <div class="trade-label">Select Cryptocurrency</div>
+                        <select class="trade-input" id="depositCrypto" onchange="updateDepositAddress()">
+                            <option value="btc">Bitcoin (BTC)</option>
+                            <option value="eth">Ethereum (ETH)</option>
+                            <option value="usdt">USDT (TRC20)</option>
+                        </select>
+                    </div>
+                    <div class="trade-section">
+                        <div class="trade-label">Deposit Address</div>
+                        <div style="background: #2a2a2a; padding: 15px; border-radius: 12px; word-break: break-all; font-family: monospace; font-size: 13px;" id="depositAddress">Select a cryptocurrency</div>
+                        <button class="btn btn-primary" style="width: auto; margin-top: 10px;" onclick="copyAddress()">Copy Address</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Withdraw Funds</div>
+                    <div class="withdraw-method">
+                        <button class="method-btn active" id="cryptoMethodBtn" onclick="selectWithdrawMethod('crypto')">Crypto</button>
+                        <button class="method-btn" id="bankMethodBtn" onclick="selectWithdrawMethod('bank')">Bank</button>
                     </div>
 
-                    <!-- Swap -->
-                    <div class="card">
-                        <div class="card-title">Swap Crypto</div>
-                        <div class="swap-container">
-                            <div class="swap-box">
-                                <div class="trade-label">From</div>
-                                <select class="trade-input" id="swapFrom" onchange="updateSwapEstimate()">
-                                    <option value="btc">Bitcoin (BTC)</option>
-                                    <option value="eth">Ethereum (ETH)</option>
-                                    <option value="xrp">Ripple (XRP)</option>
-                                    <option value="doge">Dogecoin (DOGE)</option>
-                                    <option value="ada">Cardano (ADA)</option>
-                                    <option value="bnb">Binance Coin (BNB)</option>
-                                    <option value="sol">Solana (SOL)</option>
-                                    <option value="link">Chainlink (LINK)</option>
-                                    <option value="dot">Polkadot (DOT)</option>
-                                    <option value="ltc">Litecoin (LTC)</option>
-                                </select>
-                                <input type="number" class="trade-input" id="swapAmount" placeholder="Amount" oninput="updateSwapEstimate()">
-                                <div class="info-text">Available: <span id="swapFromBalance">0.00</span></div>
-                            </div>
-
-                            <div class="swap-icon-container">
-                                <div class="swap-icon" onclick="swapDirections()">⇅</div>
-                            </div>
-
-                            <div class="swap-box">
-                                <div class="trade-label">To</div>
-                                <select class="trade-input" id="swapTo" onchange="updateSwapEstimate()">
-                                    <option value="usdt">USDT</option>
-                                    <option value="btc">Bitcoin (BTC)</option>
-                                    <option value="eth">Ethereum (ETH)</option>
-                                    <option value="xrp">Ripple (XRP)</option>
-                                    <option value="doge">Dogecoin (DOGE)</option>
-                                    <option value="ada">Cardano (ADA)</option>
-                                    <option value="bnb">Binance Coin (BNB)</option>
-                                    <option value="sol">Solana (SOL)</option>
-                                    <option value="link">Chainlink (LINK)</option>
-                                    <option value="dot">Polkadot (DOT)</option>
-                                    <option value="ltc">Litecoin (LTC)</option>
-                                </select>
-                                <div class="trade-input" style="background: #0a0a0a; cursor: not-allowed;" id="swapEstimate">0.00</div>
-                                <div class="info-text">Estimated amount you'll receive</div>
-                            </div>
-
-                            <button class="btn btn-primary" onclick="executeSwap()">Swap Now</button>
-                        </div>
-                    </div>
-
-                    <!-- Deposit -->
-                    <div class="card">
-                        <div class="card-title">Deposit Funds</div>
+                    <div id="cryptoWithdrawForm">
                         <div class="trade-section">
                             <div class="trade-label">Select Cryptocurrency</div>
-                            <select class="trade-input" id="depositCrypto" onchange="updateDepositAddress()">
+                            <select class="trade-input" id="withdrawCrypto">
+                                <option value="usdt">USDT</option>
                                 <option value="btc">Bitcoin (BTC)</option>
                                 <option value="eth">Ethereum (ETH)</option>
-                                <option value="usdt">USDT (TRC20)</option>
                             </select>
                         </div>
                         <div class="trade-section">
-                            <div class="trade-label">Deposit Address</div>
-                            <div style="background: #2a2a2a; padding: 15px; border-radius: 12px; word-break: break-all; font-family: monospace; font-size: 13px;" id="depositAddress">Select a cryptocurrency</div>
-                            <button class="btn btn-primary" style="width: auto; margin-top: 10px;" onclick="copyAddress()">Copy Address</button>
+                            <div class="trade-label">Wallet Address</div>
+                            <input type="text" class="trade-input" id="withdrawAddress" placeholder="Enter wallet address">
                         </div>
+                        <div class="trade-section">
+                            <div class="trade-label">Amount</div>
+                            <input type="number" class="trade-input" id="withdrawAmount" placeholder="Enter amount">
+                            <div class="info-text">Available: <span id="withdrawAvailable">0.00</span></div>
+                        </div>
+                        <button class="btn btn-primary" onclick="requestWithdrawal()">Request Withdrawal</button>
                     </div>
 
-                    <!-- Withdraw -->
-                    <div class="card">
-                        <div class="card-title">Withdraw Funds</div>
-                        <div class="withdraw-method">
-                            <button class="method-btn active" id="cryptoMethodBtn" onclick="selectWithdrawMethod('crypto')">Crypto</button>
-                            <button class="method-btn" id="bankMethodBtn" onclick="selectWithdrawMethod('bank')">Bank</button>
+                    <div id="bankWithdrawForm" class="hidden">
+                        <div class="trade-section">
+                            <div class="trade-label">Bank Name</div>
+                            <input type="text" class="trade-input" id="bankName" placeholder="Enter bank name">
                         </div>
-
-                        <div id="cryptoWithdrawForm">
-                            <div class="trade-section">
-                                <div class="trade-label">Select Cryptocurrency</div>
-                                <select class="trade-input" id="withdrawCrypto">
-                                    <option value="btc">Bitcoin (BTC)</option>
-                                    <option value="eth">Ethereum (ETH)</option>
-                                    <option value="usdt">USDT (TRC20)</option>
-                                </select>
-                            </div>
-                            <div class="trade-section">
-                                <div class="trade-label">Wallet Address</div>
-                                <input type="text" class="trade-input" id="withdrawAddress" placeholder="Enter wallet address">
-                            </div>
-                            <div class="trade-section">
-                                <div class="trade-label">Amount (USDT)</div>
-                                <input type="number" class="trade-input" id="withdrawAmount" placeholder="Enter amount">
-                                <div class="info-text">Available: <span id="withdrawAvailable">0.00</span> USDT</div>
-                            </div>
-                            <button class="btn btn-primary" onclick="requestWithdrawal()">Request Withdrawal</button>
+                        <div class="trade-section">
+                            <div class="trade-label">Account Number</div>
+                            <input type="text" class="trade-input" id="accountNumber" placeholder="Enter account number">
                         </div>
-
-                        <div id="bankWithdrawForm" class="hidden">
-                            <div class="trade-section">
-                                <div class="trade-label">Bank Name</div>
-                                <input type="text" class="trade-input" id="bankName" placeholder="Enter bank name">
-                            </div>
-                            <div class="trade-section">
-                                <div class="trade-label">Account Number</div>
-                                <input type="text" class="trade-input" id="accountNumber" placeholder="Enter account number">
-                            </div>
-                            <div class="trade-section">
-                                <div class="trade-label">Account Name</div>
-                                <input type="text" class="trade-input" id="accountName" placeholder="Enter account holder name">
-                            </div>
-                            <div class="trade-section">
-                                <div class="trade-label">Amount (USDT)</div>
-                                <input type="number" class="trade-input" id="bankWithdrawAmount" placeholder="Enter amount">
-                                <div class="info-text">Available: <span id="bankWithdrawAvailable">0.00</span> USDT</div>
-                            </div>
-                            <button class="btn btn-primary" onclick="requestBankWithdrawal()">Request Withdrawal</button>
+                        <div class="trade-section">
+                            <div class="trade-label">Account Name</div>
+                            <input type="text" class="trade-input" id="accountName" placeholder="Enter account holder name">
                         </div>
+                        <div class="trade-section">
+                            <div class="trade-label">Amount (USDT)</div>
+                            <input type="number" class="trade-input" id="bankWithdrawAmount" placeholder="Enter amount">
+                            <div class="info-text">Available: <span id="bankWithdrawAvailable">0.00</span> USDT</div>
+                        </div>
+                        <button class="btn btn-primary" onclick="requestBankWithdrawal()">Request Withdrawal</button>
                     </div>
                 </div>
             </div>
 
             <!-- History Page -->
             <div id="historyPage" class="page-section">
-                <div class="centered-content">
-                    <div class="card">
-                        <div class="card-title">Trade History</div>
-                        <div id="tradeHistory">Loading...</div>
-                    </div>
+                <div class="card">
+                    <div class="card-title">Trade History</div>
+                    <div id="tradeHistory">Loading...</div>
+                </div>
 
-                    <div class="card">
-                        <div class="card-title">Transaction History</div>
-                        <div id="transactionHistory">Loading...</div>
-                    </div>
+                <div class="card">
+                    <div class="card-title">Transaction History</div>
+                    <div id="transactionHistory">Loading...</div>
                 </div>
             </div>
 
             <!-- Profile Page -->
             <div id="profilePage" class="page-section">
-                <div class="centered-content">
-                    <div class="card">
-                        <div class="card-title">Profile Information</div>
-                        <div style="padding: 20px 0;">
-                            <div style="margin-bottom: 15px; text-align: center;">
-                                <div style="color: #888; font-size: 12px;">User ID</div>
-                                <div style="font-size: 16px; font-weight: 600;" id="profileUserId"></div>
-                            </div>
-                            <div style="margin-bottom: 15px; text-align: center;">
-                                <div style="color: #888; font-size: 12px;">Name</div>
-                                <div style="font-size: 16px; font-weight: 600;" id="profileName"></div>
-                            </div>
-                            <div style="margin-bottom: 15px; text-align: center;">
-                                <div style="color: #888; font-size: 12px;">Email</div>
-                                <div style="font-size: 16px; font-weight: 600;" id="profileEmail"></div>
-                            </div>
+                <div class="card">
+                    <div class="card-title">Profile Information</div>
+                    <div style="padding: 20px 0;">
+                        <div style="margin-bottom: 15px;">
+                            <div style="color: #888; font-size: 12px;">User ID</div>
+                            <div style="font-size: 16px; font-weight: 600;" id="profileUserId"></div>
                         </div>
-                        <button class="btn btn-primary" onclick="openChangePassword()">Change Password</button>
+                        <div style="margin-bottom: 15px;">
+                            <div style="color: #888; font-size: 12px;">Name</div>
+                            <div style="font-size: 16px; font-weight: 600;" id="profileName"></div>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <div style="color: #888; font-size: 12px;">Email</div>
+                            <div style="font-size: 16px; font-weight: 600;" id="profileEmail"></div>
+                        </div>
                     </div>
+                    <button class="btn btn-primary" onclick="openChangePassword()">Change Password</button>
+                </div>
 
-                    <div class="card">
-                        <div class="card-title">Support</div>
-                        <button class="btn btn-primary" onclick="openChat()">Contact Support</button>
-                    </div>
+                <div class="card">
+                    <div class="card-title">Support</div>
+                    <button class="btn btn-primary" onclick="openChat()">Contact Support</button>
                 </div>
             </div>
         </div>
@@ -880,7 +804,7 @@
     <div class="modal" id="tradeDetailModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title" id="detailModalTitle">Trade Details</h2>
+                <h2 class="modal-title" id="detailCoinName">Trade Details</h2>
                 <button class="close-btn" onclick="closeTradeDetail()">&times;</button>
             </div>
             <div id="tradeDetailContent"></div>
@@ -947,11 +871,11 @@
         const db = firebase.firestore();
 
         let currentUser = null;
-        let userBalance = 0;
-        let cryptoBalances = {};
+        let userBalance = 0; // USDT only
         let userName = '';
         let userId = '';
         let userEmail = '';
+        let cryptoBalances = {}; // {btc: 0, eth: 0, etc}
         let selectedCoin = null;
         let tradeDirection = 'up';
         let selectedPercentage = 15;
@@ -959,7 +883,7 @@
         let chatListener = null;
         let balanceUpdateListener = null;
         let tradeCheckInterval = null;
-        let tradeDetailInterval = null;
+        let countdownIntervals = {};
 
         const WALLET_ADDRESSES = {
             btc: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
@@ -982,7 +906,7 @@
 
         function getCryptoPrice(symbol) {
             const coin = coins.find(c => c.name.toLowerCase() === symbol.toLowerCase());
-            return coin ? coin.price : 1;
+            return coin ? coin.price : 0;
         }
 
         function showNotification(message) {
@@ -1052,8 +976,16 @@
                     email: email,
                     balance: 0,
                     cryptoBalances: {
-                        btc: 0, eth: 0, xrp: 0, doge: 0, ada: 0,
-                        bnb: 0, sol: 0, link: 0, dot: 0, ltc: 0
+                        btc: 0,
+                        eth: 0,
+                        xrp: 0,
+                        doge: 0,
+                        ada: 0,
+                        bnb: 0,
+                        sol: 0,
+                        link: 0,
+                        dot: 0,
+                        ltc: 0
                     },
                     tradingMode: 'loss',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -1087,7 +1019,7 @@
             if (balanceUpdateListener) balanceUpdateListener();
             if (chatListener) chatListener();
             if (tradeCheckInterval) clearInterval(tradeCheckInterval);
-            if (tradeDetailInterval) clearInterval(tradeDetailInterval);
+            Object.values(countdownIntervals).forEach(clearInterval);
             auth.signOut();
         }
 
@@ -1112,14 +1044,14 @@
             if (userDoc.exists) {
                 const userData = userDoc.data();
                 userBalance = userData.balance || 0;
-                cryptoBalances = userData.cryptoBalances || {};
                 userName = userData.name || 'User';
                 userId = userData.userId || '00000';
                 userEmail = currentUser.email;
+                cryptoBalances = userData.cryptoBalances || {};
                 
                 updateBalanceDisplay();
-                updateCryptoBalances();
                 loadOverviewData();
+                loadCryptoBalances();
                 
                 if (balanceUpdateListener) balanceUpdateListener();
                 balanceUpdateListener = db.collection('users').doc(currentUser.uid).onSnapshot(doc => {
@@ -1130,7 +1062,7 @@
                             userBalance = newBalance;
                             cryptoBalances = newCryptoBalances;
                             updateBalanceDisplay();
-                            updateCryptoBalances();
+                            loadCryptoBalances();
                         }
                     }
                 });
@@ -1202,137 +1134,28 @@
             document.getElementById('bankWithdrawAvailable').textContent = userBalance.toFixed(2);
         }
 
-        function updateCryptoBalances() {
-            const container = document.getElementById('cryptoBalances');
-            const cryptoList = ['btc', 'eth', 'xrp', 'doge', 'ada', 'bnb', 'sol', 'link', 'dot', 'ltc'];
-            
-            const html = cryptoList.map(crypto => {
-                const amount = cryptoBalances[crypto] || 0;
-                const coin = coins.find(c => c.name.toLowerCase() === crypto);
+        function loadCryptoBalances() {
+            const html = Object.entries(cryptoBalances).map(([crypto, balance]) => {
+                const coin = coins.find(c => c.name.toLowerCase() === crypto.toLowerCase());
+                if (!coin) return '';
+                
+                const usdtValue = balance * coin.price;
                 
                 return `
-                    <div class="crypto-balance-card">
-                        <div class="crypto-icon ${coin?.class || crypto}">${coin?.name || crypto.toUpperCase()}</div>
-                        <div class="crypto-amount">${amount.toFixed(8)}</div>
-                        <div class="crypto-label">${coin?.name || crypto.toUpperCase()}</div>
+                    <div class="crypto-balance-item">
+                        <div>
+                            <div style="font-weight: 600;">${coin.fullName} (${crypto.toUpperCase()})</div>
+                            <div style="font-size: 12px; color: #888;">${balance.toFixed(8)} ${crypto.toUpperCase()}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 600; color: #4285f4;">$${usdtValue.toFixed(2)}</div>
+                            <div style="font-size: 12px; color: #888;">≈ ${usdtValue.toFixed(2)} USDT</div>
+                        </div>
                     </div>
                 `;
             }).join('');
-            
-            container.innerHTML = html;
-            
-            updateSwapFromBalance();
-        }
 
-        function updateSwapFromBalance() {
-            const fromCrypto = document.getElementById('swapFrom').value;
-            const balance = cryptoBalances[fromCrypto] || 0;
-            document.getElementById('swapFromBalance').textContent = balance.toFixed(8);
-        }
-
-        function updateSwapEstimate() {
-            const fromCrypto = document.getElementById('swapFrom').value;
-            const toCrypto = document.getElementById('swapTo').value;
-            const amount = parseFloat(document.getElementById('swapAmount').value) || 0;
-            
-            updateSwapFromBalance();
-            
-            if (amount <= 0) {
-                document.getElementById('swapEstimate').textContent = '0.00';
-                return;
-            }
-            
-            const fromPrice = getCryptoPrice(fromCrypto);
-            const toPrice = toCrypto === 'usdt' ? 1 : getCryptoPrice(toCrypto);
-            
-            const usdValue = amount * fromPrice;
-            const estimatedAmount = usdValue / toPrice;
-            
-            document.getElementById('swapEstimate').textContent = estimatedAmount.toFixed(8);
-        }
-
-        function swapDirections() {
-            const from = document.getElementById('swapFrom').value;
-            const to = document.getElementById('swapTo').value;
-            
-            document.getElementById('swapFrom').value = to === 'usdt' ? 'btc' : to;
-            document.getElementById('swapTo').value = from;
-            
-            updateSwapEstimate();
-        }
-
-        async function executeSwap() {
-            const fromCrypto = document.getElementById('swapFrom').value;
-            const toCrypto = document.getElementById('swapTo').value;
-            const amount = parseFloat(document.getElementById('swapAmount').value);
-            
-            if (!amount || amount <= 0) {
-                alert('Please enter a valid amount');
-                return;
-            }
-            
-            if (fromCrypto === toCrypto) {
-                alert('Cannot swap same cryptocurrency');
-                return;
-            }
-            
-            const fromBalance = cryptoBalances[fromCrypto] || 0;
-            if (amount > fromBalance) {
-                alert('Insufficient balance');
-                return;
-            }
-            
-            const fromPrice = getCryptoPrice(fromCrypto);
-            const toPrice = toCrypto === 'usdt' ? 1 : getCryptoPrice(toCrypto);
-            
-            const usdValue = amount * fromPrice;
-            const receivedAmount = usdValue / toPrice;
-            
-            if (!confirm(`Swap ${amount} ${fromCrypto.toUpperCase()} for ${receivedAmount.toFixed(8)} ${toCrypto.toUpperCase()}?`)) {
-                return;
-            }
-            
-            try {
-                const userDoc = await db.collection('users').doc(currentUser.uid).get();
-                const userData = userDoc.data();
-                const currentCryptoBalances = userData.cryptoBalances || {};
-                const currentBalance = userData.balance || 0;
-                
-                const newCryptoBalances = { ...currentCryptoBalances };
-                newCryptoBalances[fromCrypto] = (newCryptoBalances[fromCrypto] || 0) - amount;
-                
-                let newUSDTBalance = currentBalance;
-                
-                if (toCrypto === 'usdt') {
-                    newUSDTBalance = currentBalance + receivedAmount;
-                } else {
-                    newCryptoBalances[toCrypto] = (newCryptoBalances[toCrypto] || 0) + receivedAmount;
-                }
-                
-                await db.collection('users').doc(currentUser.uid).update({
-                    cryptoBalances: newCryptoBalances,
-                    balance: newUSDTBalance
-                });
-                
-                await db.collection('transactions').add({
-                    userId: currentUser.uid,
-                    userIdNumber: userId,
-                    type: 'swap',
-                    fromCrypto: fromCrypto,
-                    toCrypto: toCrypto,
-                    fromAmount: amount,
-                    toAmount: receivedAmount,
-                    status: 'approved',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                showNotification(`✅ Swapped ${amount} ${fromCrypto.toUpperCase()} to ${receivedAmount.toFixed(8)} ${toCrypto.toUpperCase()}`);
-                document.getElementById('swapAmount').value = '';
-                updateSwapEstimate();
-                
-            } catch (error) {
-                alert('Swap failed: ' + error.message);
-            }
+            document.getElementById('cryptoBalances').innerHTML = html || '<div style="color: #888; text-align: center; padding: 20px;">No crypto balances</div>';
         }
 
         function navigateTo(page) {
@@ -1343,12 +1166,12 @@
             document.getElementById(page + 'Page').classList.add('active');
 
             if (page === 'markets') renderCoins();
-            if (page === 'wallet') {
-                updateCryptoBalances();
-                updateSwapEstimate();
-            }
             if (page === 'history') loadHistoryData();
             if (page === 'profile') loadProfileData();
+            if (page === 'wallet') {
+                loadCryptoBalances();
+                updateSwapEstimate();
+            }
         }
 
         async function loadOverviewData() {
@@ -1400,7 +1223,7 @@
                                 <div>${trade.coinFull}/USDT</div>
                                 <div>${trade.status.toUpperCase()}</div>
                             </div>
-                            <div style="text-align: center;">Amount: ${trade.amount.toFixed(2)} USDT</div>
+                            <div>Amount: ${trade.amount.toFixed(2)} USDT</div>
                         </div>
                     `;
                 }).join('');
@@ -1582,11 +1405,19 @@
             }
 
             if (amount < 50) {
-                alert('Minimum withdrawal amount is 50 USDT');
+                alert('Minimum withdrawal amount is 50');
                 return;
             }
 
-            if (amount > userBalance) {
+            // Check balance based on crypto type
+            let availableBalance = 0;
+            if (crypto === 'usdt') {
+                availableBalance = userBalance;
+            } else {
+                availableBalance = cryptoBalances[crypto] || 0;
+            }
+
+            if (amount > availableBalance) {
                 alert('Insufficient balance');
                 return;
             }
@@ -1610,6 +1441,7 @@
                     userIdNumber: userId,
                     type: 'withdrawal',
                     method: 'crypto',
+                    crypto: crypto,
                     amount: amount,
                     status: 'pending',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -1681,8 +1513,95 @@
             }
         }
 
+        function updateSwapEstimate() {
+            const from = document.getElementById('swapFrom').value;
+            const to = document.getElementById('swapTo').value;
+            const amount = parseFloat(document.getElementById('swapAmount').value) || 0;
+
+            if (from === to) {
+                document.getElementById('swapEstimate').textContent = '0.00';
+                return;
+            }
+
+            let fromBalance = from === 'usdt' ? userBalance : (cryptoBalances[from] || 0);
+            document.getElementById('swapAvailable').textContent = fromBalance.toFixed(8) + ' ' + from.toUpperCase();
+
+            const fromPrice = from === 'usdt' ? 1 : getCryptoPrice(from);
+            const toPrice = to === 'usdt' ? 1 : getCryptoPrice(to);
+
+            const usdtValue = amount * fromPrice;
+            const toAmount = usdtValue / toPrice;
+
+            document.getElementById('swapEstimate').textContent = toAmount.toFixed(8) + ' ' + to.toUpperCase();
+        }
+
+        async function executeSwap() {
+            const from = document.getElementById('swapFrom').value;
+            const to = document.getElementById('swapTo').value;
+            const amount = parseFloat(document.getElementById('swapAmount').value);
+
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+
+            if (from === to) {
+                alert('Cannot swap same currency');
+                return;
+            }
+
+            const fromBalance = from === 'usdt' ? userBalance : (cryptoBalances[from] || 0);
+
+            if (amount > fromBalance) {
+                alert('Insufficient balance');
+                return;
+            }
+
+            try {
+                const fromPrice = from === 'usdt' ? 1 : getCryptoPrice(from);
+                const toPrice = to === 'usdt' ? 1 : getCryptoPrice(to);
+
+                const usdtValue = amount * fromPrice;
+                const toAmount = usdtValue / toPrice;
+
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                const currentCryptoBalances = userDoc.data().cryptoBalances || {};
+                const currentBalance = userDoc.data().balance || 0;
+
+                if (from === 'usdt') {
+                    currentCryptoBalances[to] = (currentCryptoBalances[to] || 0) + toAmount;
+                    await db.collection('users').doc(currentUser.uid).update({
+                        balance: currentBalance - amount,
+                        cryptoBalances: currentCryptoBalances
+                    });
+                } else if (to === 'usdt') {
+                    currentCryptoBalances[from] = (currentCryptoBalances[from] || 0) - amount;
+                    await db.collection('users').doc(currentUser.uid).update({
+                        balance: currentBalance + toAmount,
+                        cryptoBalances: currentCryptoBalances
+                    });
+                } else {
+                    currentCryptoBalances[from] = (currentCryptoBalances[from] || 0) - amount;
+                    currentCryptoBalances[to] = (currentCryptoBalances[to] || 0) + toAmount;
+                    await db.collection('users').doc(currentUser.uid).update({
+                        cryptoBalances: currentCryptoBalances
+                    });
+                }
+
+                showNotification(`✅ Swapped ${amount} ${from.toUpperCase()} to ${toAmount.toFixed(8)} ${to.toUpperCase()}`);
+                document.getElementById('swapAmount').value = '';
+                updateSwapEstimate();
+
+            } catch (error) {
+                alert('Swap failed: ' + error.message);
+            }
+        }
+
         async function loadHistoryData() {
-            // Load ONLY trade history (win/loss/pending)
+            Object.values(countdownIntervals).forEach(clearInterval);
+            countdownIntervals = {};
+
+            // TRADE HISTORY (Only trades - win/loss/pending)
             try {
                 const tradesSnapshot = await db.collection('trades')
                     .where('userId', '==', currentUser.uid)
@@ -1699,19 +1618,32 @@
                     return timeB - timeA;
                 });
 
+                const now = Date.now();
                 const tradeHtml = trades.map(trade => {
                     const statusClass = trade.status === 'win' ? 'win' : trade.status === 'loss' ? 'loss' : 'pending';
                     const dateStr = trade.createdAt ? new Date(trade.createdAt.toMillis()).toLocaleString() : 'N/A';
+                    
+                    let statusText = '';
+                    if (trade.status === 'pending') {
+                        const tradeTime = trade.createdAt?.toMillis() || 0;
+                        const endTime = tradeTime + (trade.timeFrame * 1000);
+                        const remainingMs = endTime - now;
+                        const remainingSec = Math.max(0, Math.floor(remainingMs / 1000));
+                        statusText = `<span style="color: #ff9800;" id="trade-countdown-${trade.id}">${remainingSec}s</span>`;
+                        startTradeCountdown(trade.id, endTime);
+                    } else {
+                        statusText = trade.status.toUpperCase();
+                    }
                     
                     return `
                         <div class="history-item ${statusClass}" onclick="openTradeDetail('${trade.id}')">
                             <div class="history-header">
                                 <div>${trade.coinFull}/USDT</div>
-                                <div style="font-size: 12px; color: #888;">${dateStr}</div>
+                                <div>${statusText}</div>
                             </div>
                             <div>Amount: ${trade.amount.toFixed(2)} USDT | Direction: ${trade.direction.toUpperCase()}</div>
-                            <div>Status: ${trade.status.toUpperCase()}</div>
                             ${trade.profit > 0 ? `<div style="color: #4caf50; font-weight: 600;">Profit: +${trade.profit.toFixed(2)} USDT</div>` : ''}
+                            <div style="font-size: 12px; color: #888; margin-top: 5px;">${dateStr}</div>
                         </div>
                     `;
                 }).join('');
@@ -1721,11 +1653,11 @@
                 console.error('Error loading trade history:', error);
             }
 
-            // Load ONLY transactions (withdrawals and deposits)
+            // TRANSACTION HISTORY (Only deposits and withdrawals)
             try {
                 const transSnapshot = await db.collection('transactions')
                     .where('userId', '==', currentUser.uid)
-                    .where('type', 'in', ['withdrawal', 'deposit'])
+                    .where('type', 'in', ['deposit', 'withdrawal'])
                     .get();
 
                 const transactions = [];
@@ -1745,21 +1677,19 @@
                     
                     if (trans.type === 'deposit') {
                         statusClass = 'deposit';
-                    } else if (trans.type === 'withdrawal') {
-                        statusClass = 'withdrawal';
                     }
-                    
-                    let title = trans.type === 'deposit' ? 'RECEIVED FUNDS' : 'WITHDRAWAL';
+
+                    const cryptoLabel = trans.crypto ? ` (${trans.crypto.toUpperCase()})` : '';
                     
                     return `
                         <div class="history-item ${statusClass}">
                             <div class="history-header">
-                                <div>${title}</div>
-                                <div style="font-size: 12px; color: #888;">${dateStr}</div>
+                                <div>${trans.type.toUpperCase()}${cryptoLabel}</div>
+                                <div>${trans.status.toUpperCase()}</div>
                             </div>
-                            <div>Amount: ${trans.amount.toFixed(2)} USDT</div>
-                            <div>Status: ${trans.status.toUpperCase()}</div>
-                            ${trans.cryptoType ? `<div style="font-size: 12px; color: #888;">Type: ${trans.cryptoType.toUpperCase()}</div>` : ''}
+                            <div>Amount: ${trans.amount.toFixed(2)} ${trans.crypto ? trans.crypto.toUpperCase() : 'USDT'}</div>
+                            <div style="font-size: 12px; color: #888; margin-top: 5px;">${dateStr}</div>
+                            ${trans.type === 'deposit' ? '<div style="font-size: 12px; color: #4caf50; margin-top: 5px;">You received funds</div>' : ''}
                         </div>
                     `;
                 }).join('');
@@ -1768,6 +1698,32 @@
             } catch (error) {
                 console.error('Error loading transaction history:', error);
             }
+        }
+
+        function startTradeCountdown(tradeId, endTime) {
+            const countdownEl = document.getElementById(`trade-countdown-${tradeId}`);
+            if (!countdownEl) return;
+
+            countdownIntervals[tradeId] = setInterval(() => {
+                const now = Date.now();
+                const remainingMs = endTime - now;
+                const remainingSec = Math.max(0, Math.floor(remainingMs / 1000));
+
+                const el = document.getElementById(`trade-countdown-${tradeId}`);
+                if (!el) {
+                    clearInterval(countdownIntervals[tradeId]);
+                    delete countdownIntervals[tradeId];
+                    return;
+                }
+
+                if (remainingSec <= 0) {
+                    clearInterval(countdownIntervals[tradeId]);
+                    delete countdownIntervals[tradeId];
+                    setTimeout(() => loadHistoryData(), 2000);
+                } else {
+                    el.textContent = `${remainingSec}s`;
+                }
+            }, 1000);
         }
 
         async function openTradeDetail(tradeId) {
@@ -1780,23 +1736,43 @@
             const dateStr = new Date(tradeTime).toLocaleString();
             const deliveryStr = new Date(endTime).toLocaleString();
 
-            document.getElementById('detailModalTitle').textContent = `${trade.coinFull}/USDT`;
-            
+            document.getElementById('detailCoinName').textContent = `${trade.coinFull}/USDT`;
+
             let countdownHtml = '';
             if (trade.status === 'pending') {
                 const now = Date.now();
-                const remaining = Math.max(0, Math.floor((endTime - now) / 1000));
+                const remainingMs = endTime - now;
+                const remainingSec = Math.max(0, Math.floor(remainingMs / 1000));
                 countdownHtml = `
-                    <div class="detail-row">
-                        <div class="detail-label">Time Remaining</div>
-                        <div class="detail-value" style="color: #ff9800; font-size: 20px;" id="tradeCountdown">${remaining}s</div>
+                    <div class="countdown-timer" id="detail-countdown">
+                        ${remainingSec}s remaining
                     </div>
                 `;
+                
+                setTimeout(() => {
+                    const interval = setInterval(() => {
+                        const nowMs = Date.now();
+                        const remMs = endTime - nowMs;
+                        const remSec = Math.max(0, Math.floor(remMs / 1000));
+                        const el = document.getElementById('detail-countdown');
+                        if (el) {
+                            el.textContent = `${remSec}s remaining`;
+                            if (remSec <= 0) {
+                                clearInterval(interval);
+                                closeTradeDetail();
+                                loadHistoryData();
+                            }
+                        } else {
+                            clearInterval(interval);
+                        }
+                    }, 1000);
+                }, 100);
             }
-            
+
             document.getElementById('tradeDetailContent').innerHTML = `
+                ${countdownHtml}
                 <div class="detail-row">
-                    <div class="detail-label">Amount</div>
+                    <div class="detail-label">Purchase Amount</div>
                     <div class="detail-value">${trade.amount.toFixed(2)} USDT</div>
                 </div>
                 <div class="detail-row">
@@ -1804,7 +1780,7 @@
                     <div class="detail-value" style="color: ${trade.direction === 'up' ? '#4caf50' : '#f44336'};">${trade.direction === 'up' ? 'Buy Up' : 'Buy Down'}</div>
                 </div>
                 <div class="detail-row">
-                    <div class="detail-label">Entry Price</div>
+                    <div class="detail-label">Purchase Price</div>
                     <div class="detail-value">$${trade.purchasePrice ? trade.purchasePrice.toFixed(2) : 'N/A'}</div>
                 </div>
                 <div class="detail-row">
@@ -1815,7 +1791,6 @@
                     <div class="detail-label">Profit Percentage</div>
                     <div class="detail-value">${trade.percentage}%</div>
                 </div>
-                ${countdownHtml}
                 <div class="detail-row">
                     <div class="detail-label">Purchase Time</div>
                     <div class="detail-value">${dateStr}</div>
@@ -1827,12 +1802,12 @@
                 ${trade.status === 'win' ? `
                 <div class="detail-row">
                     <div class="detail-label">Result</div>
-                    <div class="detail-value" style="color: #4caf50; font-size: 20px;">WIN +${trade.profit.toFixed(2)} USDT</div>
+                    <div class="detail-value" style="color: #4caf50; font-size: 18px;">WIN +${trade.profit.toFixed(2)} USDT</div>
                 </div>
                 ` : trade.status === 'loss' ? `
                 <div class="detail-row">
                     <div class="detail-label">Result</div>
-                    <div class="detail-value" style="color: #f44336; font-size: 20px;">LOSS -${trade.amount.toFixed(2)} USDT</div>
+                    <div class="detail-value" style="color: #f44336; font-size: 18px;">LOSS -${trade.amount.toFixed(2)} USDT</div>
                 </div>
                 ` : `
                 <div class="detail-row">
@@ -1843,38 +1818,10 @@
             `;
 
             document.getElementById('tradeDetailModal').classList.add('active');
-            
-            if (trade.status === 'pending') {
-                if (tradeDetailInterval) clearInterval(tradeDetailInterval);
-                
-                tradeDetailInterval = setInterval(() => {
-                    const now = Date.now();
-                    const remaining = Math.max(0, Math.floor((endTime - now) / 1000));
-                    const countdownEl = document.getElementById('tradeCountdown');
-                    
-                    if (countdownEl) {
-                        countdownEl.textContent = `${remaining}s`;
-                        
-                        if (remaining <= 0) {
-                            clearInterval(tradeDetailInterval);
-                            setTimeout(() => {
-                                closeTradeDetail();
-                                loadHistoryData();
-                            }, 1000);
-                        }
-                    } else {
-                        clearInterval(tradeDetailInterval);
-                    }
-                }, 1000);
-            }
         }
 
         function closeTradeDetail() {
             document.getElementById('tradeDetailModal').classList.remove('active');
-            if (tradeDetailInterval) {
-                clearInterval(tradeDetailInterval);
-                tradeDetailInterval = null;
-            }
         }
 
         function loadProfileData() {
@@ -2019,16 +1966,15 @@
                 document.getElementById('authContainer').style.display = 'none';
                 document.getElementById('dashboard').classList.add('active');
                 renderCoins();
+                updateDepositAddress();
             } else {
                 currentUser = null;
                 document.getElementById('authContainer').style.display = 'flex';
                 document.getElementById('dashboard').classList.remove('active');
                 if (tradeCheckInterval) clearInterval(tradeCheckInterval);
-                if (tradeDetailInterval) clearInterval(tradeDetailInterval);
+                Object.values(countdownIntervals).forEach(clearInterval);
             }
         });
-
-        updateDepositAddress();
     </script>
 </body>
 </html>
