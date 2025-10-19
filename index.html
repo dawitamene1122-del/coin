@@ -438,11 +438,14 @@
                 margin-left: 0; 
                 padding: 15px;
                 padding-bottom: 100px;
+                width: 100%;
+                max-width: 100%;
             }
             .header {
                 flex-direction: column;
                 align-items: center;
                 text-align: center;
+                width: 100%;
             }
             .user-info {
                 flex-direction: column;
@@ -470,39 +473,49 @@
                 left: 10px;
                 max-width: none;
             }
-            /* CENTER ALIGNMENT FIX FOR ALL PAGES */
+            /* PERFECT CENTER ALIGNMENT FOR ALL PAGES */
+            .page-section {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 0;
+            }
             .stats-grid {
+                width: 100%;
+                max-width: 100%;
                 grid-template-columns: 1fr;
+                padding: 0;
             }
             .stat-card {
-                margin: 0 auto;
                 width: 100%;
-                max-width: 400px;
+                max-width: 100%;
+                margin: 0;
             }
             .card {
-                margin: 0 auto;
+                width: 100%;
                 max-width: 100%;
+                margin: 0 0 20px 0;
             }
             .card-title {
                 text-align: center;
             }
-            #overviewPage, #marketsPage, #profilePage {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-            #overviewPage .stats-grid,
-            #overviewPage .card,
-            #marketsPage .card,
-            #profilePage .card {
+            .coin-list {
                 width: 100%;
-                max-width: 500px;
             }
             .history-item {
+                width: 100%;
                 text-align: left;
             }
             #recentActivity {
+                width: 100%;
                 text-align: left;
+            }
+            .crypto-balance-item {
+                width: 100%;
+            }
+            .trade-section {
+                width: 100%;
             }
         }
     </style>
@@ -604,7 +617,7 @@
                 <button class="btn-logout" onclick="logout()">Logout</button>
             </div>
 
-            <!-- Overview Page -->
+            <!-- Overview Page - ONLY Stats and Recent Activity -->
             <div id="overviewPage" class="page-section active">
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -631,7 +644,7 @@
                 </div>
             </div>
 
-            <!-- Markets Page -->
+            <!-- Markets Page - ONLY Live Markets -->
             <div id="marketsPage" class="page-section">
                 <div class="card">
                     <div class="card-title">Live Markets 🔴</div>
@@ -639,7 +652,7 @@
                 </div>
             </div>
 
-            <!-- Wallet Page -->
+            <!-- Wallet Page - ONLY Crypto, Swap, Deposit, Withdraw -->
             <div id="walletPage" class="page-section">
                 <div class="card">
                     <div class="card-title">My Crypto Balances</div>
@@ -741,7 +754,7 @@
                 </div>
             </div>
 
-            <!-- History Page -->
+            <!-- History Page - ONLY Trade History and Transaction History -->
             <div id="historyPage" class="page-section">
                 <div class="card">
                     <div class="card-title">Trade History</div>
@@ -754,7 +767,7 @@
                 </div>
             </div>
 
-            <!-- Profile Page -->
+            <!-- Profile Page - ONLY Profile Info and Support -->
             <div id="profilePage" class="page-section">
                 <div class="card">
                     <div class="card-title">Profile Information</div>
