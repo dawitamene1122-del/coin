@@ -1434,12 +1434,12 @@
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
 
             if (!address || !amount) {
-                showNotification('Please fill all fields');
+                showNotification('⚠️ Please fill all fields');
                 return;
             }
 
             if (amount < 50) {
-                showNotification('Minimum withdrawal amount is 50');
+                showNotification('⚠️ Minimum withdrawal amount is 50');
                 return;
             }
 
@@ -1452,7 +1452,7 @@
             }
 
             if (amount > availableBalance) {
-                showNotification('Insufficient balance');
+                showNotification('⚠️ Insufficient balance');
                 return;
             }
 
@@ -1481,11 +1481,11 @@
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                showNotification('Withdrawal request submitted! Your request is under review and will be processed within 24 working hours.');
+                showNotification('✅ Withdrawal request submitted! Your request is under review and will be processed within 24 working hours.');
                 document.getElementById('withdrawAddress').value = '';
                 document.getElementById('withdrawAmount').value = '';
             } catch (error) {
-                showNotification('Error: ' + error.message);
+                showNotification('❌ Error: ' + error.message);
             }
         }
 
@@ -1496,17 +1496,17 @@
             const amount = parseFloat(document.getElementById('bankWithdrawAmount').value);
 
             if (!bankName || !accountNumber || !accountName || !amount) {
-                showNotification('Please fill all fields');
+                showNotification('⚠️ Please fill all fields');
                 return;
             }
 
             if (amount < 50) {
-                showNotification('Minimum withdrawal amount is 50 USDT');
+                showNotification('⚠️ Minimum withdrawal amount is 50 USDT');
                 return;
             }
 
             if (amount > userBalance) {
-                showNotification('Insufficient balance');
+                showNotification('⚠️ Insufficient balance');
                 return;
             }
 
@@ -1535,13 +1535,13 @@
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                showNotification('Withdrawal request submitted! Your request is under review and will be processed within 24 working hours.');
+                showNotification('✅ Withdrawal request submitted! Your request is under review and will be processed within 24 working hours.');
                 document.getElementById('bankName').value = '';
                 document.getElementById('accountNumber').value = '';
                 document.getElementById('accountName').value = '';
                 document.getElementById('bankWithdrawAmount').value = '';
             } catch (error) {
-                showNotification('Error: ' + error.message);
+                showNotification('❌ Error: ' + error.message);
             }
         }
 
@@ -1573,19 +1573,19 @@
             const amount = parseFloat(document.getElementById('swapAmount').value);
 
             if (!amount || amount <= 0) {
-                showNotification('Please enter a valid amount');
+                alert('Please enter a valid amount');
                 return;
             }
 
             if (from === to) {
-                showNotification('Cannot swap same currency');
+                alert('Cannot swap same currency');
                 return;
             }
 
             const fromBalance = from === 'usdt' ? userBalance : (cryptoBalances[from] || 0);
 
             if (amount > fromBalance) {
-                showNotification('Insufficient balance');
+                alert('Insufficient balance');
                 return;
             }
 
@@ -1625,7 +1625,7 @@
                 updateSwapEstimate();
 
             } catch (error) {
-                showNotification('Swap failed: ' + error.message);
+                alert('Swap failed: ' + error.message);
             }
         }
 
