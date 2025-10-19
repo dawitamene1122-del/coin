@@ -1416,7 +1416,7 @@
         function copyAddress() {
             const address = document.getElementById('depositAddress').textContent;
             navigator.clipboard.writeText(address).then(() => {
-                alert('Address copied to clipboard!');
+                showNotification('Address copied to clipboard!');
             });
         }
 
@@ -1434,12 +1434,12 @@
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
 
             if (!address || !amount) {
-                alert('Please fill all fields');
+                showNotification('Please fill all fields');
                 return;
             }
 
             if (amount < 50) {
-                alert('Minimum withdrawal amount is 50');
+                showNotification('Minimum withdrawal amount is 50');
                 return;
             }
 
@@ -1452,7 +1452,7 @@
             }
 
             if (amount > availableBalance) {
-                alert('Insufficient balance');
+                showNotification('Insufficient balance');
                 return;
             }
 
@@ -1481,12 +1481,11 @@
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                alert('Withdrawal request submitted! Your request is under review and will be processed within 24 working hours.');
-                showNotification('Withdrawal request submitted successfully!');
+                showNotification('Withdrawal request submitted! Your request is under review and will be processed within 24 working hours.');
                 document.getElementById('withdrawAddress').value = '';
                 document.getElementById('withdrawAmount').value = '';
             } catch (error) {
-                alert('Error: ' + error.message);
+                showNotification('Error: ' + error.message);
             }
         }
 
@@ -1497,17 +1496,17 @@
             const amount = parseFloat(document.getElementById('bankWithdrawAmount').value);
 
             if (!bankName || !accountNumber || !accountName || !amount) {
-                alert('Please fill all fields');
+                showNotification('Please fill all fields');
                 return;
             }
 
             if (amount < 50) {
-                alert('Minimum withdrawal amount is 50 USDT');
+                showNotification('Minimum withdrawal amount is 50 USDT');
                 return;
             }
 
             if (amount > userBalance) {
-                alert('Insufficient balance');
+                showNotification('Insufficient balance');
                 return;
             }
 
@@ -1536,14 +1535,13 @@
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                alert('Withdrawal request submitted! Your request is under review and will be processed within 24 working hours.');
-                showNotification('Withdrawal request submitted successfully!');
+                showNotification('Withdrawal request submitted! Your request is under review and will be processed within 24 working hours.');
                 document.getElementById('bankName').value = '';
                 document.getElementById('accountNumber').value = '';
                 document.getElementById('accountName').value = '';
                 document.getElementById('bankWithdrawAmount').value = '';
             } catch (error) {
-                alert('Error: ' + error.message);
+                showNotification('Error: ' + error.message);
             }
         }
 
@@ -1575,19 +1573,19 @@
             const amount = parseFloat(document.getElementById('swapAmount').value);
 
             if (!amount || amount <= 0) {
-                alert('Please enter a valid amount');
+                showNotification('Please enter a valid amount');
                 return;
             }
 
             if (from === to) {
-                alert('Cannot swap same currency');
+                showNotification('Cannot swap same currency');
                 return;
             }
 
             const fromBalance = from === 'usdt' ? userBalance : (cryptoBalances[from] || 0);
 
             if (amount > fromBalance) {
-                alert('Insufficient balance');
+                showNotification('Insufficient balance');
                 return;
             }
 
@@ -1627,7 +1625,7 @@
                 updateSwapEstimate();
 
             } catch (error) {
-                alert('Swap failed: ' + error.message);
+                showNotification('Swap failed: ' + error.message);
             }
         }
 
