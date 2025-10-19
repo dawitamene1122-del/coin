@@ -405,11 +405,6 @@
         .dot { background: #E6007A; }
         .ltc { background: #345D9D; }
         
-        /* Mobile Navigation */
-        .mobile-nav {
-            display: none;
-        }
-        
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar { 
@@ -473,13 +468,15 @@
                 left: 10px;
                 max-width: none;
             }
-            /* PERFECT CENTER ALIGNMENT FOR ALL PAGES */
+            /* FIXED: Only active page shows */
             .page-section {
                 width: 100%;
+                padding: 0;
+            }
+            .page-section.active {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                padding: 0;
             }
             .stats-grid {
                 width: 100%;
@@ -905,11 +902,11 @@
         const db = firebase.firestore();
 
         let currentUser = null;
-        let userBalance = 0; // USDT only
+        let userBalance = 0;
         let userName = '';
         let userId = '';
         let userEmail = '';
-        let cryptoBalances = {}; // {btc: 0, eth: 0, etc}
+        let cryptoBalances = {};
         let selectedCoin = null;
         let tradeDirection = 'up';
         let selectedPercentage = 15;
@@ -1443,7 +1440,6 @@
                 return;
             }
 
-            // Check balance based on crypto type
             let availableBalance = 0;
             if (crypto === 'usdt') {
                 availableBalance = userBalance;
@@ -1573,19 +1569,19 @@
             const amount = parseFloat(document.getElementById('swapAmount').value);
 
             if (!amount || amount <= 0) {
-                alert('Please enter a valid amount');
+                showNotification('⚠️ Please enter a valid amount');
                 return;
             }
 
             if (from === to) {
-                alert('Cannot swap same currency');
+                showNotification('⚠️ Cannot swap same currency');
                 return;
             }
 
             const fromBalance = from === 'usdt' ? userBalance : (cryptoBalances[from] || 0);
 
             if (amount > fromBalance) {
-                alert('Insufficient balance');
+                showNotification('⚠️ Insufficient balance');
                 return;
             }
 
@@ -1625,7 +1621,7 @@
                 updateSwapEstimate();
 
             } catch (error) {
-                alert('Swap failed: ' + error.message);
+                showNotification('❌ Swap failed: ' + error.message);
             }
         }
 
@@ -1633,7 +1629,6 @@
             Object.values(countdownIntervals).forEach(clearInterval);
             countdownIntervals = {};
 
-            // TRADE HISTORY (Only trades - win/loss/pending)
             try {
                 const tradesSnapshot = await db.collection('trades')
                     .where('userId', '==', currentUser.uid)
@@ -1685,7 +1680,6 @@
                 console.error('Error loading trade history:', error);
             }
 
-            // TRANSACTION HISTORY (Only deposits and withdrawals)
             try {
                 const transSnapshot = await db.collection('transactions')
                     .where('userId', '==', currentUser.uid)
@@ -1987,7 +1981,7 @@
 
                 input.value = '';
             } catch (error) {
-                alert('Failed to send message');
+                showNotification('❌ Failed to send message');
             }
         }
 
