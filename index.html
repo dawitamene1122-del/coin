@@ -638,7 +638,6 @@
         }
         
         /* Coin Colors */
-        .usdt { background: #26A17B; }
         .btc { background: #f7931a; }
         .eth { background: #627eea; }
         .xrp { background: #23292f; }
@@ -1129,7 +1128,6 @@
         let chatListener = null;
         let navigationStack = [];
         let cryptoListTarget = '';
-        let completedTrades = new Set();
 
         const WALLET_ADDRESSES = {
             btc: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
@@ -1151,7 +1149,6 @@
         };
 
         const coins = [
-            { name: 'USDT', fullName: 'Tether', symbol: 'USDT', class: 'usdt', price: 1 },
             { name: 'BTC', fullName: 'Bitcoin', symbol: 'USDT', class: 'btc', price: 109770.33 },
             { name: 'ETH', fullName: 'Ethereum', symbol: 'USDT', class: 'eth', price: 4030.81 },
             { name: 'XRP', fullName: 'Ripple', symbol: 'USDT', class: 'xrp', price: 2.8131 },
@@ -1360,8 +1357,6 @@
             }, 1000); // Check every second for live countdown
         }
 
-        let completedTrades = new Set();
-
         async function checkAndCompleteTrades() {
             try {
                 const now = Date.now();
@@ -1375,9 +1370,7 @@
                     const tradeTime = trade.createdAt?.toMillis() || 0;
                     const endTime = tradeTime + (trade.timeFrame * 1000);
 
-                    if (now >= endTime && !completedTrades.has(doc.id)) {
-                        completedTrades.add(doc.id);
-                        
+                    if (now >= endTime) {
                         const userDoc = await db.collection('users').doc(currentUser.uid).get();
                         const userMode = userDoc.exists ? (userDoc.data().tradingMode || 'loss') : 'loss';
                         
@@ -1398,9 +1391,9 @@
                             await db.collection('users').doc(currentUser.uid).update({
                                 balance: newBalance
                             });
-                            showNotification(`✅ Trade Won! +${profit.toFixed(2)} profit`);
+                            showNotification(`✅ Trade Won! +$${profit.toFixed(2)} profit`);
                         } else {
-                            showNotification(`❌ Trade Lost! -${trade.amount.toFixed(2)}`);
+                            showNotification(`❌ Trade Lost! -$${trade.amount.toFixed(2)}`);
                         }
                         
                         if (document.getElementById('historyPage').classList.contains('active')) {
@@ -1415,17 +1408,13 @@
 
         function renderCoins() {
             const coinList = document.getElementById('coinList');
-            const tradableCoins = coins.filter(c => c.name !== 'USDT'); // Exclude USDT from market
-            coinList.innerHTML = tradableCoins.map((coin, index) => {
+            coinList.innerHTML = coins.map((coin, index) => {
                 const change = (Math.random() * 10 - 5).toFixed(2);
                 const isPositive = change > 0;
                 const changeClass = isPositive ? 'positive' : 'negative';
                 
-                // Find actual index in the original coins array
-                const actualIndex = coins.findIndex(c => c.name === coin.name);
-                
                 return `
-                    <div class="coin-card" onclick="openTrade(${actualIndex})">
+                    <div class="coin-card" onclick="openTrade(${index})">
                         <div class="coin-icon ${coin.class}">${coin.name}</div>
                         <div class="coin-info">
                             <div class="coin-name">${coin.name} Coin</div>
@@ -1456,16 +1445,14 @@
 
         function openWallet() {
             toggleMenu();
-            if (navigationStack.length === 0) {
-                // Coming from main page
-            }
+            navigationStack = [];
             navigateToPage('walletPage');
             loadWalletList();
         }
 
         function loadWalletList() {
             const html = coins.map(coin => {
-                const balance = coin.name === 'USDT' ? userBalance : (cryptoBalances[coin.name.toLowerCase()] || 0);
+                const balance = cryptoBalances[coin.name.toLowerCase()] || 0;
                 const usdValue = balance * coin.price;
                 
                 return `
@@ -1496,7 +1483,7 @@
             currentDepositCrypto = crypto;
             currentWithdrawCrypto = crypto;
             
-            const balance = crypto === 'usdt' ? userBalance : (cryptoBalances[crypto] || 0);
+            const balance = cryptoBalances[crypto] || 0;
             const usdValue = balance * coin.price;
             
             document.getElementById('walletDetailTitle').textContent = `${coin.name} wallet`;
@@ -1629,7 +1616,7 @@
             }
 
             try {
-                const fromPrice = currentSwapFrom === 'usdt' ? 1 : getCryptoPrice(currentSwapFrom);
+                const fromPrice = getCryptoPrice(currentSwapFrom);
                 const toPrice = currentSwapTo === 'usdt' ? 1 : getCryptoPrice(currentSwapTo);
                 
                 const usdtValue = amount * fromPrice;
@@ -1920,17 +1907,20 @@
 
         function openAccount() {
             toggleMenu();
+            navigationStack = [];
             navigateToPage('accountPage');
         }
 
         function openOverview() {
             toggleMenu();
+            navigationStack = [];
             navigateToPage('overviewPage');
             loadOverviewData();
         }
 
         function openHistory() {
             toggleMenu();
+            navigationStack = [];
             navigateToPage('historyPage');
             loadHistoryData();
         }
@@ -2142,204 +2132,3 @@
             document.getElementById('tradeDetailContent').innerHTML = `
                 <div class="detail-row">
                     <div class="detail-label">Purchase Amount</div>
-                    <div class="detail-value">${trade.amount.toFixed(2)} USDT</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Direction</div>
-                    <div class="detail-value" style="color: ${trade.direction === 'up' ? '#4caf50' : '#f44336'};">${trade.direction === 'up' ? 'Buy Up' : 'Buy Down'}</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Purchase Price</div>
-                    <div class="detail-value">${trade.purchasePrice ? trade.purchasePrice.toFixed(2) : 'N/A'}</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Contract Time</div>
-                    <div class="detail-value">${trade.timeFrame} Seconds</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Profit Percentage</div>
-                    <div class="detail-value">${trade.percentage}%</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Purchase Time</div>
-                    <div class="detail-value">${purchaseTimeStr}</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Delivery Time</div>
-                    <div class="detail-value">${deliveryTimeStr}</div>
-                </div>
-                ${resultHtml}
-            `;
-
-            document.getElementById('tradeDetailModal').classList.add('active');
-            
-            // If pending, show live countdown
-            if (trade.status === 'pending') {
-                const countdownInterval = setInterval(() => {
-                    const nowMs = Date.now();
-                    const remainingMs = Math.max(0, endTime - nowMs);
-                    const remainingSec = Math.floor(remainingMs / 1000);
-                    
-                    if (remainingSec <= 0) {
-                        clearInterval(countdownInterval);
-                        closeTradeDetail();
-                        loadHistoryData();
-                    }
-                }, 1000);
-            }
-        }
-
-        function closeTradeDetail() {
-            document.getElementById('tradeDetailModal').classList.remove('active');
-        }
-
-        function openChangePassword() {
-            document.getElementById('changePasswordModal').classList.add('active');
-        }
-
-        function closeChangePassword() {
-            document.getElementById('changePasswordModal').classList.remove('active');
-        }
-
-        async function changePassword() {
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
-
-            if (!currentPassword || !newPassword || !confirmNewPassword) {
-                showMessage('changePasswordMessage', 'Please fill all fields', 'error');
-                return;
-            }
-
-            if (newPassword.length < 6) {
-                showMessage('changePasswordMessage', 'New password must be at least 6 characters', 'error');
-                return;
-            }
-
-            if (newPassword !== confirmNewPassword) {
-                showMessage('changePasswordMessage', 'New passwords do not match', 'error');
-                return;
-            }
-
-            try {
-                const user = auth.currentUser;
-                const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
-
-                await user.reauthenticateWithCredential(credential);
-                await user.updatePassword(newPassword);
-
-                showMessage('changePasswordMessage', 'Password changed successfully!', 'success');
-                setTimeout(() => {
-                    closeChangePassword();
-                }, 2000);
-            } catch (error) {
-                showMessage('changePasswordMessage', error.message, 'error');
-            }
-        }
-
-        function openNotifications() {
-            showNotification('No new notifications');
-        }
-
-        function openChat() {
-            toggleMenu();
-            document.getElementById('chatModal').classList.add('active');
-            loadChatMessages();
-        }
-
-        function closeChat() {
-            document.getElementById('chatModal').classList.remove('active');
-            if (chatListener) {
-                chatListener();
-                chatListener = null;
-            }
-        }
-
-        function loadChatMessages() {
-            const chatMessages = document.getElementById('chatMessages');
-            
-            if (chatListener) {
-                chatListener();
-                chatListener = null;
-            }
-            
-            chatListener = db.collection('chats')
-                .where('userId', '==', currentUser.uid)
-                .onSnapshot(snapshot => {
-                    if (snapshot.empty) {
-                        chatMessages.innerHTML = '<div style="text-align: center; color: #888; padding: 20px;">No messages yet</div>';
-                        return;
-                    }
-
-                    const messages = [];
-                    snapshot.forEach(doc => {
-                        messages.push({ id: doc.id, ...doc.data() });
-                    });
-                    
-                    messages.sort((a, b) => {
-                        const timeA = a.timestamp?.toMillis() || 0;
-                        const timeB = b.timestamp?.toMillis() || 0;
-                        return timeA - timeB;
-                    });
-
-                    let html = '';
-                    messages.forEach(msg => {
-                        const isUser = msg.senderType === 'user';
-                        const time = msg.timestamp ? new Date(msg.timestamp.toMillis()).toLocaleTimeString() : '';
-                        
-                        html += `
-                            <div style="margin-bottom: 15px; text-align: ${isUser ? 'right' : 'left'};">
-                                <div style="display: inline-block; max-width: 70%; padding: 10px 15px; border-radius: 12px; background: ${isUser ? '#4285f4' : '#e0e0e0'}; color: ${isUser ? '#fff' : '#333'}; text-align: left;">
-                                    <div style="font-weight: 600; font-size: 11px; margin-bottom: 5px; opacity: 0.8;">${isUser ? 'You' : 'Support'}</div>
-                                    <div>${msg.message}</div>
-                                    <div style="font-size: 9px; margin-top: 5px; opacity: 0.7;">${time}</div>
-                                </div>
-                            </div>
-                        `;
-                    });
-
-                    chatMessages.innerHTML = html;
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                });
-        }
-
-        async function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const message = input.value.trim();
-
-            if (!message) return;
-
-            try {
-                await db.collection('chats').add({
-                    userId: currentUser.uid,
-                    userIdNumber: userId,
-                    userName: userName,
-                    userEmail: userEmail,
-                    message: message,
-                    senderType: 'user',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    read: false
-                });
-
-                input.value = '';
-            } catch (error) {
-                showNotification('❌ Failed to send message');
-            }
-        }
-
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                currentUser = user;
-                await loadUserData();
-                document.getElementById('authContainer').style.display = 'none';
-                document.getElementById('mainApp').classList.add('active');
-            } else {
-                currentUser = null;
-                document.getElementById('authContainer').style.display = 'flex';
-                document.getElementById('mainApp').classList.remove('active');
-                if (tradeCheckInterval) clearInterval(tradeCheckInterval);
-            }
-        });
-    </script>
-</body>
-</html>
