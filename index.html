@@ -640,6 +640,7 @@
         /* Coin Colors */
         .btc { background: #f7931a; }
         .eth { background: #627eea; }
+        .usdt { background: #26a17b; }
         .xrp { background: #23292f; }
         .doge { background: #c2a633; }
         .ada { background: #0033ad; }
@@ -1124,6 +1125,7 @@
         let currentWithdrawCrypto = 'btc';
         let withdrawMethod = 'crypto';
         let tradeCheckInterval = null;
+        let tradeDetailInterval = null;
         let balanceUpdateListener = null;
         let chatListener = null;
         let navigationStack = [];
@@ -1151,6 +1153,7 @@
         const coins = [
             { name: 'BTC', fullName: 'Bitcoin', symbol: 'USDT', class: 'btc', price: 109770.33 },
             { name: 'ETH', fullName: 'Ethereum', symbol: 'USDT', class: 'eth', price: 4030.81 },
+            { name: 'USDT', fullName: 'Tether', symbol: 'USDT', class: 'usdt', price: 1 },
             { name: 'XRP', fullName: 'Ripple', symbol: 'USDT', class: 'xrp', price: 2.8131 },
             { name: 'DOGE', fullName: 'Dogecoin', symbol: 'USDT', class: 'doge', price: 0.2309 },
             { name: 'ADA', fullName: 'Cardano', symbol: 'USDT', class: 'ada', price: 1.2456 },
@@ -1208,7 +1211,6 @@
             document.getElementById('loginForm').classList.remove('hidden');
         }
 
-        // Navigation Stack Management
         function navigateToPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('mainApp').style.display = 'none';
@@ -1231,6 +1233,8 @@
                 } else {
                     document.getElementById('mainApp').style.display = 'block';
                 }
+            } else {
+                document.getElementById('mainApp').style.display = 'block';
             }
         }
 
@@ -1300,6 +1304,7 @@
             if (balanceUpdateListener) balanceUpdateListener();
             if (chatListener) chatListener();
             if (tradeCheckInterval) clearInterval(tradeCheckInterval);
+            if (tradeDetailInterval) clearInterval(tradeDetailInterval);
             auth.signOut();
         }
 
@@ -1354,7 +1359,7 @@
             
             tradeCheckInterval = setInterval(async () => {
                 await checkAndCompleteTrades();
-            }, 1000); // Check every second for live countdown
+            }, 1000);
         }
 
         async function checkAndCompleteTrades() {
@@ -1391,13 +1396,16 @@
                             await db.collection('users').doc(currentUser.uid).update({
                                 balance: newBalance
                             });
-                            showNotification(`✅ Trade Won! +$${profit.toFixed(2)} profit`);
+                            showNotification(`✅ ${trade.coinFull} Trade Won! +$${profit.toFixed(2)} profit`);
                         } else {
-                            showNotification(`❌ Trade Lost! -$${trade.amount.toFixed(2)}`);
+                            showNotification(`❌ ${trade.coinFull} Trade Lost! -$${trade.amount.toFixed(2)}`);
                         }
                         
                         if (document.getElementById('historyPage').classList.contains('active')) {
                             loadHistoryData();
+                        }
+                        if (document.getElementById('overviewPage').classList.contains('active')) {
+                            loadOverviewData();
                         }
                     }
                 }
@@ -1452,7 +1460,7 @@
 
         function loadWalletList() {
             const html = coins.map(coin => {
-                const balance = cryptoBalances[coin.name.toLowerCase()] || 0;
+                const balance = coin.name.toLowerCase() === 'usdt' ? userBalance : (cryptoBalances[coin.name.toLowerCase()] || 0);
                 const usdValue = balance * coin.price;
                 
                 return `
@@ -1483,7 +1491,7 @@
             currentDepositCrypto = crypto;
             currentWithdrawCrypto = crypto;
             
-            const balance = cryptoBalances[crypto] || 0;
+            const balance = crypto === 'usdt' ? userBalance : (cryptoBalances[crypto] || 0);
             const usdValue = balance * coin.price;
             
             document.getElementById('walletDetailTitle').textContent = `${coin.name} wallet`;
@@ -1511,6 +1519,8 @@
             const fromCoin = getCoinData(currentSwapFrom);
             const toCoin = getCoinData(currentSwapTo);
             
+            if (!fromCoin || !toCoin) return;
+            
             document.getElementById('swapFromIcon').className = `coin-icon ${fromCoin.class}`;
             document.getElementById('swapFromIcon').textContent = fromCoin.name;
             document.getElementById('swapFromName').textContent = fromCoin.name;
@@ -1525,6 +1535,7 @@
 
         function updateDepositUI() {
             const coin = getCoinData(currentDepositCrypto);
+            if (!coin) return;
             
             document.getElementById('depositCryptoIcon').className = `coin-icon ${coin.class}`;
             document.getElementById('depositCryptoIcon').textContent = coin.name;
@@ -1534,6 +1545,7 @@
 
         function updateWithdrawUI() {
             const coin = getCoinData(currentWithdrawCrypto);
+            if (!coin) return;
             
             document.getElementById('withdrawCryptoIcon').className = `coin-icon ${coin.class}`;
             document.getElementById('withdrawCryptoIcon').textContent = coin.name;
@@ -1541,6 +1553,7 @@
             
             const balance = currentWithdrawCrypto === 'usdt' ? userBalance : (cryptoBalances[currentWithdrawCrypto] || 0);
             document.getElementById('withdrawAvailable').textContent = balance.toFixed(8) + ' ' + currentWithdrawCrypto.toUpperCase();
+            document.getElementById('bankWithdrawAvailable').textContent = userBalance.toFixed(2);
         }
 
         function openCryptoList(target) {
@@ -1586,7 +1599,6 @@
         }
 
         function calculateSwapAmount() {
-            // Calculate swap rate based on real prices
         }
 
         function fillMaxSwap() {
@@ -1646,11 +1658,16 @@
                     });
                 }
 
+                userBalance = currentBalance + (currentSwapTo === 'usdt' ? toAmount : 0) - (currentSwapFrom === 'usdt' ? amount : 0);
+                cryptoBalances = currentCryptoBalances;
+
                 showNotification(`✅ Swapped ${amount.toFixed(8)} ${currentSwapFrom.toUpperCase()} to ${toAmount.toFixed(8)} ${currentSwapTo.toUpperCase()}`);
                 document.getElementById('swapAmount').value = '';
-                updateSwapUI();
+                
+                openWalletDetail(currentSwapFrom);
 
             } catch (error) {
+                console.error('Swap error:', error);
                 showNotification('❌ Swap failed: ' + error.message);
             }
         }
@@ -1834,7 +1851,6 @@
                 return;
             }
 
-            // Check balance requirements for contract time
             if (timeFrame === 90 && userBalance < 60000) {
                 showMessage('tradeMessage', 'You need at least 60,000 USDT balance to trade with 90 seconds contract', 'error');
                 return;
@@ -1890,7 +1906,7 @@
                 userBalance = newBalance;
                 
                 showMessage('tradeMessage', `Trade executed! Wait ${timeFrame} seconds for result.`, 'success');
-                showNotification(`Trade started! ${timeFrame}s until result...`);
+                showNotification(`✅ Trade started! ${timeFrame}s countdown...`);
                 
                 setTimeout(() => {
                     closeTradeModal();
@@ -2088,98 +2104,126 @@
         }
 
         async function openTradeDetail(tradeId) {
+            if (tradeDetailInterval) {
+                clearInterval(tradeDetailInterval);
+                tradeDetailInterval = null;
+            }
+
             const tradeDoc = await db.collection('trades').doc(tradeId).get();
             if (!tradeDoc.exists) return;
 
             const trade = tradeDoc.data();
-            const tradeTime = trade.createdAt?.toMillis() || 0;
-            const endTime = tradeTime + (trade.timeFrame * 1000);
-            const now = Date.now();
-            const purchaseTimeStr = new Date(tradeTime).toLocaleString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            }).replace(/\//g, '/').replace(',', ',');
-            const deliveryTimeStr = new Date(endTime).toLocaleString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            }).replace(/\//g, '/').replace(',', ',');
+            
+            const renderTradeDetail = async () => {
+                const currentTradeDoc = await db.collection('trades').doc(tradeId).get();
+                if (!currentTradeDoc.exists) return;
+                
+                const currentTrade = currentTradeDoc.data();
+                const tradeTime = currentTrade.createdAt?.toMillis() || 0;
+                const endTime = tradeTime + (currentTrade.timeFrame * 1000);
+                const now = Date.now();
+                const remainingMs = Math.max(0, endTime - now);
+                const remainingSec = Math.floor(remainingMs / 1000);
+                
+                const purchaseTimeStr = new Date(tradeTime).toLocaleString('en-GB', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                }).replace(/\//g, '/').replace(',', ',');
+                const deliveryTimeStr = new Date(endTime).toLocaleString('en-GB', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                }).replace(/\//g, '/').replace(',', ',');
 
-            document.getElementById('detailCoinName').textContent = `${trade.coinFull}/USDT`;
+                document.getElementById('detailCoinName').textContent = `${currentTrade.coinFull}/USDT`;
 
-            const resultHtml = trade.status === 'win' ?
-                `<div class="detail-row">
-                    <div class="detail-label">Result</div>
-                    <div class="result-win">WIN +${trade.profit.toFixed(2)} USDT</div>
-                </div>` :
-                trade.status === 'loss' ?
-                `<div class="detail-row">
-                    <div class="detail-label">Result</div>
-                    <div class="result-loss">LOSS -${trade.amount.toFixed(2)} USDT</div>
-                </div>` :
-                `<div class="detail-row">
-                    <div class="detail-label">Status</div>
-                    <div class="detail-value" style="color: #ff9800;">PENDING</div>
-                </div>`;
+                let resultHtml;
+                if (currentTrade.status === 'pending' && remainingSec > 0) {
+                    resultHtml = `<div class="detail-row">
+                        <div class="detail-label">Countdown</div>
+                        <div class="detail-value" style="color: #ff9800; font-size: 24px; font-weight: bold;">${remainingSec}s</div>
+                    </div>`;
+                } else if (currentTrade.status === 'win') {
+                    resultHtml = `<div class="detail-row">
+                        <div class="detail-label">Result</div>
+                        <div class="result-win">WIN +${currentTrade.profit.toFixed(2)} USDT</div>
+                    </div>`;
+                    if (tradeDetailInterval) {
+                        clearInterval(tradeDetailInterval);
+                        tradeDetailInterval = null;
+                    }
+                } else if (currentTrade.status === 'loss') {
+                    resultHtml = `<div class="detail-row">
+                        <div class="detail-label">Result</div>
+                        <div class="result-loss">LOSS -${currentTrade.amount.toFixed(2)} USDT</div>
+                    </div>`;
+                    if (tradeDetailInterval) {
+                        clearInterval(tradeDetailInterval);
+                        tradeDetailInterval = null;
+                    }
+                } else {
+                    resultHtml = `<div class="detail-row">
+                        <div class="detail-label">Status</div>
+                        <div class="detail-value" style="color: #ff9800;">PENDING</div>
+                    </div>`;
+                }
 
-            document.getElementById('tradeDetailContent').innerHTML = `
-                <div class="detail-row">
-                    <div class="detail-label">Purchase Amount</div>
-                    <div class="detail-value">${trade.amount.toFixed(2)} USDT</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Direction</div>
-                    <div class="detail-value" style="color: ${trade.direction === 'up' ? '#4caf50' : '#f44336'};">${trade.direction === 'up' ? 'Buy Up' : 'Buy Down'}</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Purchase Price</div>
-                    <div class="detail-value">${trade.purchasePrice ? trade.purchasePrice.toFixed(2) : 'N/A'}</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Contract Time</div>
-                    <div class="detail-value">${trade.timeFrame} Seconds</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Profit Percentage</div>
-                    <div class="detail-value">${trade.percentage}%</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Purchase Time</div>
-                    <div class="detail-value">${purchaseTimeStr}</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Delivery Time</div>
-                    <div class="detail-value">${deliveryTimeStr}</div>
-                </div>
-                ${resultHtml}
-            `;
+                document.getElementById('tradeDetailContent').innerHTML = `
+                    <div class="detail-row">
+                        <div class="detail-label">Purchase Amount</div>
+                        <div class="detail-value">${currentTrade.amount.toFixed(2)} USDT</div>
+                    </div>
+                    ${resultHtml}
+                    <div class="detail-row">
+                        <div class="detail-label">Purchase Price</div>
+                        <div class="detail-value">${currentTrade.purchasePrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 8})}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Direction</div>
+                        <div class="detail-value" style="color: ${currentTrade.direction === 'up' ? '#4caf50' : '#f44336'};">${currentTrade.direction === 'up' ? 'Buy Up' : 'Buy Down'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Contract Time</div>
+                        <div class="detail-value">${currentTrade.timeFrame} Seconds</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Profit Rate</div>
+                        <div class="detail-value">${currentTrade.percentage}%</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Purchase Time</div>
+                        <div class="detail-value">${purchaseTimeStr}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Delivery Time</div>
+                        <div class="detail-value">${deliveryTimeStr}</div>
+                    </div>
+                `;
+            };
 
+            await renderTradeDetail();
+            
             document.getElementById('tradeDetailModal').classList.add('active');
             
-            // If pending, show live countdown
             if (trade.status === 'pending') {
-                const countdownInterval = setInterval(() => {
-                    const nowMs = Date.now();
-                    const remainingMs = Math.max(0, endTime - nowMs);
-                    const remainingSec = Math.floor(remainingMs / 1000);
-                    
-                    if (remainingSec <= 0) {
-                        clearInterval(countdownInterval);
-                        closeTradeDetail();
-                        loadHistoryData();
-                    }
+                tradeDetailInterval = setInterval(async () => {
+                    await renderTradeDetail();
                 }, 1000);
             }
         }
 
         function closeTradeDetail() {
+            if (tradeDetailInterval) {
+                clearInterval(tradeDetailInterval);
+                tradeDetailInterval = null;
+            }
             document.getElementById('tradeDetailModal').classList.remove('active');
         }
 
@@ -2328,6 +2372,7 @@
                 document.getElementById('authContainer').style.display = 'flex';
                 document.getElementById('mainApp').classList.remove('active');
                 if (tradeCheckInterval) clearInterval(tradeCheckInterval);
+                if (tradeDetailInterval) clearInterval(tradeDetailInterval);
             }
         });
     </script>
