@@ -1127,6 +1127,7 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        // All global variables
         let currentUser = null;
         let userBalance = 0;
         let userName = '';
@@ -1146,7 +1147,7 @@
         let chatListener = null;
         let navigationStack = [];
         let cryptoListTarget = '';
-        let completedTrades = new Set();
+        let completedTrades = new Set(); // Track completed trades to prevent duplicate notifications
 
         const WALLET_ADDRESSES = {
             btc: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
