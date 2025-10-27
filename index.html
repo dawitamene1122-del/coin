@@ -157,7 +157,6 @@
             font-weight: bold;
             color: white;
             font-size: 16px;
-            flex-shrink: 0;
         }
         .coin-info {
             flex: 1;
@@ -639,7 +638,6 @@
         }
         
         /* Coin Colors */
-        .usdt { background: #26A17B; color: white; }
         .btc { background: #f7931a; }
         .eth { background: #627eea; }
         .xrp { background: #23292f; }
@@ -906,22 +904,6 @@
                             <input type="text" class="trade-input" id="accountName" placeholder="Enter account holder name">
                         </div>
                         <div class="trade-section">
-                            <div class="trade-label">Routing Number</div>
-                            <input type="text" class="trade-input" id="routingNumber" placeholder="Enter routing number">
-                        </div>
-                        <div class="trade-section">
-                            <div class="trade-label">Bank Address</div>
-                            <input type="text" class="trade-input" id="bankAddress" placeholder="Enter bank address">
-                        </div>
-                        <div class="trade-section">
-                            <div class="trade-label">Bank Code</div>
-                            <input type="text" class="trade-input" id="bankCode" placeholder="Enter bank code / SWIFT code">
-                        </div>
-                        <div class="trade-section">
-                            <div class="trade-label">Recipient Address</div>
-                            <input type="text" class="trade-input" id="recipientAddress" placeholder="Enter recipient address">
-                        </div>
-                        <div class="trade-section">
                             <div class="trade-label">Amount (USDT)</div>
                             <input type="number" class="trade-input" id="bankWithdrawAmount" placeholder="0">
                             <div class="info-text">Available: <span id="bankWithdrawAvailable">0.00</span> USDT</div>
@@ -1127,7 +1109,6 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // All global variables
         let currentUser = null;
         let userBalance = 0;
         let userName = '';
@@ -1147,7 +1128,6 @@
         let chatListener = null;
         let navigationStack = [];
         let cryptoListTarget = '';
-        let completedTrades = new Set(); // Track completed trades to prevent duplicate notifications
 
         const WALLET_ADDRESSES = {
             btc: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
@@ -1169,22 +1149,21 @@
         };
 
         const coins = [
-            { name: 'USDT', fullName: 'Tether', symbol: 'USDT', class: 'usdt', price: 1, icon: '₮' },
-            { name: 'BTC', fullName: 'Bitcoin', symbol: 'USDT', class: 'btc', price: 109770.33, icon: '₿' },
-            { name: 'ETH', fullName: 'Ethereum', symbol: 'USDT', class: 'eth', price: 4030.81, icon: 'Ξ' },
-            { name: 'XRP', fullName: 'Ripple', symbol: 'USDT', class: 'xrp', price: 2.8131, icon: 'XRP' },
-            { name: 'DOGE', fullName: 'Dogecoin', symbol: 'USDT', class: 'doge', price: 0.2309, icon: 'Ð' },
-            { name: 'ADA', fullName: 'Cardano', symbol: 'USDT', class: 'ada', price: 1.2456, icon: 'ADA' },
-            { name: 'BNB', fullName: 'Binance Coin', symbol: 'USDT', class: 'bnb', price: 692.45, icon: 'BNB' },
-            { name: 'SOL', fullName: 'Solana', symbol: 'USDT', class: 'sol', price: 245.67, icon: 'SOL' },
-            { name: 'LINK', fullName: 'Chainlink', symbol: 'USDT', class: 'link', price: 28.91, icon: 'LINK' },
-            { name: 'DOT', fullName: 'Polkadot', symbol: 'USDT', class: 'dot', price: 8.92, icon: 'DOT' },
-            { name: 'LTC', fullName: 'Litecoin', symbol: 'USDT', class: 'ltc', price: 156.78, icon: 'Ł' },
-            { name: 'MATIC', fullName: 'Polygon', symbol: 'USDT', class: 'matic', price: 0.8934, icon: 'MATIC' },
-            { name: 'AVAX', fullName: 'Avalanche', symbol: 'USDT', class: 'avax', price: 38.45, icon: 'AVAX' },
-            { name: 'ATOM', fullName: 'Cosmos', symbol: 'USDT', class: 'atom', price: 12.34, icon: 'ATOM' },
-            { name: 'UNI', fullName: 'Uniswap', symbol: 'USDT', class: 'uni', price: 15.67, icon: 'UNI' },
-            { name: 'SHIB', fullName: 'Shiba Inu', symbol: 'USDT', class: 'shib', price: 0.00002456, icon: 'SHIB' }
+            { name: 'BTC', fullName: 'Bitcoin', symbol: 'USDT', class: 'btc', price: 109770.33 },
+            { name: 'ETH', fullName: 'Ethereum', symbol: 'USDT', class: 'eth', price: 4030.81 },
+            { name: 'XRP', fullName: 'Ripple', symbol: 'USDT', class: 'xrp', price: 2.8131 },
+            { name: 'DOGE', fullName: 'Dogecoin', symbol: 'USDT', class: 'doge', price: 0.2309 },
+            { name: 'ADA', fullName: 'Cardano', symbol: 'USDT', class: 'ada', price: 1.2456 },
+            { name: 'BNB', fullName: 'Binance Coin', symbol: 'USDT', class: 'bnb', price: 692.45 },
+            { name: 'SOL', fullName: 'Solana', symbol: 'USDT', class: 'sol', price: 245.67 },
+            { name: 'LINK', fullName: 'Chainlink', symbol: 'USDT', class: 'link', price: 28.91 },
+            { name: 'DOT', fullName: 'Polkadot', symbol: 'USDT', class: 'dot', price: 8.92 },
+            { name: 'LTC', fullName: 'Litecoin', symbol: 'USDT', class: 'ltc', price: 156.78 },
+            { name: 'MATIC', fullName: 'Polygon', symbol: 'USDT', class: 'matic', price: 0.8934 },
+            { name: 'AVAX', fullName: 'Avalanche', symbol: 'USDT', class: 'avax', price: 38.45 },
+            { name: 'ATOM', fullName: 'Cosmos', symbol: 'USDT', class: 'atom', price: 12.34 },
+            { name: 'UNI', fullName: 'Uniswap', symbol: 'USDT', class: 'uni', price: 15.67 },
+            { name: 'SHIB', fullName: 'Shiba Inu', symbol: 'USDT', class: 'shib', price: 0.00002456 }
         ];
 
         function getCoinData(symbol) {
@@ -1366,53 +1345,8 @@
                 });
 
                 renderCoins();
-                fetchLivePrices(); // Start fetching live prices
                 startTradeChecker();
             }
-        }
-
-        async function fetchLivePrices() {
-            try {
-                // Fetch live prices from CoinGecko API (free)
-                const coinIds = 'bitcoin,ethereum,ripple,dogecoin,cardano,binancecoin,solana,chainlink,polkadot,litecoin,matic-network,avalanche-2,cosmos,uniswap,shiba-inu';
-                const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinIds}&vs_currencies=usd`);
-                const data = await response.json();
-                
-                // Update coin prices
-                const priceMap = {
-                    'bitcoin': 'btc',
-                    'ethereum': 'eth',
-                    'ripple': 'xrp',
-                    'dogecoin': 'doge',
-                    'cardano': 'ada',
-                    'binancecoin': 'bnb',
-                    'solana': 'sol',
-                    'chainlink': 'link',
-                    'polkadot': 'dot',
-                    'litecoin': 'ltc',
-                    'matic-network': 'matic',
-                    'avalanche-2': 'avax',
-                    'cosmos': 'atom',
-                    'uniswap': 'uni',
-                    'shiba-inu': 'shib'
-                };
-                
-                for (const [apiId, symbol] of Object.entries(priceMap)) {
-                    if (data[apiId] && data[apiId].usd) {
-                        const coin = coins.find(c => c.name.toLowerCase() === symbol);
-                        if (coin) {
-                            coin.price = data[apiId].usd;
-                        }
-                    }
-                }
-                
-                renderCoins();
-            } catch (error) {
-                console.log('Failed to fetch live prices, using default prices');
-            }
-            
-            // Refresh every 30 seconds
-            setTimeout(fetchLivePrices, 30000);
         }
 
         function startTradeChecker() {
@@ -1422,8 +1356,6 @@
                 await checkAndCompleteTrades();
             }, 1000); // Check every second for live countdown
         }
-
-        let completedTrades = new Set();
 
         async function checkAndCompleteTrades() {
             try {
@@ -1438,9 +1370,7 @@
                     const tradeTime = trade.createdAt?.toMillis() || 0;
                     const endTime = tradeTime + (trade.timeFrame * 1000);
 
-                    if (now >= endTime && !completedTrades.has(doc.id)) {
-                        completedTrades.add(doc.id);
-                        
+                    if (now >= endTime) {
                         const userDoc = await db.collection('users').doc(currentUser.uid).get();
                         const userMode = userDoc.exists ? (userDoc.data().tradingMode || 'loss') : 'loss';
                         
@@ -1461,9 +1391,9 @@
                             await db.collection('users').doc(currentUser.uid).update({
                                 balance: newBalance
                             });
-                            showNotification(`✅ Trade Won! +${profit.toFixed(2)} profit`);
+                            showNotification(`✅ Trade Won! +$${profit.toFixed(2)} profit`);
                         } else {
-                            showNotification(`❌ Trade Lost! -${trade.amount.toFixed(2)}`);
+                            showNotification(`❌ Trade Lost! -$${trade.amount.toFixed(2)}`);
                         }
                         
                         if (document.getElementById('historyPage').classList.contains('active')) {
@@ -1478,18 +1408,14 @@
 
         function renderCoins() {
             const coinList = document.getElementById('coinList');
-            const tradableCoins = coins.filter(c => c.name !== 'USDT'); // Exclude USDT from market
-            coinList.innerHTML = tradableCoins.map((coin) => {
+            coinList.innerHTML = coins.map((coin, index) => {
                 const change = (Math.random() * 10 - 5).toFixed(2);
                 const isPositive = change > 0;
                 const changeClass = isPositive ? 'positive' : 'negative';
                 
-                // Find actual index in the original coins array
-                const actualIndex = coins.findIndex(c => c.name === coin.name);
-                
                 return `
-                    <div class="coin-card" onclick="openTrade(${actualIndex})">
-                        <div class="coin-icon ${coin.class}">${coin.icon || coin.name}</div>
+                    <div class="coin-card" onclick="openTrade(${index})">
+                        <div class="coin-icon ${coin.class}">${coin.name}</div>
                         <div class="coin-info">
                             <div class="coin-name">${coin.name} Coin</div>
                             <div class="coin-symbol">${coin.symbol}</div>
@@ -1519,22 +1445,20 @@
 
         function openWallet() {
             toggleMenu();
-            if (navigationStack.length === 0) {
-                // Coming from main page
-            }
+            navigationStack = [];
             navigateToPage('walletPage');
             loadWalletList();
         }
 
         function loadWalletList() {
             const html = coins.map(coin => {
-                const balance = coin.name === 'USDT' ? userBalance : (cryptoBalances[coin.name.toLowerCase()] || 0);
+                const balance = cryptoBalances[coin.name.toLowerCase()] || 0;
                 const usdValue = balance * coin.price;
                 
                 return `
                     <div class="balance-item" onclick="openWalletDetail('${coin.name.toLowerCase()}')">
                         <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
-                            <div class="coin-icon ${coin.class}">${coin.icon || coin.name}</div>
+                            <div class="coin-icon ${coin.class}">${coin.name}</div>
                             <div>
                                 <div style="font-weight: 600;">${coin.name} wallet</div>
                                 <div style="font-size: 12px; color: #888;">${coin.name} Coin</div>
@@ -1559,7 +1483,7 @@
             currentDepositCrypto = crypto;
             currentWithdrawCrypto = crypto;
             
-            const balance = crypto === 'usdt' ? userBalance : (cryptoBalances[crypto] || 0);
+            const balance = cryptoBalances[crypto] || 0;
             const usdValue = balance * coin.price;
             
             document.getElementById('walletDetailTitle').textContent = `${coin.name} wallet`;
@@ -1588,11 +1512,11 @@
             const toCoin = getCoinData(currentSwapTo);
             
             document.getElementById('swapFromIcon').className = `coin-icon ${fromCoin.class}`;
-            document.getElementById('swapFromIcon').textContent = fromCoin.icon || fromCoin.name;
+            document.getElementById('swapFromIcon').textContent = fromCoin.name;
             document.getElementById('swapFromName').textContent = fromCoin.name;
             
             document.getElementById('swapToIcon').className = `coin-icon ${toCoin.class}`;
-            document.getElementById('swapToIcon').textContent = toCoin.icon || toCoin.name;
+            document.getElementById('swapToIcon').textContent = toCoin.name;
             document.getElementById('swapToName').textContent = toCoin.name;
             
             const fromBalance = currentSwapFrom === 'usdt' ? userBalance : (cryptoBalances[currentSwapFrom] || 0);
@@ -1603,7 +1527,7 @@
             const coin = getCoinData(currentDepositCrypto);
             
             document.getElementById('depositCryptoIcon').className = `coin-icon ${coin.class}`;
-            document.getElementById('depositCryptoIcon').textContent = coin.icon || coin.name;
+            document.getElementById('depositCryptoIcon').textContent = coin.name;
             document.getElementById('depositCryptoName').textContent = coin.name;
             document.getElementById('depositAddress').textContent = WALLET_ADDRESSES[currentDepositCrypto];
         }
@@ -1612,7 +1536,7 @@
             const coin = getCoinData(currentWithdrawCrypto);
             
             document.getElementById('withdrawCryptoIcon').className = `coin-icon ${coin.class}`;
-            document.getElementById('withdrawCryptoIcon').textContent = coin.icon || coin.name;
+            document.getElementById('withdrawCryptoIcon').textContent = coin.name;
             document.getElementById('withdrawCryptoName').textContent = coin.name;
             
             const balance = currentWithdrawCrypto === 'usdt' ? userBalance : (cryptoBalances[currentWithdrawCrypto] || 0);
@@ -1625,7 +1549,7 @@
             const html = coins.map(coin => {
                 return `
                     <div class="crypto-list-item" onclick="selectCrypto('${coin.name.toLowerCase()}')">
-                        <div class="coin-icon ${coin.class}">${coin.icon || coin.name}</div>
+                        <div class="coin-icon ${coin.class}">${coin.name}</div>
                         <div>
                             <div style="font-weight: 600;">${coin.name}</div>
                             <div style="font-size: 12px; color: #888;">${coin.fullName}</div>
@@ -1692,13 +1616,8 @@
             }
 
             try {
-                const fromPrice = currentSwapFrom === 'usdt' ? 1 : getCryptoPrice(currentSwapFrom);
+                const fromPrice = getCryptoPrice(currentSwapFrom);
                 const toPrice = currentSwapTo === 'usdt' ? 1 : getCryptoPrice(currentSwapTo);
-                
-                if (!fromPrice || !toPrice || fromPrice === 0 || toPrice === 0) {
-                    showNotification('⚠️ Unable to fetch current price. Please try again.');
-                    return;
-                }
                 
                 const usdtValue = amount * fromPrice;
                 const toAmount = usdtValue / toPrice;
@@ -1727,12 +1646,11 @@
                     });
                 }
 
-                showNotification(`✅ Successfully swapped ${amount.toFixed(8)} ${currentSwapFrom.toUpperCase()} to ${toAmount.toFixed(8)} ${currentSwapTo.toUpperCase()}`);
+                showNotification(`✅ Swapped ${amount.toFixed(8)} ${currentSwapFrom.toUpperCase()} to ${toAmount.toFixed(8)} ${currentSwapTo.toUpperCase()}`);
                 document.getElementById('swapAmount').value = '';
                 updateSwapUI();
 
             } catch (error) {
-                console.error('Swap error:', error);
                 showNotification('❌ Swap failed: ' + error.message);
             }
         }
@@ -1812,13 +1730,9 @@
             const bankName = document.getElementById('bankName').value.trim();
             const accountNumber = document.getElementById('accountNumber').value.trim();
             const accountName = document.getElementById('accountName').value.trim();
-            const routingNumber = document.getElementById('routingNumber').value.trim();
-            const bankAddress = document.getElementById('bankAddress').value.trim();
-            const bankCode = document.getElementById('bankCode').value.trim();
-            const recipientAddress = document.getElementById('recipientAddress').value.trim();
             const amount = parseFloat(document.getElementById('bankWithdrawAmount').value);
 
-            if (!bankName || !accountNumber || !accountName || !routingNumber || !bankAddress || !bankCode || !recipientAddress || !amount) {
+            if (!bankName || !accountNumber || !accountName || !amount) {
                 showNotification('⚠️ Please fill all fields');
                 return;
             }
@@ -1843,10 +1757,6 @@
                     bankName: bankName,
                     accountNumber: accountNumber,
                     accountName: accountName,
-                    routingNumber: routingNumber,
-                    bankAddress: bankAddress,
-                    bankCode: bankCode,
-                    recipientAddress: recipientAddress,
                     amount: amount,
                     status: 'pending',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -1866,10 +1776,6 @@
                 document.getElementById('bankName').value = '';
                 document.getElementById('accountNumber').value = '';
                 document.getElementById('accountName').value = '';
-                document.getElementById('routingNumber').value = '';
-                document.getElementById('bankAddress').value = '';
-                document.getElementById('bankCode').value = '';
-                document.getElementById('recipientAddress').value = '';
                 document.getElementById('bankWithdrawAmount').value = '';
             } catch (error) {
                 showNotification('❌ Error: ' + error.message);
@@ -1904,30 +1810,10 @@
 
         function updateTimeFrameAndProfit() {
             const timeFrame = parseInt(document.getElementById('timeFrame').value);
-            const executeBtn = document.getElementById('executeTradeBtn');
             
-            if (timeFrame === 60) {
-                selectedPercentage = 15;
-                executeBtn.disabled = false;
-            } else if (timeFrame === 90) {
-                selectedPercentage = 25;
-                if (userBalance < 60000) {
-                    executeBtn.disabled = true;
-                    showMessage('tradeMessage', 'You need at least 60,000 USDT balance to trade with 90 seconds contract', 'error');
-                } else {
-                    executeBtn.disabled = false;
-                    document.getElementById('tradeMessage').innerHTML = '';
-                }
-            } else if (timeFrame === 120) {
-                selectedPercentage = 35;
-                if (userBalance < 130000) {
-                    executeBtn.disabled = true;
-                    showMessage('tradeMessage', 'You need at least 130,000 USDT balance to trade with 2 minutes contract', 'error');
-                } else {
-                    executeBtn.disabled = false;
-                    document.getElementById('tradeMessage').innerHTML = '';
-                }
-            }
+            if (timeFrame === 60) selectedPercentage = 15;
+            else if (timeFrame === 90) selectedPercentage = 25;
+            else if (timeFrame === 120) selectedPercentage = 35;
             
             updateExpectedProfit();
         }
@@ -2021,17 +1907,20 @@
 
         function openAccount() {
             toggleMenu();
+            navigationStack = [];
             navigateToPage('accountPage');
         }
 
         function openOverview() {
             toggleMenu();
+            navigationStack = [];
             navigateToPage('overviewPage');
             loadOverviewData();
         }
 
         function openHistory() {
             toggleMenu();
+            navigationStack = [];
             navigateToPage('historyPage');
             loadHistoryData();
         }
