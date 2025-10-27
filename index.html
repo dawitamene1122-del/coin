@@ -65,6 +65,20 @@
         .error { background: #fee; color: #c33; border: 1px solid #fcc; }
         .success { background: #efe; color: #363; border: 1px solid #cfc; }
         .hidden { display: none; }
+        /* Account Frozen Banner */
+        .frozen-banner {
+            background: #f44336;
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+        .frozen-banner.active {
+            display: block;
+        }
+        
+
         
         /* Main App */
         .app { display: none; min-height: 100vh; background: #f5f5f5; }
@@ -108,6 +122,37 @@
             opacity: 0.9;
             margin-bottom: 15px;
         }
+
+        /* Total Assets Section */
+        .total-assets-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+        }
+        .total-assets-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        .total-assets-amount {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .total-assets-value {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        .eye-icon {
+            cursor: pointer;
+            font-size: 24px;
+            opacity: 0.8;
+        }
+        .eye-icon:active {
+            opacity: 1;
+        }
+        
         .logo-box {
             width: 80px;
             height: 80px;
@@ -720,6 +765,16 @@
                 </div>
             </div>
             <div class="tagline">Start making money plan.</div>
+                
+                <!-- Total Assets Section -->
+                <div class="total-assets-section">
+                    <div class="total-assets-label">Total Assets (USDT)</div>
+                    <div class="total-assets-amount">
+                        <div class="total-assets-value" id="totalAssetsValue">******</div>
+                        <span class="eye-icon" id="eyeIcon" onclick="toggleAssetsVisibility()">👁️</span>
+                    </div>
+                </div>
+                
             <div class="logo-box">👥</div>
         </div>
 
@@ -1748,6 +1803,12 @@
                 showNotification('⚠️ Insufficient balance');
                 return;
             }
+            
+            // Check balance requirement for 90s and 120s contracts
+            if ((selectedTimeFrame === 90 || selectedTimeFrame === 120) && userBalance < 20) {
+                showNotification('❌ You need at least $20 USDT to use this contract time');
+                return;
+            }
 
             try {
                 await db.collection('withdrawals').add({
@@ -2284,6 +2345,7 @@
                                 <div style="display: inline-block; max-width: 70%; padding: 10px 15px; border-radius: 12px; background: ${isUser ? '#4285f4' : '#e0e0e0'}; color: ${isUser ? '#fff' : '#333'}; text-align: left;">
                                     <div style="font-weight: 600; font-size: 11px; margin-bottom: 5px; opacity: 0.8;">${isUser ? 'You' : 'Support'}</div>
                                     <div>${msg.message}</div>
+                                    ${msg.imageUrl ? '<img src="' + msg.imageUrl + '" class="chat-image" onclick="window.open(\'' + msg.imageUrl + '\', \'_blank\')" />' : ''}
                                     <div style="font-size: 9px; margin-top: 5px; opacity: 0.7;">${time}</div>
                                 </div>
                             </div>
@@ -2299,24 +2361,123 @@
             const input = document.getElementById('chatInput');
             const message = input.value.trim();
 
-            if (!message) return;
+            if (!message && !selectedImageFile) return;
 
             try {
+                let imageUrl = null;
+                
+                // Upload image if selected
+                if (selectedImageFile) {
+                    const storageRef = storage.ref();
+                    const imageRef = storageRef.child('chat-images/' + currentUser.uid + '/' + Date.now() + '_' + selectedImageFile.name);
+                    await imageRef.put(selectedImageFile);
+                    imageUrl = await imageRef.getDownloadURL();
+                }
+
                 await db.collection('chats').add({
                     userId: currentUser.uid,
-                    userIdNumber: userId,
                     userName: userName,
-                    userEmail: userEmail,
-                    message: message,
+                    message: message || '📎 Image',
+                    imageUrl: imageUrl,
                     senderType: 'user',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    read: false
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
+
+                input.value = '';
+                removeImage();
+            } catch (error) {
+                showNotification('❌ Failed to send message');
+            }
+        });
 
                 input.value = '';
             } catch (error) {
                 showNotification('❌ Failed to send message');
             }
+        }
+
+
+        // Toggle Assets Visibility
+        function toggleAssetsVisibility() {
+            assetsVisible = !assetsVisible;
+            updateTotalAssets();
+        }
+
+        // Update Total Assets Display
+        function updateTotalAssets() {
+            let totalUSDT = userBalance;
+            
+            const valueElement = document.getElementById('totalAssetsValue');
+            const eyeIcon = document.getElementById('eyeIcon');
+            
+            if (valueElement && eyeIcon) {
+                if (assetsVisible) {
+                    valueElement.textContent = '$' + totalUSDT.toFixed(2);
+                } else {
+                    valueElement.textContent = '******';
+                }
+            }
+        }
+
+        // Update Contract Buttons Based on Balance
+        function updateContractButtons() {
+            const contract90 = document.getElementById('contract90');
+            const contract120 = document.getElementById('contract120');
+            
+            if (userBalance < 20) {
+                if (contract90) contract90.disabled = true;
+                if (contract120) contract120.disabled = true;
+            } else {
+                if (contract90) contract90.disabled = false;
+                if (contract120) contract120.disabled = false;
+            }
+        }
+
+        // Swap Coins Function
+        function swapCoins() {
+            const fromIcon = document.getElementById('fromIcon');
+            const fromName = document.getElementById('fromCoinName');
+            const toIcon = document.getElementById('toIcon');
+            const toName = document.getElementById('toCoinName');
+            
+            if (fromIcon && toIcon && fromName && toName) {
+                const tempIconBg = fromIcon.style.background;
+                const tempIconText = fromIcon.textContent;
+                const tempName = fromName.textContent;
+                
+                fromIcon.style.background = toIcon.style.background;
+                fromIcon.textContent = toIcon.textContent;
+                fromName.textContent = toName.textContent;
+                
+                toIcon.style.background = tempIconBg;
+                toIcon.textContent = tempIconText;
+                toName.textContent = tempName;
+            }
+        }
+
+        // File Upload Functions
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                selectedImageFile = file;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const container = document.getElementById('imagePreviewContainer');
+                    if (container) {
+                        container.innerHTML = '<div class="image-preview"><img src="' + e.target.result + '" /><button class="remove-image-btn" onclick="removeImage()">×</button></div>';
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeImage() {
+            selectedImageFile = null;
+            const container = document.getElementById('imagePreviewContainer');
+            const fileInput = document.getElementById('chatFileInput');
+            if (container) container.innerHTML = '';
+            if (fileInput) fileInput.value = '';
         }
 
         auth.onAuthStateChanged(async (user) => {
