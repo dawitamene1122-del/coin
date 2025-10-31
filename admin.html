@@ -47,22 +47,6 @@
         }
         .header h1 { font-size: 24px; }
         
-        .notification-badge {
-            background: #f44336;
-            color: white;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: bold;
-            position: relative;
-            cursor: pointer;
-        }
-        .notification-badge.hidden { display: none; }
-        
         .container { 
             padding: 20px; 
             max-width: 1400px; 
@@ -101,7 +85,6 @@
         .btn-success { background: #4caf50; color: white; }
         .btn-danger { background: #f44336; color: white; }
         .btn-warning { background: #ff9800; color: white; }
-        .btn-info { background: #2196f3; color: white; }
         
         .message { 
             padding: 15px; 
@@ -184,8 +167,6 @@
         .status-rejected { background: #f44336; color: #fff; }
         .status-win { background: #4caf50; color: #fff; }
         .status-loss { background: #f44336; color: #fff; }
-        .status-frozen { background: #f44336; color: #fff; }
-        .status-active { background: #4caf50; color: #fff; }
         
         .action-btns { display: flex; gap: 8px; flex-wrap: wrap; }
         
@@ -234,164 +215,128 @@
         input:checked + .slider { background-color: #4caf50; }
         input:checked + .slider:before { transform: translateX(30px); }
         
-        .nav-tabs { 
-            display: flex; 
-            gap: 15px; 
-            margin-bottom: 30px; 
-            border-bottom: 2px solid #2a2a2a; 
-        }
-        .nav-tab { 
-            padding: 15px 30px; 
-            cursor: pointer; 
-            font-weight: 600; 
-            border-bottom: 3px solid transparent; 
-            transition: all 0.3s; 
-        }
-        .nav-tab.active { 
-            color: #4285f4; 
-            border-bottom-color: #4285f4; 
-        }
+        .section { display: none; }
+        .section.active { display: block; }
         
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        
-        .chat-container { 
-            display: grid; 
-            grid-template-columns: 300px 1fr; 
-            gap: 20px; 
-            height: 600px; 
-        }
-        .chat-users { 
-            background: #1a1a1a; 
-            border-radius: 15px; 
-            overflow-y: auto; 
-        }
-        .chat-user-item { 
-            padding: 15px; 
-            border-bottom: 1px solid #2a2a2a; 
-            cursor: pointer; 
-            transition: background 0.2s; 
-        }
-        .chat-user-item:hover { background: #2a2a2a; }
-        .chat-user-item.active { background: #2a2a2a; border-left: 3px solid #4285f4; }
-        
-        .chat-window { 
-            background: #1a1a1a; 
-            border-radius: 15px; 
-            display: flex; 
-            flex-direction: column; 
-        }
-        .chat-header { 
-            padding: 20px; 
-            border-bottom: 2px solid #2a2a2a; 
-        }
-        .chat-messages { 
-            flex: 1; 
-            padding: 20px; 
-            overflow-y: auto; 
-        }
-        .chat-input-area { 
-            padding: 20px; 
-            border-top: 2px solid #2a2a2a; 
-        }
-        .chat-input-container {
-            display: flex;
-            gap: 10px;
-            align-items: flex-end;
-        }
-        .chat-input-wrapper {
-            flex: 1;
-            position: relative;
-        }
-        .chat-input { 
-            width: 100%; 
-            padding: 15px; 
-            border: 2px solid #2a2a2a; 
-            border-radius: 12px; 
-            background: #0f0f0f; 
-            color: #fff; 
-            resize: vertical;
-            min-height: 60px;
-        }
-        .file-input-btn {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #4285f4;
-            color: white;
-            border: none;
-            width: 36px;
-            height: 36px;
+        .detail-box {
+            background: #2a2a2a;
+            padding: 10px 15px;
             border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
+            margin: 5px 0;
+            font-size: 13px;
         }
-        .file-preview {
-            margin-top: 10px;
-            padding: 10px;
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background: #1a1a1a;
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-title { font-size: 24px; font-weight: 600; }
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 32px;
+            cursor: pointer;
+            color: #888;
+            line-height: 1;
+        }
+        
+        .chat-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            height: 600px;
+        }
+        
+        .chat-users {
+            background: #1a1a1a;
+            border-radius: 15px;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        
+        .chat-user-item {
+            padding: 12px;
+            margin-bottom: 8px;
             background: #2a2a2a;
             border-radius: 8px;
-            display: none;
-        }
-        .file-preview.active { display: block; }
-        .file-preview-image {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 8px;
-            margin-top: 10px;
-        }
-        .remove-file-btn {
-            background: #f44336;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            cursor: pointer;
-            margin-top: 5px;
-        }
-        .chat-message-image {
-            max-width: 200px;
-            border-radius: 8px;
-            margin-top: 8px;
-            cursor: pointer;
-        }
-        .send-btn {
-            background: #4285f4;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 600;
             cursor: pointer;
         }
         
-        @media (max-width: 900px) {
-            .chat-container { grid-template-columns: 1fr; }
-            .chat-users { max-height: 300px; }
+        .chat-user-item.active {
+            background: #4285f4;
+        }
+        
+        .chat-messages {
+            background: #1a1a1a;
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-messages-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #0f0f0f;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            .chat-users {
+                max-height: 200px;
+            }
+            .table-row, .table-header {
+                font-size: 12px;
+                padding: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Firebase Config -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-
-    <!-- Login Container -->
-    <div id="loginContainer" class="login-container">
+    <div class="login-container" id="loginContainer">
         <div class="login-box">
-            <h1 class="login-title">Admin Login</h1>
+            <h1 class="login-title">🔐 Admin Panel</h1>
+            <div style="background: #2a2a2a; padding: 10px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ff9800; font-size: 13px;">
+                ⚠️ <strong>Restricted Access:</strong> Admin accounts only.
+            </div>
             <div id="loginMessage"></div>
             <div class="input-group">
                 <label>Admin Email</label>
-                <input type="email" id="adminEmail" placeholder="admin@hibt.com">
+                <input type="email" id="adminEmail" placeholder="Enter admin email">
             </div>
             <div class="input-group">
                 <label>Password</label>
@@ -401,133 +346,138 @@
         </div>
     </div>
 
-    <!-- Admin Panel -->
-    <div id="adminPanel" class="admin-panel">
+    <div class="admin-panel" id="adminPanel">
         <div class="header">
-            <h1>Admin Dashboard</h1>
-            <div style="display: flex; align-items: center; gap: 20px;">
-                <div id="chatNotificationBadge" class="notification-badge hidden" onclick="showChatTab()">0</div>
-                <button class="btn btn-small btn-danger" onclick="adminLogout()">Logout</button>
-            </div>
+            <h1>⚡ Admin Control Panel</h1>
+            <button class="btn btn-small btn-danger" onclick="adminLogout()">Logout</button>
         </div>
 
         <div class="container">
-            <div id="adminMessage"></div>
-
-            <!-- Stats -->
             <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalTrades">0</div>
+                    <div class="stat-label">Total Trades</div>
+                </div>
                 <div class="stat-card">
                     <div class="stat-value" id="totalUsers">0</div>
                     <div class="stat-label">Total Users</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="totalDeposits">$0</div>
-                    <div class="stat-label">Total Deposits</div>
+                    <div class="stat-value" id="pendingWithdrawals">0</div>
+                    <div class="stat-label">Pending Withdrawals</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="totalWithdrawals">$0</div>
-                    <div class="stat-label">Total Withdrawals</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="totalTrades">0</div>
-                    <div class="stat-label">Total Trades</div>
+                    <div class="stat-value" id="totalWithdrawnAmount">$0</div>
+                    <div class="stat-label">Total Withdrawn</div>
                 </div>
             </div>
 
-            <!-- Navigation Tabs -->
-            <div class="nav-tabs">
-                <div class="nav-tab active" onclick="showTab('users')">Users</div>
-                <div class="nav-tab" onclick="showTab('deposits')">Deposits</div>
-                <div class="nav-tab" onclick="showTab('withdrawals')">Withdrawals</div>
-                <div class="nav-tab" onclick="showTab('trades')">Trades</div>
-                <div class="nav-tab" onclick="showTab('transactions')">Transactions</div>
-                <div class="nav-tab" onclick="showTab('chat')">Chat Support</div>
+            <div class="filters">
+                <button class="filter-btn active" onclick="showSection('users')">Users</button>
+                <button class="filter-btn" onclick="showSection('trades')">Trades</button>
+                <button class="filter-btn" onclick="showSection('transactions')">Transactions</button>
+                <button class="filter-btn" onclick="showSection('withdrawals')">Withdrawals</button>
+                <button class="filter-btn" onclick="showSection('chat')">Support Chat</button>
             </div>
 
-            <!-- Users Tab -->
-            <div id="usersTab" class="tab-content active">
+            <div id="adminMessage"></div>
+
+            <!-- Users Section -->
+            <div id="usersSection" class="section active">
+                <h2 style="margin-bottom: 20px;">User Management</h2>
                 <div class="search-box">
-                    <input type="text" id="userSearch" placeholder="Search by User ID or Email" style="margin-bottom: 15px;">
-                    <button class="btn btn-small btn-primary" onclick="loadUsers()">Search</button>
+                    <input type="text" id="userSearchInput" placeholder="Search by User ID or Email..." oninput="searchUsers()">
                 </div>
-                <div class="data-table" id="usersTable">
-                    <div class="no-data">Loading users...</div>
-                </div>
-            </div>
-
-            <!-- Deposits Tab -->
-            <div id="depositsTab" class="tab-content">
-                <div class="filters">
-                    <button class="filter-btn active" onclick="filterDeposits('all')">All</button>
-                    <button class="filter-btn" onclick="filterDeposits('pending')">Pending</button>
-                    <button class="filter-btn" onclick="filterDeposits('approved')">Approved</button>
-                    <button class="filter-btn" onclick="filterDeposits('rejected')">Rejected</button>
-                </div>
-                <div class="data-table" id="depositsTable">
-                    <div class="no-data">Loading deposits...</div>
-                </div>
-            </div>
-
-            <!-- Withdrawals Tab -->
-            <div id="withdrawalsTab" class="tab-content">
-                <div class="filters">
-                    <button class="filter-btn active" onclick="filterWithdrawals('all')">All</button>
-                    <button class="filter-btn" onclick="filterWithdrawals('pending')">Pending</button>
-                    <button class="filter-btn" onclick="filterWithdrawals('approved')">Approved</button>
-                    <button class="filter-btn" onclick="filterWithdrawals('rejected')">Rejected</button>
-                </div>
-                <div class="data-table" id="withdrawalsTable">
-                    <div class="no-data">Loading withdrawals...</div>
-                </div>
-            </div>
-
-            <!-- Trades Tab -->
-            <div id="tradesTab" class="tab-content">
-                <div class="filters">
-                    <button class="filter-btn active" onclick="filterTrades('all')">All</button>
-                    <button class="filter-btn" onclick="filterTrades('pending')">Pending</button>
-                    <button class="filter-btn" onclick="filterTrades('win')">Win</button>
-                    <button class="filter-btn" onclick="filterTrades('loss')">Loss</button>
-                </div>
-                <div class="data-table" id="tradesTable">
-                    <div class="no-data">Loading trades...</div>
-                </div>
-            </div>
-
-            <!-- Transactions Tab -->
-            <div id="transactionsTab" class="tab-content">
-                <div class="data-table" id="transactionsTable">
-                    <div class="no-data">Loading transactions...</div>
-                </div>
-            </div>
-
-            <!-- Chat Tab -->
-            <div id="chatTab" class="tab-content">
-                <div class="chat-container">
-                    <div class="chat-users" id="chatUsersList">
-                        <div class="no-data">Loading chats...</div>
+                <div class="data-table">
+                    <div class="table-header" style="grid-template-columns: 80px 120px 180px 100px 150px 200px;">
+                        <div>User ID</div>
+                        <div>Name</div>
+                        <div>Email</div>
+                        <div>Balance</div>
+                        <div>Win/Loss Mode</div>
+                        <div>Actions</div>
                     </div>
-                    <div class="chat-window">
-                        <div class="chat-header">
-                            <div id="selectedUserInfo" style="color: #888;">Select a user to view messages</div>
+                    <div id="usersContainer"></div>
+                </div>
+            </div>
+
+            <!-- Trades Section -->
+            <div id="tradesSection" class="section">
+                <h2 style="margin-bottom: 20px;">Trade Management</h2>
+                <div class="data-table">
+                    <div class="table-header" style="grid-template-columns: 100px 120px 150px 100px 100px 100px 120px;">
+                        <div>User ID</div>
+                        <div>Name</div>
+                        <div>Coin</div>
+                        <div>Amount</div>
+                        <div>Direction</div>
+                        <div>Status</div>
+                        <div>Time</div>
+                    </div>
+                    <div id="tradesContainer"></div>
+                </div>
+            </div>
+
+            <!-- Transactions Section -->
+            <div id="transactionsSection" class="section">
+                <h2 style="margin-bottom: 20px;">All Transactions (Deposits, Withdrawals, Trades)</h2>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button class="filter-btn active" id="allTransBtn" onclick="filterTransactions('all')">All</button>
+                    <button class="filter-btn" id="depositTransBtn" onclick="filterTransactions('deposit')">Deposits</button>
+                    <button class="filter-btn" id="withdrawalTransBtn" onclick="filterTransactions('withdrawal')">Withdrawals</button>
+                    <button class="filter-btn" id="tradeTransBtn" onclick="filterTransactions('trade')">Trades</button>
+                </div>
+                <div class="data-table">
+                    <div class="table-header" style="grid-template-columns: 100px 120px 100px 100px 120px 150px;">
+                        <div>User ID</div>
+                        <div>Name</div>
+                        <div>Type</div>
+                        <div>Amount</div>
+                        <div>Status</div>
+                        <div>Time</div>
+                    </div>
+                    <div id="transactionsContainer"></div>
+                </div>
+            </div>
+
+            <!-- Withdrawals Section -->
+            <div id="withdrawalsSection" class="section">
+                <h2 style="margin-bottom: 20px;">Withdrawal Management</h2>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button class="filter-btn active" id="pendingWithdrawBtn" onclick="filterWithdrawals('pending')">Pending</button>
+                    <button class="filter-btn" id="approvedWithdrawBtn" onclick="filterWithdrawals('approved')">Approved</button>
+                    <button class="filter-btn" id="rejectedWithdrawBtn" onclick="filterWithdrawals('rejected')">Rejected</button>
+                </div>
+                <div class="data-table">
+                    <div class="table-header" style="grid-template-columns: 100px 120px 100px 150px 100px 120px 180px;">
+                        <div>User ID</div>
+                        <div>Name</div>
+                        <div>Method</div>
+                        <div>Details</div>
+                        <div>Amount</div>
+                        <div>Status</div>
+                        <div>Actions</div>
+                    </div>
+                    <div id="withdrawalsContainer"></div>
+                </div>
+            </div>
+
+            <!-- Chat Section -->
+            <div id="chatSection" class="section">
+                <h2 style="margin-bottom: 20px;">Support Chat</h2>
+                <div class="chat-container">
+                    <div class="chat-users">
+                        <h3 style="margin-bottom: 15px;">Active Chats</h3>
+                        <div id="chatUsersList">Loading...</div>
+                    </div>
+                    <div class="chat-messages">
+                        <div id="selectedUserInfo" style="padding-bottom: 15px; border-bottom: 2px solid #2a2a2a; margin-bottom: 15px;">
+                            Select a user to view chat
                         </div>
-                        <div class="chat-messages" id="adminChatMessages">
-                            <div class="no-data">Select a user to start chatting</div>
-                        </div>
-                        <div class="chat-input-area">
-                            <div class="file-preview" id="adminFilePreview">
-                                <div>Selected file: <span id="adminFileName"></span></div>
-                                <img id="adminFilePreviewImage" class="file-preview-image" style="display: none;">
-                                <button class="remove-file-btn" onclick="removeAdminSelectedFile()">Remove</button>
-                            </div>
-                            <div class="chat-input-container">
-                                <div class="chat-input-wrapper">
-                                    <textarea class="chat-input" id="adminChatInput" placeholder="Type your message..." rows="2"></textarea>
-                                    <label for="adminChatFileInput" class="file-input-btn">📎</label>
-                                    <input type="file" id="adminChatFileInput" accept="image/*" style="display: none;" onchange="handleAdminFileSelect(event)">
-                                </div>
-                                <button class="send-btn" onclick="sendAdminMessage()">Send</button>
-                            </div>
+                        <div class="chat-messages-list" id="adminChatMessages"></div>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="adminChatInput" placeholder="Type your message..." style="flex: 1; padding: 12px; border: 2px solid #2a2a2a; border-radius: 12px; background: #0f0f0f; color: #fff;" onkeypress="if(event.key==='Enter') sendAdminMessage()">
+                            <button class="btn btn-small btn-success" style="padding: 12px 24px;" onclick="sendAdminMessage()">Send</button>
                         </div>
                     </div>
                 </div>
@@ -535,45 +485,75 @@
         </div>
     </div>
 
+    <!-- Add Crypto Modal -->
+    <div class="modal" id="addCryptoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Crypto to User</h2>
+                <button class="close-btn" onclick="closeAddCrypto()">&times;</button>
+            </div>
+            <div id="cryptoMessage"></div>
+            <div class="input-group">
+                <label>Select Cryptocurrency</label>
+                <select id="cryptoType">
+                    <option value="usdt">USDT</option>
+                    <option value="btc">Bitcoin (BTC)</option>
+                    <option value="eth">Ethereum (ETH)</option>
+                    <option value="xrp">Ripple (XRP)</option>
+                    <option value="doge">Dogecoin (DOGE)</option>
+                    <option value="ada">Cardano (ADA)</option>
+                    <option value="bnb">Binance Coin (BNB)</option>
+                    <option value="sol">Solana (SOL)</option>
+                    <option value="link">Chainlink (LINK)</option>
+                    <option value="dot">Polkadot (DOT)</option>
+                    <option value="ltc">Litecoin (LTC)</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Amount</label>
+                <input type="number" id="cryptoAmount" placeholder="Enter amount" step="0.00000001">
+            </div>
+            <button class="btn btn-primary" onclick="addCryptoToUser()">Add Crypto</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
     <script>
-        // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyBNW6Ka8nYBZbr1l5lnJrEy7l5r_pLI6kI",
-            authDomain: "hibit-b6d00.firebaseapp.com",
-            projectId: "hibit-b6d00",
-            storageBucket: "hibit-b6d00.firebasestorage.app",
-            messagingSenderId: "1038710316005",
-            appId: "1:1038710316005:web:1bac0c3daec0ee7aa80e01"
+            apiKey: "AIzaSyDWQBTrvvxCL5Qd23iSMTQlWkaPKZgjhqw",
+            authDomain: "trading-dapp-d5aa4.firebaseapp.com",
+            projectId: "trading-dapp-d5aa4",
+            storageBucket: "trading-dapp-d5aa4.firebasestorage.app",
+            messagingSenderId: "690266747119",
+            appId: "1:690266747119:web:0f22d45fbee53ee3c3eb1a"
         };
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        const storage = firebase.storage();
 
-        const ADMIN_EMAIL = "admin@hibt.com";
-
-        // Global Variables
-        let allUsers = [];
-        let allDeposits = [];
-        let allWithdrawals = [];
         let allTrades = [];
+        let allUsers = [];
+        let allWithdrawals = [];
         let allTransactions = [];
+        let withdrawalFilter = 'pending';
+        let transactionFilter = 'all';
         let selectedChatUserId = null;
         let chatUsersListener = null;
         let chatMessagesListener = null;
-        let unreadMessagesCount = 0;
-        let selectedAdminFile = null;
+        let selectedUserId = null;
+
+        const ADMIN_EMAIL = 'dawitamene1122@gmail.com';
 
         function showMessage(elementId, message, type) {
-            const element = document.getElementById(elementId);
-            element.innerHTML = `<div class="message ${type}">${message}</div>`;
-            setTimeout(() => { element.innerHTML = ''; }, 5000);
-        }
-
-        function showLogin() {
-            document.getElementById('loginContainer').style.display = 'flex';
-            document.getElementById('adminPanel').classList.remove('active');
+            const el = document.getElementById(elementId);
+            if (el) {
+                el.innerHTML = `<div class="message ${type}">${message}</div>`;
+                setTimeout(() => { el.innerHTML = ''; }, 4000);
+            }
         }
 
         async function adminLogin() {
@@ -584,286 +564,513 @@
                 showMessage('loginMessage', 'Please fill all fields', 'error');
                 return;
             }
+            
+            if (email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+                showMessage('loginMessage', 'Access denied. Not an admin account.', 'error');
+                return;
+            }
 
             try {
-                await auth.signInWithEmailAndPassword(email, password);
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                
+                if (userCredential.user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+                    await auth.signOut();
+                    showMessage('loginMessage', 'Access denied. Admin privileges required.', 'error');
+                    return;
+                }
+                
+                showMessage('loginMessage', 'Admin login successful!', 'success');
             } catch (error) {
-                showMessage('loginMessage', error.message, 'error');
+                if (error.code === 'auth/user-not-found') {
+                    showMessage('loginMessage', 'Admin account not found.', 'error');
+                } else if (error.code === 'auth/wrong-password') {
+                    showMessage('loginMessage', 'Invalid password', 'error');
+                } else {
+                    showMessage('loginMessage', 'Login failed: ' + error.message, 'error');
+                }
             }
         }
 
         function adminLogout() {
-            if (confirm('Are you sure you want to logout?')) {
-                auth.signOut();
-            }
+            auth.signOut();
         }
 
-        function loadDashboard() {
+        async function loadDashboard() {
             document.getElementById('loginContainer').style.display = 'none';
             document.getElementById('adminPanel').classList.add('active');
-            loadStats();
-            loadUsers();
-            loadDeposits();
-            loadWithdrawals();
-            loadTrades();
-            loadTransactions();
-            loadChatUsers();
-            startChatNotificationListener();
-        }
-
-        // Tab Navigation
-        function showTab(tabName) {
-            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            event.target.classList.add('active');
-            document.getElementById(tabName + 'Tab').classList.add('active');
+            await loadStats();
+            await loadUsers();
+            
+            setInterval(loadStats, 30000);
         }
 
-        function showChatTab() {
-            showTab('chat');
-            document.querySelector('.nav-tab:nth-child(6)').click();
+        function showLogin() {
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('adminPanel').classList.remove('active');
         }
 
-        // Load Statistics
         async function loadStats() {
             try {
+                const tradesSnapshot = await db.collection('trades').get();
                 const usersSnapshot = await db.collection('users').get();
-                document.getElementById('totalUsers').textContent = usersSnapshot.size;
+                const withdrawalsSnapshot = await db.collection('withdrawals').get();
+                
+                let pendingWithdrawCount = 0;
+                let totalWithdrawn = 0;
 
-                const transSnapshot = await db.collection('transactions').get();
-                let totalDeposits = 0;
-                let totalWithdrawals = 0;
-
-                transSnapshot.forEach(doc => {
-                    const trans = doc.data();
-                    if (trans.type === 'deposit' && trans.status === 'approved') {
-                        totalDeposits += trans.amount;
-                    } else if (trans.type === 'withdrawal' && trans.status === 'approved') {
-                        totalWithdrawals += trans.amount;
+                withdrawalsSnapshot.forEach(doc => {
+                    const withdrawal = doc.data();
+                    if (withdrawal.status === 'pending') {
+                        pendingWithdrawCount++;
+                    } else if (withdrawal.status === 'approved') {
+                        totalWithdrawn += withdrawal.amount || 0;
                     }
                 });
 
-                document.getElementById('totalDeposits').textContent = `$${totalDeposits.toFixed(2)}`;
-                document.getElementById('totalWithdrawals').textContent = `$${totalWithdrawals.toFixed(2)}`;
-
-                const tradesSnapshot = await db.collection('trades').get();
                 document.getElementById('totalTrades').textContent = tradesSnapshot.size;
+                document.getElementById('totalUsers').textContent = usersSnapshot.size;
+                document.getElementById('pendingWithdrawals').textContent = pendingWithdrawCount;
+                document.getElementById('totalWithdrawnAmount').textContent = '$' + totalWithdrawn.toFixed(2);
             } catch (error) {
                 console.error('Error loading stats:', error);
             }
         }
 
-        // Load Users
+        function showSection(section) {
+            document.querySelectorAll('.filters .filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(section + 'Section').classList.add('active');
+
+            if (section === 'users') loadUsers();
+            else if (section === 'trades') loadTrades();
+            else if (section === 'transactions') loadTransactions();
+            else if (section === 'withdrawals') loadWithdrawals();
+            else if (section === 'chat') loadChatUsers();
+        }
+
         async function loadUsers() {
             try {
-                const searchTerm = document.getElementById('userSearch').value.trim().toLowerCase();
-                const snapshot = await db.collection('users').get();
-                
+                const usersSnapshot = await db.collection('users').get();
                 allUsers = [];
-                snapshot.forEach(doc => {
-                    allUsers.push({ id: doc.id, ...doc.data() });
+                usersSnapshot.forEach(doc => {
+                    allUsers.push({ uid: doc.id, ...doc.data() });
                 });
-
-                let filteredUsers = allUsers;
-                if (searchTerm) {
-                    filteredUsers = allUsers.filter(user => 
-                        user.userId.toLowerCase().includes(searchTerm) ||
-                        user.email.toLowerCase().includes(searchTerm) ||
-                        user.name.toLowerCase().includes(searchTerm)
-                    );
-                }
-
-                displayUsers(filteredUsers);
+                renderUsers();
             } catch (error) {
                 console.error('Error loading users:', error);
             }
         }
 
-        function displayUsers(users) {
-            const usersTable = document.getElementById('usersTable');
-            
-            if (users.length === 0) {
-                usersTable.innerHTML = '<div class="no-data">No users found</div>';
+        function renderUsers() {
+            let filteredUsers = allUsers;
+
+            const searchTerm = document.getElementById('userSearchInput').value.toLowerCase();
+            if (searchTerm) {
+                filteredUsers = allUsers.filter(user => 
+                    user.userId?.toString().includes(searchTerm) ||
+                    user.email?.toLowerCase().includes(searchTerm) ||
+                    user.name?.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            const html = filteredUsers.map(user => {
+                const tradingMode = user.tradingMode || 'loss';
+                const isWinMode = tradingMode === 'win';
+                
+                return `
+                <div class="table-row" style="grid-template-columns: 80px 120px 180px 100px 150px 200px;">
+                    <div>${user.userId || 'N/A'}</div>
+                    <div>${user.name || 'N/A'}</div>
+                    <div style="font-size: 12px;">${user.email || 'N/A'}</div>
+                    <div style="font-weight: 600; color: #4caf50;">$${(user.balance || 0).toFixed(2)}</div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <label class="toggle-switch">
+                            <input type="checkbox" ${isWinMode ? 'checked' : ''} onchange="toggleTradingMode('${user.uid}', this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                        <span style="color: ${isWinMode ? '#4caf50' : '#f44336'}; font-weight: 600; min-width: 45px;" id="mode-${user.uid}">
+                            ${isWinMode ? 'WIN' : 'LOSS'}
+                        </span>
+                    </div>
+                    <div class="action-btns">
+                        <button class="btn btn-small btn-success" onclick="openAddCrypto('${user.uid}')">+💰</button>
+                        <button class="btn btn-small btn-danger" onclick="adjustBalance('${user.uid}', 'remove')">-$</button>
+                    </div>
+                </div>
+            `;
+            }).join('');
+
+            document.getElementById('usersContainer').innerHTML = html || '<div class="no-data">No users found</div>';
+        }
+
+        function searchUsers() {
+            renderUsers();
+        }
+
+        function openAddCrypto(userId) {
+            selectedUserId = userId;
+            document.getElementById('addCryptoModal').classList.add('active');
+            document.getElementById('cryptoAmount').value = '';
+            document.getElementById('cryptoType').value = 'usdt';
+        }
+
+        function closeAddCrypto() {
+            document.getElementById('addCryptoModal').classList.remove('active');
+            selectedUserId = null;
+        }
+
+        async function addCryptoToUser() {
+            if (!selectedUserId) return;
+
+            const cryptoType = document.getElementById('cryptoType').value;
+            const amount = parseFloat(document.getElementById('cryptoAmount').value);
+
+            if (!amount || amount <= 0) {
+                showMessage('cryptoMessage', 'Please enter a valid amount', 'error');
                 return;
             }
 
-            let html = `
-                <div class="table-header" style="grid-template-columns: 1fr 1fr 1fr 1fr 2fr;">
-                    <div>User ID</div>
-                    <div>Name</div>
-                    <div>Email</div>
-                    <div>Status</div>
-                    <div>Actions</div>
-                </div>
-            `;
-
-            users.forEach(user => {
-                const isFrozen = user.accountFrozen || false;
-                const statusBadge = isFrozen ? 
-                    '<span class="status-badge status-frozen">Frozen</span>' :
-                    '<span class="status-badge status-active">Active</span>';
-
-                html += `
-                    <div class="table-row" style="grid-template-columns: 1fr 1fr 1fr 1fr 2fr;">
-                        <div>${user.userId}</div>
-                        <div>${user.name}</div>
-                        <div>${user.email}</div>
-                        <div>${statusBadge}</div>
-                        <div class="action-btns">
-                            ${isFrozen ? 
-                                `<button class="btn btn-small btn-success" onclick="unfreezeAccount('${user.id}')">Unfreeze Account</button>` :
-                                `<button class="btn btn-small btn-danger" onclick="freezeAccount('${user.id}')">Freeze Account</button>`
-                            }
-                            <button class="btn btn-small btn-info" onclick="viewUserDetails('${user.id}')">View Details</button>
-                        </div>
-                    </div>
-                `;
-            });
-
-            usersTable.innerHTML = html;
-        }
-
-        async function freezeAccount(userId) {
-            if (!confirm('Are you sure you want to freeze this account? The user will not be able to trade or withdraw.')) return;
-
             try {
-                await db.collection('users').doc(userId).update({
-                    accountFrozen: true
-                });
+                const userDoc = await db.collection('users').doc(selectedUserId).get();
+                if (!userDoc.exists) {
+                    showMessage('cryptoMessage', 'User not found', 'error');
+                    return;
+                }
 
-                showMessage('adminMessage', 'Account frozen successfully!', 'success');
-                await loadUsers();
-                await loadStats();
-            } catch (error) {
-                showMessage('adminMessage', 'Error: ' + error.message, 'error');
-            }
-        }
+                const userData = userDoc.data();
+                const currentBalance = userData.balance || 0;
+                const currentCryptoBalances = userData.cryptoBalances || {};
 
-        async function unfreezeAccount(userId) {
-            if (!confirm('Are you sure you want to unfreeze this account?')) return;
-
-            try {
-                await db.collection('users').doc(userId).update({
-                    accountFrozen: false
-                });
-
-                showMessage('adminMessage', 'Account unfrozen successfully!', 'success');
-                await loadUsers();
-                await loadStats();
-            } catch (error) {
-                showMessage('adminMessage', 'Error: ' + error.message, 'error');
-            }
-        }
-
-        async function viewUserDetails(userId) {
-            try {
-                const userDoc = await db.collection('users').doc(userId).get();
-                if (!userDoc.exists) return;
-
-                const user = userDoc.data();
-                alert(`User Details:\n\nUser ID: ${user.userId}\nName: ${user.name}\nEmail: ${user.email}\nPhone: ${user.phone}\nCountry: ${user.country}\n\nBalance:\nBTC: ${user.balance?.BTC || 0}\nETH: ${user.balance?.ETH || 0}\nXRP: ${user.balance?.XRP || 0}\nDOGE: ${user.balance?.DOGE || 0}\nADA: ${user.balance?.ADA || 0}\nUSDT: ${user.balance?.USDT || 0}`);
-            } catch (error) {
-                alert('Error loading user details');
-            }
-        }
-
-        // Load Deposits
-        async function loadDeposits() {
-            try {
-                const snapshot = await db.collection('deposits').orderBy('createdAt', 'desc').get();
-                allDeposits = [];
-                snapshot.forEach(doc => {
-                    allDeposits.push({ id: doc.id, ...doc.data() });
-                });
-                filterDeposits('all');
-            } catch (error) {
-                console.error('Error loading deposits:', error);
-            }
-        }
-
-        function filterDeposits(status) {
-            document.querySelectorAll('#depositsTab .filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-
-            const filtered = status === 'all' ? allDeposits : allDeposits.filter(d => d.status === status);
-            displayDeposits(filtered);
-        }
-
-        function displayDeposits(deposits) {
-            const depositsTable = document.getElementById('depositsTable');
-            
-            if (deposits.length === 0) {
-                depositsTable.innerHTML = '<div class="no-data">No deposits found</div>';
-                return;
-            }
-
-            let html = `
-                <div class="table-header" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr 2fr;">
-                    <div>User ID</div>
-                    <div>Name</div>
-                    <div>Amount</div>
-                    <div>TX ID</div>
-                    <div>Status</div>
-                    <div>Actions</div>
-                </div>
-            `;
-
-            deposits.forEach(deposit => {
-                const statusClass = `status-${deposit.status}`;
-                html += `
-                    <div class="table-row" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr 2fr;">
-                        <div>${deposit.userIdNumber}</div>
-                        <div>${deposit.userName}</div>
-                        <div>$${deposit.amount.toFixed(2)}</div>
-                        <div style="font-size: 11px;">${deposit.txId}</div>
-                        <div><span class="status-badge ${statusClass}">${deposit.status.toUpperCase()}</span></div>
-                        <div class="action-btns">
-                            ${deposit.status === 'pending' ? `
-                                <button class="btn btn-small btn-success" onclick="approveDeposit('${deposit.id}')">Approve</button>
-                                <button class="btn btn-small btn-danger" onclick="rejectDeposit('${deposit.id}')">Reject</button>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
-            });
-
-            depositsTable.innerHTML = html;
-        }
-
-        async function approveDeposit(depositId) {
-            if (!confirm('Approve this deposit?')) return;
-
-            try {
-                const deposit = allDeposits.find(d => d.id === depositId);
-                if (!deposit) return;
-
-                const userSnapshot = await db.collection('users')
-                    .where('userId', '==', deposit.userIdNumber)
-                    .limit(1)
-                    .get();
-
-                if (!userSnapshot.empty) {
-                    const userDoc = userSnapshot.docs[0];
-                    const userData = userDoc.data();
-                    const currentBalance = userData.balance || {};
-                    
-                    currentBalance.USDT = (currentBalance.USDT || 0) + deposit.amount;
-
-                    await db.collection('users').doc(userDoc.id).update({
-                        balance: currentBalance
+                if (cryptoType === 'usdt') {
+                    // Add to USDT balance
+                    await db.collection('users').doc(selectedUserId).update({
+                        balance: currentBalance + amount
+                    });
+                } else {
+                    // Add to crypto balance
+                    currentCryptoBalances[cryptoType] = (currentCryptoBalances[cryptoType] || 0) + amount;
+                    await db.collection('users').doc(selectedUserId).update({
+                        cryptoBalances: currentCryptoBalances
                     });
                 }
 
-                await db.collection('deposits').doc(depositId).update({
+                // Create deposit transaction
+                await db.collection('transactions').add({
+                    userId: selectedUserId,
+                    userIdNumber: userData.userId,
+                    type: 'deposit',
+                    crypto: cryptoType,
+                    amount: amount,
+                    status: 'approved',
+                    note: `Admin added ${amount} ${cryptoType.toUpperCase()} to account`,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                showMessage('cryptoMessage', `Successfully added ${amount} ${cryptoType.toUpperCase()}!`, 'success');
+                setTimeout(() => {
+                    closeAddCrypto();
+                    loadUsers();
+                    loadStats();
+                }, 2000);
+
+            } catch (error) {
+                showMessage('cryptoMessage', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function adjustBalance(userId, action) {
+            const amount = prompt(`Enter USDT amount to ${action}:`);
+            if (!amount || isNaN(amount)) {
+                alert('Invalid amount');
+                return;
+            }
+
+            const amountNum = parseFloat(amount);
+            if (amountNum <= 0) {
+                alert('Amount must be positive');
+                return;
+            }
+
+            try {
+                const userDoc = await db.collection('users').doc(userId).get();
+                if (!userDoc.exists) {
+                    alert('User not found');
+                    return;
+                }
+
+                const userData = userDoc.data();
+                const currentBalance = userData.balance || 0;
+                const newBalance = Math.max(0, currentBalance - amountNum);
+
+                await db.collection('users').doc(userId).update({ balance: newBalance });
+                
+                showMessage('adminMessage', `Balance removed successfully!`, 'success');
+                await loadUsers();
+                await loadStats();
+            } catch (error) {
+                showMessage('adminMessage', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function toggleTradingMode(userId, isWinMode) {
+            const mode = isWinMode ? 'win' : 'loss';
+            
+            try {
+                await db.collection('users').doc(userId).update({ 
+                    tradingMode: mode 
+                });
+                
+                const label = document.getElementById(`mode-${userId}`);
+                if (label) {
+                    label.textContent = mode.toUpperCase();
+                    label.style.color = isWinMode ? '#4caf50' : '#f44336';
+                }
+                
+                showMessage('adminMessage', `Trading mode set to ${mode.toUpperCase()}`, 'success');
+            } catch (error) {
+                showMessage('adminMessage', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function loadTrades() {
+            try {
+                const tradesSnapshot = await db.collection('trades')
+                    .limit(100)
+                    .get();
+
+                allTrades = [];
+                tradesSnapshot.forEach(doc => {
+                    allTrades.push({ id: doc.id, ...doc.data() });
+                });
+
+                allTrades.sort((a, b) => {
+                    const timeA = a.createdAt?.toMillis() || 0;
+                    const timeB = b.createdAt?.toMillis() || 0;
+                    return timeB - timeA;
+                });
+
+                renderTrades();
+            } catch (error) {
+                console.error('Error loading trades:', error);
+            }
+        }
+
+        function renderTrades() {
+            const html = allTrades.map(trade => {
+                const dateStr = trade.createdAt ? new Date(trade.createdAt.toMillis()).toLocaleString() : 'N/A';
+                let statusBadge = '';
+                
+                if (trade.status === 'pending') {
+                    statusBadge = `<span class="status-badge status-pending">PENDING</span>`;
+                } else if (trade.status === 'win') {
+                    statusBadge = `<span class="status-badge status-win">WIN</span>`;
+                } else if (trade.status === 'loss') {
+                    statusBadge = `<span class="status-badge status-loss">LOSS</span>`;
+                }
+
+                return `
+                    <div class="table-row" style="grid-template-columns: 100px 120px 150px 100px 100px 100px 120px;">
+                        <div>${trade.userIdNumber || 'N/A'}</div>
+                        <div>${trade.userName || 'N/A'}</div>
+                        <div><strong>${trade.coin}</strong></div>
+                        <div>$${trade.amount.toFixed(2)}</div>
+                        <div style="color: ${trade.direction === 'up' ? '#4caf50' : '#f44336'}; font-weight: 600;">${trade.direction.toUpperCase()}</div>
+                        <div>${statusBadge}</div>
+                        <div style="font-size: 12px; color: #888;">${dateStr}</div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('tradesContainer').innerHTML = html || '<div class="no-data">No trades found</div>';
+        }
+
+        async function loadTransactions() {
+            try {
+                const transSnapshot = await db.collection('transactions')
+                    .limit(200)
+                    .get();
+
+                allTransactions = [];
+                transSnapshot.forEach(doc => {
+                    allTransactions.push({ id: doc.id, ...doc.data() });
+                });
+
+                allTransactions.sort((a, b) => {
+                    const timeA = a.createdAt?.toMillis() || 0;
+                    const timeB = b.createdAt?.toMillis() || 0;
+                    return timeB - timeA;
+                });
+
+                renderTransactions();
+            } catch (error) {
+                console.error('Error loading transactions:', error);
+            }
+        }
+
+        function filterTransactions(type) {
+            transactionFilter = type;
+            document.querySelectorAll('#transactionsSection .filter-btn').forEach(btn => btn.classList.remove('active'));
+            
+            if (type === 'all') document.getElementById('allTransBtn').classList.add('active');
+            else if (type === 'deposit') document.getElementById('depositTransBtn').classList.add('active');
+            else if (type === 'withdrawal') document.getElementById('withdrawalTransBtn').classList.add('active');
+            else if (type === 'trade') document.getElementById('tradeTransBtn').classList.add('active');
+            
+            renderTransactions();
+        }
+
+        function renderTransactions() {
+            let filtered = allTransactions;
+            if (transactionFilter !== 'all') {
+                filtered = allTransactions.filter(t => t.type === transactionFilter);
+            }
+
+            const html = filtered.map(trans => {
+                const dateStr = trans.createdAt ? new Date(trans.createdAt.toMillis()).toLocaleString() : 'N/A';
+                
+                let statusBadge = '';
+                if (trans.status === 'pending') {
+                    statusBadge = `<span class="status-badge status-pending">PENDING</span>`;
+                } else if (trans.status === 'approved') {
+                    statusBadge = `<span class="status-badge status-approved">APPROVED</span>`;
+                } else if (trans.status === 'rejected') {
+                    statusBadge = `<span class="status-badge status-rejected">REJECTED</span>`;
+                }
+
+                const cryptoLabel = trans.crypto ? ` (${trans.crypto.toUpperCase()})` : '';
+
+                return `
+                    <div class="table-row" style="grid-template-columns: 100px 120px 100px 100px 120px 150px;">
+                        <div>${trans.userIdNumber || 'N/A'}</div>
+                        <div>${trans.userName || 'User'}</div>
+                        <div>${trans.type?.toUpperCase()}${cryptoLabel}</div>
+                        <div>$${trans.amount.toFixed(2)}</div>
+                        <div>${statusBadge}</div>
+                        <div style="font-size: 12px; color: #888;">${dateStr}</div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('transactionsContainer').innerHTML = html || '<div class="no-data">No transactions found</div>';
+        }
+
+        async function loadWithdrawals() {
+            try {
+                const withdrawalsSnapshot = await db.collection('withdrawals').get();
+                allWithdrawals = [];
+                withdrawalsSnapshot.forEach(doc => {
+                    allWithdrawals.push({ id: doc.id, ...doc.data() });
+                });
+
+                allWithdrawals.sort((a, b) => {
+                    const timeA = a.createdAt?.toMillis() || 0;
+                    const timeB = b.createdAt?.toMillis() || 0;
+                    return timeB - timeA;
+                });
+
+                renderWithdrawals();
+            } catch (error) {
+                console.error('Error loading withdrawals:', error);
+            }
+        }
+
+        function filterWithdrawals(status) {
+            withdrawalFilter = status;
+            document.querySelectorAll('#withdrawalsSection .filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(status + 'WithdrawBtn').classList.add('active');
+            renderWithdrawals();
+        }
+
+        function renderWithdrawals() {
+            const filtered = allWithdrawals.filter(w => w.status === withdrawalFilter);
+
+            const html = filtered.map(withdrawal => {
+                const dateStr = withdrawal.createdAt ? new Date(withdrawal.createdAt.toMillis()).toLocaleString() : 'N/A';
+                
+                let detailsHtml = '';
+                if (withdrawal.method === 'crypto') {
+                    detailsHtml = `
+                        <div class="detail-box">
+                            <div><strong>${withdrawal.crypto?.toUpperCase()}</strong></div>
+                            <div style="font-size: 11px; word-break: break-all;">${withdrawal.address}</div>
+                        </div>
+                    `;
+                } else {
+                    detailsHtml = `
+                        <div class="detail-box">
+                            <div><strong>${withdrawal.bankName}</strong></div>
+                            <div style="font-size: 11px;">${withdrawal.accountNumber}</div>
+                            <div style="font-size: 11px;">${withdrawal.accountName}</div>
+                        </div>
+                    `;
+                }
+
+                let statusBadge = '';
+                if (withdrawal.status === 'pending') {
+                    statusBadge = `<span class="status-badge status-pending">PENDING</span>`;
+                } else if (withdrawal.status === 'approved') {
+                    statusBadge = `<span class="status-badge status-approved">APPROVED</span>`;
+                } else if (withdrawal.status === 'rejected') {
+                    statusBadge = `<span class="status-badge status-rejected">REJECTED</span>`;
+                }
+
+                let actionsHtml = '';
+                if (withdrawal.status === 'pending') {
+                    actionsHtml = `
+                        <div class="action-btns">
+                            <button class="btn btn-small btn-success" onclick="approveWithdrawal('${withdrawal.id}', ${withdrawal.amount}, '${withdrawal.userId}', '${withdrawal.crypto || 'usdt'}')">Approve</button>
+                            <button class="btn btn-small btn-danger" onclick="rejectWithdrawal('${withdrawal.id}')">Reject</button>
+                        </div>
+                    `;
+                } else {
+                    actionsHtml = `<div style="font-size: 12px; color: #888;">${dateStr}</div>`;
+                }
+
+                return `
+                    <div class="table-row" style="grid-template-columns: 100px 120px 100px 150px 100px 120px 180px;">
+                        <div>${withdrawal.userIdNumber || 'N/A'}</div>
+                        <div>${withdrawal.userName || 'N/A'}</div>
+                        <div>${withdrawal.method?.toUpperCase() || 'N/A'}</div>
+                        <div>${detailsHtml}</div>
+                        <div style="font-weight: 600;">$${withdrawal.amount.toFixed(2)}</div>
+                        <div>${statusBadge}</div>
+                        <div>${actionsHtml}</div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('withdrawalsContainer').innerHTML = html || '<div class="no-data">No withdrawals found</div>';
+        }
+
+        async function approveWithdrawal(withdrawalId, amount, userId, crypto) {
+            if (!confirm(`Approve withdrawal of ${amount} ${crypto.toUpperCase()}?`)) return;
+
+            try {
+                await db.collection('withdrawals').doc(withdrawalId).update({
                     status: 'approved',
                     approvedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
+                const userDoc = await db.collection('users').doc(userId).get();
+                if (userDoc.exists) {
+                    if (crypto === 'usdt') {
+                        const currentBalance = userDoc.data().balance || 0;
+                        const newBalance = Math.max(0, currentBalance - amount);
+                        await db.collection('users').doc(userId).update({ balance: newBalance });
+                    } else {
+                        const currentCryptoBalances = userDoc.data().cryptoBalances || {};
+                        currentCryptoBalances[crypto] = Math.max(0, (currentCryptoBalances[crypto] || 0) - amount);
+                        await db.collection('users').doc(userId).update({ cryptoBalances: currentCryptoBalances });
+                    }
+                }
+
                 const transSnapshot = await db.collection('transactions')
-                    .where('userId', '==', deposit.userId)
-                    .where('type', '==', 'deposit')
-                    .where('amount', '==', deposit.amount)
+                    .where('userId', '==', userId)
+                    .where('type', '==', 'withdrawal')
+                    .where('amount', '==', amount)
                     .where('status', '==', 'pending')
                     .limit(1)
                     .get();
@@ -872,144 +1079,6 @@
                     await db.collection('transactions').doc(transSnapshot.docs[0].id).update({
                         status: 'approved'
                     });
-                }
-
-                showMessage('adminMessage', 'Deposit approved successfully!', 'success');
-                await loadDeposits();
-                await loadStats();
-                await loadTransactions();
-            } catch (error) {
-                showMessage('adminMessage', 'Error: ' + error.message, 'error');
-            }
-        }
-
-        async function rejectDeposit(depositId) {
-            if (!confirm('Reject this deposit?')) return;
-
-            try {
-                await db.collection('deposits').doc(depositId).update({
-                    status: 'rejected',
-                    rejectedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                const deposit = allDeposits.find(d => d.id === depositId);
-                if (deposit) {
-                    const transSnapshot = await db.collection('transactions')
-                        .where('userId', '==', deposit.userId)
-                        .where('type', '==', 'deposit')
-                        .where('amount', '==', deposit.amount)
-                        .where('status', '==', 'pending')
-                        .limit(1)
-                        .get();
-
-                    if (!transSnapshot.empty) {
-                        await db.collection('transactions').doc(transSnapshot.docs[0].id).update({
-                            status: 'rejected'
-                        });
-                    }
-                }
-
-                showMessage('adminMessage', 'Deposit rejected!', 'success');
-                await loadDeposits();
-                await loadStats();
-                await loadTransactions();
-            } catch (error) {
-                showMessage('adminMessage', 'Error: ' + error.message, 'error');
-            }
-        }
-
-        // Load Withdrawals
-        async function loadWithdrawals() {
-            try {
-                const snapshot = await db.collection('withdrawals').orderBy('createdAt', 'desc').get();
-                allWithdrawals = [];
-                snapshot.forEach(doc => {
-                    allWithdrawals.push({ id: doc.id, ...doc.data() });
-                });
-                filterWithdrawals('all');
-            } catch (error) {
-                console.error('Error loading withdrawals:', error);
-            }
-        }
-
-        function filterWithdrawals(status) {
-            document.querySelectorAll('#withdrawalsTab .filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-
-            const filtered = status === 'all' ? allWithdrawals : allWithdrawals.filter(w => w.status === status);
-            displayWithdrawals(filtered);
-        }
-
-        function displayWithdrawals(withdrawals) {
-            const withdrawalsTable = document.getElementById('withdrawalsTable');
-            
-            if (withdrawals.length === 0) {
-                withdrawalsTable.innerHTML = '<div class="no-data">No withdrawals found</div>';
-                return;
-            }
-
-            let html = `
-                <div class="table-header" style="grid-template-columns: 1fr 1fr 1fr 1fr 2fr;">
-                    <div>User ID</div>
-                    <div>Name</div>
-                    <div>Amount</div>
-                    <div>Status</div>
-                    <div>Actions</div>
-                </div>
-            `;
-
-            withdrawals.forEach(withdrawal => {
-                const statusClass = `status-${withdrawal.status}`;
-                const bankDetails = `
-Routing: ${withdrawal.routingNumber || 'N/A'}
-Bank Address: ${withdrawal.bankAddress || 'N/A'}
-Bank Code: ${withdrawal.bankCode || 'N/A'}
-Recipient: ${withdrawal.recipientAddress || 'N/A'}`;
-
-                html += `
-                    <div class="table-row" style="grid-template-columns: 1fr 1fr 1fr 1fr 2fr;">
-                        <div>${withdrawal.userIdNumber}</div>
-                        <div>${withdrawal.userName}</div>
-                        <div>$${withdrawal.amount.toFixed(2)}</div>
-                        <div><span class="status-badge ${statusClass}">${withdrawal.status.toUpperCase()}</span></div>
-                        <div class="action-btns">
-                            ${withdrawal.status === 'pending' ? `
-                                <button class="btn btn-small btn-success" onclick="approveWithdrawal('${withdrawal.id}')">Approve</button>
-                                <button class="btn btn-small btn-danger" onclick="rejectWithdrawal('${withdrawal.id}')">Reject</button>
-                            ` : ''}
-                            <button class="btn btn-small btn-info" onclick="alert('${bankDetails}')">Bank Details</button>
-                        </div>
-                    </div>
-                `;
-            });
-
-            withdrawalsTable.innerHTML = html;
-        }
-
-        async function approveWithdrawal(withdrawalId) {
-            if (!confirm('Approve this withdrawal?')) return;
-
-            try {
-                await db.collection('withdrawals').doc(withdrawalId).update({
-                    status: 'approved',
-                    approvedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                const withdrawal = allWithdrawals.find(w => w.id === withdrawalId);
-                if (withdrawal) {
-                    const transSnapshot = await db.collection('transactions')
-                        .where('userId', '==', withdrawal.userId)
-                        .where('type', '==', 'withdrawal')
-                        .where('amount', '==', withdrawal.amount)
-                        .where('status', '==', 'pending')
-                        .limit(1)
-                        .get();
-
-                    if (!transSnapshot.empty) {
-                        await db.collection('transactions').doc(transSnapshot.docs[0].id).update({
-                            status: 'approved'
-                        });
-                    }
                 }
 
                 showMessage('adminMessage', 'Withdrawal approved successfully!', 'success');
@@ -1056,147 +1125,6 @@ Recipient: ${withdrawal.recipientAddress || 'N/A'}`;
             }
         }
 
-        // Load Trades
-        async function loadTrades() {
-            try {
-                const snapshot = await db.collection('trades').orderBy('createdAt', 'desc').get();
-                allTrades = [];
-                snapshot.forEach(doc => {
-                    allTrades.push({ id: doc.id, ...doc.data() });
-                });
-                filterTrades('all');
-            } catch (error) {
-                console.error('Error loading trades:', error);
-            }
-        }
-
-        function filterTrades(status) {
-            document.querySelectorAll('#tradesTab .filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-
-            const filtered = status === 'all' ? allTrades : allTrades.filter(t => t.status === status);
-            displayTrades(filtered);
-        }
-
-        function displayTrades(trades) {
-            const tradesTable = document.getElementById('tradesTable');
-            
-            if (trades.length === 0) {
-                tradesTable.innerHTML = '<div class="no-data">No trades found</div>';
-                return;
-            }
-
-            let html = `
-                <div class="table-header" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;">
-                    <div>User ID</div>
-                    <div>Coin</div>
-                    <div>Amount</div>
-                    <div>Direction</div>
-                    <div>Time</div>
-                    <div>Status</div>
-                    <div>Profit</div>
-                </div>
-            `;
-
-            trades.forEach(trade => {
-                const statusClass = `status-${trade.status}`;
-                const profitLoss = trade.status === 'win' ? `+$${(trade.profit || 0).toFixed(2)}` :
-                                   trade.status === 'loss' ? `-$${trade.amount.toFixed(2)}` : '-';
-
-                html += `
-                    <div class="table-row" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;">
-                        <div>${trade.userIdNumber}</div>
-                        <div>${trade.coin}</div>
-                        <div>$${trade.amount.toFixed(2)}</div>
-                        <div>${trade.direction === 'up' ? '📈 UP' : '📉 DOWN'}</div>
-                        <div>${trade.timeFrame}s</div>
-                        <div><span class="status-badge ${statusClass}">${trade.status.toUpperCase()}</span></div>
-                        <div>${profitLoss}</div>
-                    </div>
-                `;
-            });
-
-            tradesTable.innerHTML = html;
-        }
-
-        // Load Transactions
-        async function loadTransactions() {
-            try {
-                const snapshot = await db.collection('transactions').orderBy('timestamp', 'desc').limit(100).get();
-                allTransactions = [];
-                snapshot.forEach(doc => {
-                    allTransactions.push({ id: doc.id, ...doc.data() });
-                });
-                displayTransactions(allTransactions);
-            } catch (error) {
-                console.error('Error loading transactions:', error);
-            }
-        }
-
-        function displayTransactions(transactions) {
-            const transactionsTable = document.getElementById('transactionsTable');
-            
-            if (transactions.length === 0) {
-                transactionsTable.innerHTML = '<div class="no-data">No transactions found</div>';
-                return;
-            }
-
-            let html = `
-                <div class="table-header" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr;">
-                    <div>User ID</div>
-                    <div>Type</div>
-                    <div>Amount</div>
-                    <div>Status</div>
-                    <div>Date</div>
-                </div>
-            `;
-
-            transactions.forEach(trans => {
-                const statusClass = `status-${trans.status}`;
-                const date = trans.timestamp ? new Date(trans.timestamp.toMillis()).toLocaleDateString() : 'N/A';
-                
-                // Get user data
-                db.collection('users').doc(trans.userId).get().then(userDoc => {
-                    const userId = userDoc.exists ? userDoc.data().userId : 'Unknown';
-                    
-                    html += `
-                        <div class="table-row" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr;">
-                            <div>${userId}</div>
-                            <div>${trans.type.toUpperCase()}</div>
-                            <div>$${trans.amount.toFixed(2)}</div>
-                            <div><span class="status-badge ${statusClass}">${trans.status.toUpperCase()}</span></div>
-                            <div>${date}</div>
-                        </div>
-                    `;
-                });
-            });
-
-            setTimeout(() => {
-                transactionsTable.innerHTML = html;
-            }, 500);
-        }
-
-        // Chat Functions
-        function startChatNotificationListener() {
-            db.collection('chats')
-                .where('senderType', '==', 'user')
-                .where('read', '==', false)
-                .onSnapshot(snapshot => {
-                    unreadMessagesCount = snapshot.size;
-                    const badge = document.getElementById('chatNotificationBadge');
-                    
-                    if (unreadMessagesCount > 0) {
-                        badge.textContent = unreadMessagesCount;
-                        badge.classList.remove('hidden');
-                        
-                        // Play notification sound (optional)
-                        // new Audio('notification.mp3').play();
-                    } else {
-                        badge.classList.add('hidden');
-                    }
-                });
-        }
-
         function loadChatUsers() {
             if (chatUsersListener) chatUsersListener();
             
@@ -1216,13 +1144,6 @@ Recipient: ${withdrawal.recipientAddress || 'N/A'}`;
                                 timestamp: chat.timestamp,
                                 unread: !chat.read && chat.senderType === 'user'
                             };
-                        } else if (chat.timestamp && (!userChats[chat.userId].timestamp || 
-                                  chat.timestamp.toMillis() > userChats[chat.userId].timestamp.toMillis())) {
-                            userChats[chat.userId].lastMessage = chat.message;
-                            userChats[chat.userId].timestamp = chat.timestamp;
-                            if (!chat.read && chat.senderType === 'user') {
-                                userChats[chat.userId].unread = true;
-                            }
                         }
                     });
 
@@ -1230,7 +1151,7 @@ Recipient: ${withdrawal.recipientAddress || 'N/A'}`;
                     const users = Object.values(userChats);
                     
                     if (users.length === 0) {
-                        chatUsersList.innerHTML = '<div class="no-data">No chats yet</div>';
+                        chatUsersList.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">No chats yet</div>';
                         return;
                     }
 
@@ -1261,7 +1182,7 @@ Recipient: ${withdrawal.recipientAddress || 'N/A'}`;
                     if (!snapshot.empty) {
                         const userData = snapshot.docs[0].data();
                         document.getElementById('selectedUserInfo').innerHTML = `
-                            <div style="font-weight: 600; font-size: 16px; color: #fff;">${userData.userName}</div>
+                            <div style="font-weight: 600; font-size: 16px;">${userData.userName}</div>
                             <div style="font-size: 12px; color: #aaa;">ID: ${userData.userIdNumber} | ${userData.userEmail}</div>
                         `;
                     }
@@ -1273,7 +1194,7 @@ Recipient: ${withdrawal.recipientAddress || 'N/A'}`;
                     const adminChatMessages = document.getElementById('adminChatMessages');
                     
                     if (snapshot.empty) {
-                        adminChatMessages.innerHTML = '<div class="no-data">No messages yet</div>';
+                        adminChatMessages.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No messages yet</div>';
                         return;
                     }
 
@@ -1298,7 +1219,6 @@ Recipient: ${withdrawal.recipientAddress || 'N/A'}`;
                                 <div style="display: inline-block; max-width: 70%; padding: 10px 15px; border-radius: 12px; background: ${isUser ? '#2a2a2a' : '#4285f4'}; color: #fff; text-align: left;">
                                     <div style="font-weight: 600; font-size: 12px; margin-bottom: 5px; opacity: 0.8;">${isUser ? msg.userName : 'Admin'}</div>
                                     <div>${msg.message}</div>
-                                    ${msg.fileUrl ? `<img src="${msg.fileUrl}" class="chat-message-image" onclick="window.open('${msg.fileUrl}', '_blank')">` : ''}
                                     <div style="font-size: 10px; margin-top: 5px; opacity: 0.7;">${time}</div>
                                 </div>
                             </div>
@@ -1314,40 +1234,6 @@ Recipient: ${withdrawal.recipientAddress || 'N/A'}`;
                 });
         }
 
-        function handleAdminFileSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            if (!file.type.startsWith('image/')) {
-                alert('Please select an image file');
-                return;
-            }
-
-            if (file.size > 5 * 1024 * 1024) {
-                alert('File size must be less than 5MB');
-                return;
-            }
-
-            selectedAdminFile = file;
-            document.getElementById('adminFileName').textContent = file.name;
-            document.getElementById('adminFilePreview').classList.add('active');
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = document.getElementById('adminFilePreviewImage');
-                img.src = e.target.result;
-                img.style.display = 'block';
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function removeAdminSelectedFile() {
-            selectedAdminFile = null;
-            document.getElementById('adminChatFileInput').value = '';
-            document.getElementById('adminFilePreview').classList.remove('active');
-            document.getElementById('adminFilePreviewImage').style.display = 'none';
-        }
-
         async function sendAdminMessage() {
             if (!selectedChatUserId) {
                 alert('Please select a user first');
@@ -1357,18 +1243,9 @@ Recipient: ${withdrawal.recipientAddress || 'N/A'}`;
             const input = document.getElementById('adminChatInput');
             const message = input.value.trim();
 
-            if (!message && !selectedAdminFile) return;
+            if (!message) return;
 
             try {
-                let fileUrl = null;
-
-                if (selectedAdminFile) {
-                    const storageRef = storage.ref();
-                    const fileRef = storageRef.child(`chat-files/admin/${Date.now()}_${selectedAdminFile.name}`);
-                    await fileRef.put(selectedAdminFile);
-                    fileUrl = await fileRef.getDownloadURL();
-                }
-
                 const userChats = await db.collection('chats')
                     .where('userId', '==', selectedChatUserId)
                     .limit(1)
@@ -1384,15 +1261,13 @@ Recipient: ${withdrawal.recipientAddress || 'N/A'}`;
                     userIdNumber: userData.userIdNumber,
                     userName: userData.userName,
                     userEmail: userData.userEmail,
-                    message: message || '(Image)',
-                    fileUrl: fileUrl,
+                    message: message,
                     senderType: 'admin',
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     read: false
                 });
 
                 input.value = '';
-                removeAdminSelectedFile();
             } catch (error) {
                 console.error('Error sending message:', error);
                 alert('Failed to send message');
