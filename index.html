@@ -2232,14 +2232,27 @@ async function fetchLivePrices() {
 
                 userBalance = newBalance;
                 
-                showMessage('tradeMessage', `Trade executed! Wait ${timeFrame} seconds for result.`, 'success');
-                showNotification(`Trade started! ${timeFrame}s until result...`);
-                
-                setTimeout(() => {
-                    closeTradeModal();
-                    executeBtn.disabled = false;
-                    executeBtn.textContent = 'Execute Trade';
-                }, 2000);
+                showMessage('tradeMessage', `Trade started! Waiting ${timeFrame} seconds...`, 'success');
+showNotification(`⏱️ Trade started! Wait ${timeFrame}s...`);
+
+// Start countdown display
+let countdown = timeFrame;
+const countdownInterval = setInterval(() => {
+    countdown--;
+    document.getElementById('tradeMessage').innerHTML = `<div class="message success">⏱️ Time remaining: ${countdown}s</div>`;
+    
+    if (countdown <= 0) {
+        clearInterval(countdownInterval);
+    }
+}, 1000);
+
+// Close modal and re-enable button after timeout
+setTimeout(() => {
+    closeTradeModal();
+    executeBtn.disabled = false;
+    executeBtn.textContent = 'Execute Trade';
+    clearInterval(countdownInterval);
+}, timeFrame * 1000);
 
             } catch (error) {
                 showMessage('tradeMessage', 'Trade failed: ' + error.message, 'error');
