@@ -2069,127 +2069,163 @@ const email = document.getElementById('loginEmail').value.trim();
         }
 
         async function submitWithdrawal() {
-            const address = document.getElementById('withdrawAddress').value.trim();
-            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+    if (isAccountFrozen) {
+        showNotification('⚠️ Your account is frozen. Please contact support.');
+        return;
+    }
 
-            if (!address || !amount) {
-                showNotification('⚠️ Please fill all fields');
-                return;
-            }
+    const address = document.getElementById('withdrawAddress').value.trim();
+    const amount = parseFloat(document.getElementById('withdrawAmount').value);
 
-            if (amount < 50) {
-                showNotification('⚠️ Minimum withdrawal amount is 50');
-                return;
-            }
+    if (!address || !amount) {
+        showNotification('⚠️ Please fill all fields');
+        return;
+    }
 
-            const availableBalance = currentWithdrawCrypto === 'usdt' ? userBalance : (cryptoBalances[currentWithdrawCrypto] || 0);
+    if (amount < 50) {
+        showNotification('⚠️ Minimum withdrawal amount is 50');
+        return;
+    }
 
-            if (amount > availableBalance) {
-                showNotification('⚠️ Insufficient balance');
-                return;
-            }
+    const availableBalance = currentWithdrawCrypto === 'usdt' ? userBalance : (cryptoBalances[currentWithdrawCrypto] || 0);
 
-            try {
-                await db.collection('withdrawals').add({
-                    userId: currentUser.uid,
-                    userIdNumber: userId,
-                    userName: userName,
-                    userEmail: userEmail,
-                    method: 'crypto',
-                    crypto: currentWithdrawCrypto,
-                    address: address,
-                    amount: amount,
-                    status: 'pending',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+    if (amount > availableBalance) {
+        showNotification('⚠️ Insufficient balance');
+        return;
+    }
 
-                await db.collection('transactions').add({
-                    userId: currentUser.uid,
-                    userIdNumber: userId,
-                    type: 'withdrawal',
-                    method: 'crypto',
-                    crypto: currentWithdrawCrypto,
-                    amount: amount,
-                    status: 'pending',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                showNotification('✅ Withdrawal request submitted! Your request is under review and will be processed within 24 working hours.');
-                document.getElementById('withdrawAddress').value = '';
-                document.getElementById('withdrawAmount').value = '';
-            } catch (error) {
-                showNotification('❌ Error: ' + error.message);
-            }
+    try {
+        // 1. Deduct the balance immediately
+        if (currentWithdrawCrypto === 'usdt') {
+            await db.collection('users').doc(currentUser.uid).update({
+                balance: firebase.firestore.FieldValue.increment(-amount)
+            });
+        } else {
+            await db.collection('users').doc(currentUser.uid).update({
+                ['cryptoBalances.' + currentWithdrawCrypto]: firebase.firestore.FieldValue.increment(-amount)
+            });
         }
 
+        // 2. Save the withdrawal request
+        const withdrawalRef = await db.collection('withdrawals').add({
+            userId: currentUser.uid,
+            userIdNumber: userId,
+            userName: userName,
+            userEmail: userEmail,
+            method: 'crypto',
+            crypto: currentWithdrawCrypto,
+            address: address,
+            amount: amount,
+            status: 'pending',
+            deducted: true,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // 3. Save the history record
+        await db.collection('transactions').add({
+            userId: currentUser.uid,
+            userIdNumber: userId,
+            userName: userName,
+            withdrawalId: withdrawalRef.id,
+            type: 'withdrawal',
+            method: 'crypto',
+            crypto: currentWithdrawCrypto,
+            amount: amount,
+            status: 'pending',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        showNotification('✅ Withdrawal request submitted! Your request is under review and will be processed within 24 working hours.');
+        document.getElementById('withdrawAddress').value = '';
+        document.getElementById('withdrawAmount').value = '';
+        updateWithdrawUI();
+    } catch (error) {
+        showNotification('❌ Error: ' + error.message);
+    }
+}
         async function submitBankWithdrawal() {
-            const bankName = document.getElementById('bankName').value.trim();
-            const accountNumber = document.getElementById('accountNumber').value.trim();
-            const accountName = document.getElementById('accountName').value.trim();
-            const routingNumber = document.getElementById('routingNumber').value.trim();
-            const bankAddress = document.getElementById('bankAddress').value.trim();
-            const bankCode = document.getElementById('bankCode').value.trim();
-            const recipientAddress = document.getElementById('recipientAddress').value.trim();
-            const amount = parseFloat(document.getElementById('bankWithdrawAmount').value);
+    if (isAccountFrozen) {
+        showNotification('⚠️ Your account is frozen. Please contact support.');
+        return;
+    }
 
-            if (!bankName || !accountNumber || !accountName || !amount) {
-                showNotification('⚠️ Please fill all required fields');
-                return;
-            }
+    const bankName = document.getElementById('bankName').value.trim();
+    const accountNumber = document.getElementById('accountNumber').value.trim();
+    const accountName = document.getElementById('accountName').value.trim();
+    const routingNumber = document.getElementById('routingNumber').value.trim();
+    const bankAddress = document.getElementById('bankAddress').value.trim();
+    const bankCode = document.getElementById('bankCode').value.trim();
+    const recipientAddress = document.getElementById('recipientAddress').value.trim();
+    const amount = parseFloat(document.getElementById('bankWithdrawAmount').value);
 
-            if (amount < 50) {
-                showNotification('⚠️ Minimum withdrawal amount is 50 USDT');
-                return;
-            }
+    if (!bankName || !accountNumber || !accountName || !amount) {
+        showNotification('⚠️ Please fill all required fields');
+        return;
+    }
 
-            if (amount > userBalance) {
-                showNotification('⚠️ Insufficient balance');
-                return;
-            }
+    if (amount < 50) {
+        showNotification('⚠️ Minimum withdrawal amount is 50 USDT');
+        return;
+    }
 
-            try {
-                await db.collection('withdrawals').add({
-                    userId: currentUser.uid,
-                    userIdNumber: userId,
-                    userName: userName,
-                    userEmail: userEmail,
-                    method: 'bank',
-                    bankName: bankName,
-                    accountNumber: accountNumber,
-                    accountName: accountName,
-                    routingNumber: routingNumber,
-                    bankAddress: bankAddress,
-                    bankCode: bankCode,
-                    recipientAddress: recipientAddress,
-                    amount: amount,
-                    status: 'pending',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+    if (amount > userBalance) {
+        showNotification('⚠️ Insufficient balance');
+        return;
+    }
 
-                await db.collection('transactions').add({
-                    userId: currentUser.uid,
-                    userIdNumber: userId,
-                    type: 'withdrawal',
-                    method: 'bank',
-                    amount: amount,
-                    status: 'pending',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+    try {
+        await db.collection('users').doc(currentUser.uid).update({
+            balance: firebase.firestore.FieldValue.increment(-amount)
+        });
 
-                showNotification('✅ Withdrawal request submitted! Your request is under review and will be processed within 24 working hours.');
-                
-                document.getElementById('bankName').value = '';
-                document.getElementById('accountNumber').value = '';
-                document.getElementById('accountName').value = '';
-                document.getElementById('routingNumber').value = '';
-                document.getElementById('bankAddress').value = '';
-                document.getElementById('bankCode').value = '';
-                document.getElementById('recipientAddress').value = '';
-                document.getElementById('bankWithdrawAmount').value = '';
-            } catch (error) {
-                showNotification('❌ Error: ' + error.message);
-            }
-        }
+        const withdrawalRef = await db.collection('withdrawals').add({
+            userId: currentUser.uid,
+            userIdNumber: userId,
+            userName: userName,
+            userEmail: userEmail,
+            method: 'bank',
+            crypto: 'usdt',
+            bankName: bankName,
+            accountNumber: accountNumber,
+            accountName: accountName,
+            routingNumber: routingNumber,
+            bankAddress: bankAddress,
+            bankCode: bankCode,
+            recipientAddress: recipientAddress,
+            amount: amount,
+            status: 'pending',
+            deducted: true,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        await db.collection('transactions').add({
+            userId: currentUser.uid,
+            userIdNumber: userId,
+            userName: userName,
+            withdrawalId: withdrawalRef.id,
+            type: 'withdrawal',
+            method: 'bank',
+            crypto: 'usdt',
+            amount: amount,
+            status: 'pending',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        showNotification('✅ Withdrawal request submitted! Your request is under review and will be processed within 24 working hours.');
+
+        document.getElementById('bankName').value = '';
+        document.getElementById('accountNumber').value = '';
+        document.getElementById('accountName').value = '';
+        document.getElementById('routingNumber').value = '';
+        document.getElementById('bankAddress').value = '';
+        document.getElementById('bankCode').value = '';
+        document.getElementById('recipientAddress').value = '';
+        document.getElementById('bankWithdrawAmount').value = '';
+        updateWithdrawUI();
+    } catch (error) {
+        showNotification('❌ Error: ' + error.message);
+    }
+}
 
         function openTrade(index) {
             selectedCoin = coins[index];
