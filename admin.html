@@ -1137,85 +1137,110 @@
             document.getElementById('withdrawalsContainer').innerHTML = html || '<div class="no-data">No withdrawals found</div>';
         }
 
-        async function approveWithdrawal(withdrawalId, amount, userId, crypto) {
-            if (!confirm(`Approve withdrawal of ${amount} ${crypto.toUpperCase()}?`)) return;
+        // Helper: updates the matching history record
+async function updateLinkedTransaction(withdrawalId, userId, amount, newStatus) {
+    let snap = await db.collection('transactions')
+        .where('withdrawalId', '==', withdrawalId)
+        .limit(1)
+        .get();
 
-            try {
-                await db.collection('withdrawals').doc(withdrawalId).update({
-                    status: 'approved',
-                    approvedAt: firebase.firestore.FieldValue.serverTimestamp()
+    // Old records (made before this update) have no withdrawalId
+    if (snap.empty) {
+        snap = await db.collection('transactions')
+            .where('userId', '==', userId)
+            .where('type', '==', 'withdrawal')
+            .where('amount', '==', amount)
+            .where('status', '==', 'pending')
+            .limit(1)
+            .get();
+    }
+
+    if (!snap.empty) {
+        await db.collection('transactions').doc(snap.docs[0].id).update({ status: newStatus });
+    }
+}
+
+async function approveWithdrawal(withdrawalId, amount, userId, crypto) {
+    if (!confirm(`Approve withdrawal of ${amount} ${crypto.toUpperCase()}?`)) return;
+
+    try {
+        const withdrawal = allWithdrawals.find(w => w.id === withdrawalId);
+
+        if (withdrawal && withdrawal.status !== 'pending') {
+            showMessage('adminMessage', 'This withdrawal was already processed.', 'error');
+            return;
+        }
+
+        await db.collection('withdrawals').doc(withdrawalId).update({
+            status: 'approved',
+            approvedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Only deduct now if it was NOT already deducted when requested (old records)
+        if (!withdrawal || !withdrawal.deducted) {
+            if (crypto === 'usdt') {
+                await db.collection('users').doc(userId).update({
+                    balance: firebase.firestore.FieldValue.increment(-amount)
                 });
-
-                const userDoc = await db.collection('users').doc(userId).get();
-                if (userDoc.exists) {
-                    if (crypto === 'usdt') {
-                        const currentBalance = userDoc.data().balance || 0;
-                        const newBalance = Math.max(0, currentBalance - amount);
-                        await db.collection('users').doc(userId).update({ balance: newBalance });
-                    } else {
-                        const currentCryptoBalances = userDoc.data().cryptoBalances || {};
-                        currentCryptoBalances[crypto] = Math.max(0, (currentCryptoBalances[crypto] || 0) - amount);
-                        await db.collection('users').doc(userId).update({ cryptoBalances: currentCryptoBalances });
-                    }
-                }
-
-                const transSnapshot = await db.collection('transactions')
-                    .where('userId', '==', userId)
-                    .where('type', '==', 'withdrawal')
-                    .where('amount', '==', amount)
-                    .where('status', '==', 'pending')
-                    .limit(1)
-                    .get();
-
-                if (!transSnapshot.empty) {
-                    await db.collection('transactions').doc(transSnapshot.docs[0].id).update({
-                        status: 'approved'
-                    });
-                }
-
-                showMessage('adminMessage', 'Withdrawal approved successfully!', 'success');
-                await loadWithdrawals();
-                await loadStats();
-                await loadTransactions();
-            } catch (error) {
-                showMessage('adminMessage', 'Error: ' + error.message, 'error');
+            } else {
+                await db.collection('users').doc(userId).update({
+                    ['cryptoBalances.' + crypto]: firebase.firestore.FieldValue.increment(-amount)
+                });
             }
         }
 
-        async function rejectWithdrawal(withdrawalId) {
-            if (!confirm('Reject this withdrawal?')) return;
+        await updateLinkedTransaction(withdrawalId, userId, amount, 'approved');
 
-            try {
-                await db.collection('withdrawals').doc(withdrawalId).update({
-                    status: 'rejected',
-                    rejectedAt: firebase.firestore.FieldValue.serverTimestamp()
+        showMessage('adminMessage', 'Withdrawal approved successfully!', 'success');
+        await loadWithdrawals();
+        await loadStats();
+        await loadTransactions();
+    } catch (error) {
+        showMessage('adminMessage', 'Error: ' + error.message, 'error');
+    }
+}
+
+async function rejectWithdrawal(withdrawalId) {
+    if (!confirm('Reject this withdrawal? The money will be returned to the user.')) return;
+
+    try {
+        const withdrawal = allWithdrawals.find(w => w.id === withdrawalId);
+        if (!withdrawal) return;
+
+        if (withdrawal.status !== 'pending') {
+            showMessage('adminMessage', 'This withdrawal was already processed.', 'error');
+            return;
+        }
+
+        await db.collection('withdrawals').doc(withdrawalId).update({
+            status: 'rejected',
+            rejectedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Refund only if the money was already taken from the user
+        if (withdrawal.deducted) {
+            const coin = withdrawal.crypto || 'usdt';
+            if (coin === 'usdt') {
+                await db.collection('users').doc(withdrawal.userId).update({
+                    balance: firebase.firestore.FieldValue.increment(withdrawal.amount)
                 });
-
-                const withdrawal = allWithdrawals.find(w => w.id === withdrawalId);
-                if (withdrawal) {
-                    const transSnapshot = await db.collection('transactions')
-                        .where('userId', '==', withdrawal.userId)
-                        .where('type', '==', 'withdrawal')
-                        .where('amount', '==', withdrawal.amount)
-                        .where('status', '==', 'pending')
-                        .limit(1)
-                        .get();
-
-                    if (!transSnapshot.empty) {
-                        await db.collection('transactions').doc(transSnapshot.docs[0].id).update({
-                            status: 'rejected'
-                        });
-                    }
-                }
-
-                showMessage('adminMessage', 'Withdrawal rejected!', 'success');
-                await loadWithdrawals();
-                await loadStats();
-                await loadTransactions();
-            } catch (error) {
-                showMessage('adminMessage', 'Error: ' + error.message, 'error');
+            } else {
+                await db.collection('users').doc(withdrawal.userId).update({
+                    ['cryptoBalances.' + coin]: firebase.firestore.FieldValue.increment(withdrawal.amount)
+                });
             }
         }
+
+        await updateLinkedTransaction(withdrawalId, withdrawal.userId, withdrawal.amount, 'rejected');
+
+        showMessage('adminMessage', 'Withdrawal rejected and refunded!', 'success');
+        await loadWithdrawals();
+        await loadStats();
+        await loadTransactions();
+    } catch (error) {
+        showMessage('adminMessage', 'Error: ' + error.message, 'error');
+    }
+}
 
         function loadChatUsers() {
             if (chatUsersListener) chatUsersListener();
